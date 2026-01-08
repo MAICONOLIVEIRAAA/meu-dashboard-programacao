@@ -3,38 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midias São Paulo - Sistema Integrado</title>
+    <title>Midias SP - Cloud System</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class', // Permite alternar manualmente
-            theme: {
-                extend: {
-                    colors: {
-                        dark: {
-                            900: '#0f172a', // Fundo principal escuro
-                            800: '#1e293b', // Sidebar/Cards escuros
-                            700: '#334155', // Inputs escuros
-                        }
-                    }
-                }
-            }
+            darkMode: 'class',
+            theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
     </script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* Estilos Base */
         .sidebar-active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; }
-        .dark .sidebar-active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; } /* Ajuste Dark Mode */
-        
+        .dark .sidebar-active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        #tela-login { transition: opacity 0.5s ease; }
-        
-        /* Suavizar transição de cores */
-        body, div, aside, header, input, textarea { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+        body { transition: background-color 0.3s, color 0.3s; }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -42,37 +27,26 @@
     <div id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
         <div class="bg-white dark:bg-dark-800 max-w-sm w-full p-10 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-gray-700">
             <div class="mb-8">
-                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6">
-                    <i class="fas fa-lock"></i>
-                </div>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Sistema de Mídias</h2>
-                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Restrito</p>
+                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-cloud"></i></div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP Cloud</h2>
+                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Sincronizado</p>
             </div>
             <form id="form-login" class="space-y-4">
-                <div class="text-left">
-                    <label class="text-[10px] font-bold text-gray-400 ml-2 uppercase">Identificação</label>
-                    <input type="text" id="login-nome" placeholder="Seu Nome" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 transition mb-3 dark:text-white">
-                    
-                    <label class="text-[10px] font-bold text-gray-400 ml-2 uppercase">Senha</label>
-                    <input type="password" id="login-senha" placeholder="••••••••" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 transition dark:text-white">
-                </div>
+                <input type="text" id="login-nome" placeholder="Seu Nome" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
+                <input type="password" id="login-senha" placeholder="Senha de Acesso" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
                 <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Senha incorreta.</p>
-                <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">
-                    Acessar Painel
-                </button>
+                <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Acessar Sistema</button>
             </form>
         </div>
     </div>
 
     <div id="modal-foto" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
         <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 w-80 shadow-2xl text-center border dark:border-gray-600">
-            <h3 class="font-bold mb-4 dark:text-white">Mudar Foto de Perfil</h3>
+            <h3 class="font-bold mb-4 dark:text-white">Sua Foto (Local)</h3>
             <div class="space-y-3">
-                <label class="block w-full bg-orange-500 text-white py-2 rounded-lg font-bold cursor-pointer hover:bg-orange-600">
-                    Upload Foto <input type="file" class="hidden" accept="image/*" onchange="uploadFoto(this)">
-                </label>
+                <label class="block w-full bg-orange-500 text-white py-2 rounded-lg font-bold cursor-pointer hover:bg-orange-600">Upload <input type="file" class="hidden" accept="image/*" onchange="uploadFoto(this)"></label>
                 <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold hover:bg-orange-50 dark:hover:bg-gray-700">Gerar Avatar</button>
-                <button onclick="fecharModal()" class="w-full text-gray-400 text-[10px] font-bold pt-2 uppercase hover:text-gray-600">Fechar</button>
+                <button onclick="fecharModal()" class="w-full text-gray-400 text-[10px] font-bold pt-2 uppercase">Fechar</button>
             </div>
         </div>
     </div>
@@ -82,32 +56,24 @@
             <div class="flex flex-col items-center mb-10 text-center px-4">
                 <div class="relative group cursor-pointer" onclick="abrirModal()">
                     <img id="profile-img" src="" class="w-20 h-20 rounded-full mb-3 border dark:border-gray-600 shadow-sm object-cover bg-gray-100 dark:bg-gray-700">
-                    <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
-                        <i class="fas fa-camera text-white"></i>
-                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"><i class="fas fa-camera text-white"></i></div>
                 </div>
-                <h3 id="display-nome" class="font-bold text-gray-800 dark:text-white leading-tight text-sm"></h3>
-                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Operador de Mídia</p>
+                <h3 id="display-nome" class="font-bold text-gray-800 dark:text-white text-sm"></h3>
+                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Conectado</p>
                 <button onclick="logout()" class="text-[9px] text-red-400 hover:text-red-500 mt-3 font-bold uppercase underline">Sair</button>
             </div>
             <nav class="w-full space-y-1">
                 <a href="#" class="flex items-center px-8 py-3 text-sm sidebar-active font-bold"><i class="fas fa-calendar-alt w-6"></i> Programação</a>
-                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-bell w-6"></i> Stand-By</a>
-                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-play-circle w-6"></i> Globoplay</a>
+                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"><i class="fas fa-bell w-6"></i> Stand-By</a>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-16 bg-white dark:bg-dark-800 border-b dark:border-gray-700 flex items-center justify-between px-8 transition-colors">
-                <h1 class="text-xl font-bold dark:text-white">Midias São Paulo</h1>
+                <h1 class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Online</h1>
                 <div class="flex items-center space-x-4">
-                    <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-yellow-400 hover:scale-110 transition shadow-sm">
-                        <i id="theme-icon" class="fas fa-moon"></i>
-                    </button>
-                    
+                    <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-yellow-400 hover:scale-110 transition"><i id="theme-icon" class="fas fa-moon"></i></button>
                     <div class="h-6 w-px bg-gray-200 dark:bg-gray-600 mx-2"></div>
-                    
-                    <i class="fas fa-search text-gray-300 dark:text-gray-500 cursor-pointer"></i>
                     <img id="profile-img-small" src="" class="w-7 h-7 rounded-full border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 object-cover">
                 </div>
             </header>
@@ -116,13 +82,18 @@
                 <div class="flex items-center space-x-4 mb-8">
                     <div class="relative flex-1 max-w-lg">
                         <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                        <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
+                        <input type="text" placeholder="Pesquisar na nuvem..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                     </div>
                     <button onclick="abrirCriacao()" class="bg-orange-500 text-white w-10 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center justify-center text-xl font-bold">+</button>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    <div class="lg:col-span-2 space-y-4" id="lista-programas"></div>
+                    <div class="lg:col-span-2 space-y-4" id="lista-programas">
+                        <div class="flex flex-col items-center justify-center py-20 text-gray-400">
+                            <i class="fas fa-cloud-download-alt text-3xl mb-4 animate-bounce"></i>
+                            <p class="text-sm">Sincronizando com Firebase...</p>
+                        </div>
+                    </div>
                     
                     <aside id="right-panel" class="sticky top-0 h-fit">
                         <div id="view-details" class="bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-sm border dark:border-gray-700 transition">
@@ -135,8 +106,8 @@
                             <h3 class="font-bold text-gray-800 dark:text-white mb-6 text-sm uppercase" id="form-title">Cadastrar</h3>
                             <form id="formCadastro" class="space-y-4">
                                 <input type="hidden" id="edit-id">
-                                <input id="in-titulo" placeholder="Título" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white placeholder-gray-400">
-                                <input id="in-sub" placeholder="Subtítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white placeholder-gray-400">
+                                <input id="in-titulo" placeholder="Título" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                <input id="in-sub" placeholder="Subtítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
                                 <div class="flex space-x-2">
                                     <input id="in-hora" type="time" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
                                     <select id="in-status" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white dark:bg-dark-800">
@@ -146,7 +117,7 @@
                                 </div>
                                 <div class="flex space-x-2 pt-4">
                                     <button type="button" onclick="cancelar()" class="flex-1 text-[10px] font-bold text-gray-400 hover:text-gray-500 uppercase">Voltar</button>
-                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-[10px] uppercase shadow-md hover:bg-orange-600">Confirmar</button>
+                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-[10px] uppercase shadow-md hover:bg-orange-600">Salvar na Nuvem</button>
                                 </div>
                                 <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-4 text-[9px] text-red-300 hover:text-red-400 font-bold uppercase underline hidden">Remover</button>
                             </form>
@@ -157,179 +128,173 @@
         </main>
     </div>
 
-    <script>
-        // --- SENHA DE ACESSO ---
-        const SENHA_MESTRA = "1234"; 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // --- LÓGICA DARK MODE ---
-        function toggleTheme() {
-            const html = document.documentElement;
-            const icon = document.getElementById('theme-icon');
-            
-            if (html.classList.contains('dark')) {
-                html.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            } else {
-                html.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            }
-        }
-
-        // Carregar tema salvo ao abrir
-        function carregarTema() {
-            const theme = localStorage.getItem('theme');
-            const icon = document.getElementById('theme-icon');
-            if (theme === 'dark') {
-                document.documentElement.classList.add('dark');
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            }
-        }
-
-        // --- LÓGICA DE LOGIN ---
-        const formLogin = document.getElementById('form-login');
-        const msgErro = document.getElementById('login-erro');
-
-        formLogin.onsubmit = (e) => {
-            e.preventDefault();
-            const nome = document.getElementById('login-nome').value;
-            const senha = document.getElementById('login-senha').value;
-
-            if (senha === SENHA_MESTRA) {
-                localStorage.setItem('session_active', 'true');
-                localStorage.setItem('userName', nome);
-                verificarSessao();
-            } else {
-                msgErro.classList.remove('hidden');
-                setTimeout(() => msgErro.classList.add('hidden'), 3000);
-            }
+        // SUAS CHAVES REAIS
+        const firebaseConfig = {
+            apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
+            authDomain: "midias-sp.firebaseapp.com",
+            databaseURL: "https://midias-sp-default-rtdb.firebaseio.com",
+            projectId: "midias-sp",
+            storageBucket: "midias-sp.firebasestorage.app",
+            messagingSenderId: "550605985336",
+            appId: "1:550605985336:web:7dd3a01aefb9248675b8cd",
+            measurementId: "G-LVE7DW8MSF"
         };
 
-        function verificarSessao() {
-            if (localStorage.getItem('session_active') === 'true') {
-                document.getElementById('tela-login').classList.add('hidden');
-                document.getElementById('main-layout').classList.remove('hidden');
-                document.getElementById('display-nome').innerText = localStorage.getItem('userName');
-                carregarTema(); // Carrega o tema após login
-                renderizar();
-            } else {
-                carregarTema(); // Carrega o tema na tela de login também
-            }
-        }
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const dbRef = ref(db, 'programas');
 
-        function logout() {
-            localStorage.removeItem('session_active');
-            location.reload();
-        }
-
-        // --- LÓGICA DE FOTO E UPLOAD (Com Proteção) ---
-        function abrirModal() { document.getElementById('modal-foto').classList.remove('hidden'); }
-        function fecharModal() { document.getElementById('modal-foto').classList.add('hidden'); }
-
-        function salvarFoto(url) {
-            try {
-                localStorage.setItem('userAvatar', url);
-                document.getElementById('profile-img').src = url;
-                document.getElementById('profile-img-small').src = url;
-                fecharModal();
-            } catch (e) {
-                alert("Erro: Imagem muito pesada. Tente uma menor.");
-            }
-        }
-
-        function uploadFoto(input) {
-            if (input.files && input.files[0]) {
-                const arquivo = input.files[0];
-                if (arquivo.size > 2 * 1024 * 1024) { // Limite 2MB
-                    alert("Escolha uma imagem menor que 2MB.");
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = (e) => salvarFoto(e.target.result);
-                reader.readAsDataURL(arquivo);
-            }
-        }
-
-        function gerarAvatar() {
-            salvarFoto(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
-        }
-
-        // --- LÓGICA DE PROGRAMAÇÃO (CRUD) ---
-        const DEFAULT_DATA = [{ id: 1, titulo: "História de Amor", subtitulo: "Edição Especial", hora: "00:00", status: "No ar agora" }];
-        function getProgramas() { return JSON.parse(localStorage.getItem('meusProgramas')) || DEFAULT_DATA; }
-
-        function renderizar() {
-            const savedAvatar = localStorage.getItem('userAvatar');
-            if(savedAvatar) {
-                document.getElementById('profile-img').src = savedAvatar;
-                document.getElementById('profile-img-small').src = savedAvatar;
-            }
-
+        // Sincronização em Tempo Real
+        onValue(dbRef, (snapshot) => {
+            const data = snapshot.val();
             const container = document.getElementById('lista-programas');
-            container.innerHTML = getProgramas().map(p => `
+            
+            if (!data) {
+                container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-inbox text-4xl mb-2"></i><p class="text-sm">Nenhum programa na lista</p></div>';
+                return;
+            }
+
+            const lista = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+
+            container.innerHTML = lista.map(p => `
                 <div class="bg-white dark:bg-dark-800 p-4 rounded-2xl shadow-sm flex items-center space-x-4 border-l-4 ${p.status === 'No ar agora' ? 'border-green-500' : 'border-orange-500'} card-hover dark:border-opacity-80 transition border border-transparent dark:border-gray-700">
-                    <div class="w-24 h-16 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center text-gray-300 dark:text-gray-500 text-[10px] font-bold">MIDIA</div>
+                    <div class="w-24 h-16 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center text-gray-300 dark:text-gray-500 text-[10px] font-bold">CLOUD</div>
                     <div class="flex-1">
                         <div class="flex justify-between items-start">
                             <h4 class="font-bold text-sm text-gray-800 dark:text-gray-100">${p.titulo}</h4>
-                            ${p.status === 'No ar agora' ? '<span class="text-[8px] font-bold bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded-full uppercase">No ar</span>' : ''}
+                            ${p.status === 'No ar agora' ? '<span class="text-[8px] font-bold bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded-full uppercase animate-pulse">No ar</span>' : ''}
                         </div>
                         <p class="text-xs text-gray-400 dark:text-gray-400">${p.subtitulo}</p>
                         <div class="mt-2 text-[10px] flex items-center font-bold">
                             <span class="text-orange-600 dark:text-orange-400">${p.hora}</span>
                             <span class="text-gray-200 dark:text-gray-600 mx-2">|</span>
-                            <span class="text-gray-400 dark:text-gray-500 uppercase">${localStorage.getItem('userName')}</span>
+                            <span class="text-gray-400 dark:text-gray-500 uppercase">${p.autor || 'Sistema'}</span>
                         </div>
                     </div>
-                    <button onclick="abrirEdicao(${p.id})" class="p-2 hover:bg-orange-50 dark:hover:bg-dark-700 rounded-full transition group">
-                        <i class="fas fa-pencil-alt text-gray-200 dark:text-gray-600 group-hover:text-orange-500 dark:group-hover:text-orange-400"></i>
+                    <button id="btn-edit-${p.id}" class="p-2 hover:bg-orange-50 dark:hover:bg-dark-700 rounded-full transition group">
+                        <i class="fas fa-pencil-alt text-gray-200 dark:text-gray-600 group-hover:text-orange-500"></i>
                     </button>
                 </div>
             `).join('');
+
+            lista.forEach(p => {
+                document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p);
+            });
+        });
+
+        window.salvarPrograma = (id, dados) => {
+            if (id) update(ref(db, 'programas/' + id), dados);
+            else push(dbRef, dados);
+        };
+
+        window.deletarPrograma = (id) => remove(ref(db, 'programas/' + id));
+    </script>
+
+    <script>
+        const SENHA_MESTRA = "1234";
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
         }
 
-        function abrirCriacao() { 
+        function verificarSessao() {
+            if (localStorage.getItem('theme') === 'dark') {
+                document.documentElement.classList.add('dark');
+                document.getElementById('theme-icon').className = 'fas fa-sun';
+            }
+            if (localStorage.getItem('session_active') === 'true') {
+                document.getElementById('tela-login').classList.add('hidden');
+                document.getElementById('main-layout').classList.remove('hidden');
+                document.getElementById('display-nome').innerText = localStorage.getItem('userName');
+                carregarFotoLocal();
+            }
+        }
+
+        document.getElementById('form-login').onsubmit = (e) => {
+            e.preventDefault();
+            if (document.getElementById('login-senha').value === SENHA_MESTRA) {
+                localStorage.setItem('session_active', 'true');
+                localStorage.setItem('userName', document.getElementById('login-nome').value);
+                verificarSessao();
+            } else {
+                document.getElementById('login-erro').classList.remove('hidden');
+            }
+        };
+
+        window.logout = () => { localStorage.removeItem('session_active'); location.reload(); }
+
+        function carregarFotoLocal() {
+            const url = localStorage.getItem('userAvatar');
+            if(url) {
+                document.getElementById('profile-img').src = url;
+                document.getElementById('profile-img-small').src = url;
+            }
+        }
+        window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
+        window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
+        window.gerarAvatar = () => salvarFotoLocal(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
+        
+        window.uploadFoto = (input) => {
+            if (input.files[0]) {
+                if(input.files[0].size > 2*1024*1024) return alert("Foto muito grande!");
+                const reader = new FileReader();
+                reader.onload = (e) => salvarFotoLocal(e.target.result);
+                reader.readAsDataURL(input.files[0]);
+            }
+        };
+        function salvarFotoLocal(url) {
+            try { localStorage.setItem('userAvatar', url); carregarFotoLocal(); fecharModal(); } 
+            catch { alert("Erro ao salvar foto local."); }
+        }
+
+        window.abrirCriacao = () => {
             document.getElementById('form-title').innerText = "Novo"; 
             document.getElementById('edit-id').value = ""; 
-            document.getElementById('formCadastro').reset(); 
+            document.getElementById('formCadastro').reset();
             document.getElementById('btn-delete').classList.add('hidden');
-            mostrarForm(); 
-        }
-        function abrirEdicao(id) {
-            const prog = getProgramas().find(p => p.id == id);
-            document.getElementById('edit-id').value = prog.id;
-            document.getElementById('in-titulo').value = prog.titulo;
-            document.getElementById('in-sub').value = prog.subtitulo;
-            document.getElementById('in-hora').value = prog.hora;
-            document.getElementById('in-status').value = prog.status;
+            mostrarForm();
+        };
+
+        window.abrirEdicao = (p) => {
+            document.getElementById('edit-id').value = p.id;
+            document.getElementById('in-titulo').value = p.titulo;
+            document.getElementById('in-sub').value = p.subtitulo;
+            document.getElementById('in-hora').value = p.hora;
+            document.getElementById('in-status').value = p.status;
             document.getElementById('btn-delete').classList.remove('hidden');
             mostrarForm();
-        }
+        };
+
+        window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); document.getElementById('view-details').classList.remove('hidden'); };
         function mostrarForm() { document.getElementById('view-details').classList.add('hidden'); document.getElementById('view-form').classList.remove('hidden'); }
-        function cancelar() { document.getElementById('view-form').classList.add('hidden'); document.getElementById('view-details').classList.remove('hidden'); }
 
         document.getElementById('formCadastro').onsubmit = (e) => {
             e.preventDefault();
             const id = document.getElementById('edit-id').value;
-            let progs = getProgramas();
-            const novo = { id: id ? Number(id) : Date.now(), titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, hora: document.getElementById('in-hora').value, status: document.getElementById('in-status').value };
-            if(id) { const i = progs.findIndex(p => p.id == id); progs[i] = novo; } else { progs.push(novo); }
-            localStorage.setItem('meusProgramas', JSON.stringify(progs));
-            cancelar(); renderizar();
+            const dados = {
+                titulo: document.getElementById('in-titulo').value,
+                subtitulo: document.getElementById('in-sub').value,
+                hora: document.getElementById('in-hora').value,
+                status: document.getElementById('in-status').value,
+                autor: localStorage.getItem('userName')
+            };
+            window.salvarPrograma(id || null, dados);
+            window.cancelar();
         };
 
-        function deletar() {
-            if(confirm('Remover programa?')) {
-                const id = document.getElementById('edit-id').value;
-                const progs = getProgramas().filter(p => p.id != id);
-                localStorage.setItem('meusProgramas', JSON.stringify(progs));
-                cancelar(); renderizar();
+        window.deletar = () => {
+            if(confirm('Excluir da nuvem?')) {
+                window.deletarPrograma(document.getElementById('edit-id').value);
+                window.cancelar();
             }
-        }
+        };
 
         window.onload = verificarSessao;
     </script>
