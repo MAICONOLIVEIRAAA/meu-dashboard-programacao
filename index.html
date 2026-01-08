@@ -37,6 +37,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP</h2>
                 <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Corporativo</p>
             </div>
+            
             <form id="form-login" class="space-y-4">
                 <input type="text" id="login-user" placeholder="Usuário (Login)" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
                 
@@ -48,7 +49,31 @@
                 <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Usuário ou senha inválidos.</p>
                 <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Entrar</button>
             </form>
-            <p class="text-[10px] text-gray-400 mt-4">Login Inicial: <b>admin</b> / Senha: <b>admin</b></p>
+
+            <div class="mt-6 flex justify-between text-xs px-2">
+                <button onclick="abrirSolicitacao('reset')" class="text-gray-400 hover:text-orange-500 underline">Esqueci a Senha</button>
+                <button onclick="abrirSolicitacao('novo')" class="text-gray-400 hover:text-orange-500 underline">Solicitar Acesso</button>
+            </div>
+
+            <p class="text-[10px] text-gray-400 mt-6 border-t dark:border-gray-700 pt-4">Primeiro Acesso? Use <b>admin</b> / <b>admin</b></p>
+        </div>
+    </div>
+
+    <div id="modal-solicitacao" class="fixed inset-0 z-[110] flex items-center justify-center modal-overlay hidden">
+        <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl border dark:border-gray-600 relative">
+            <button onclick="fecharSolicitacao()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+            
+            <h3 id="titulo-solicitacao" class="font-bold mb-2 dark:text-white text-lg">Solicitação</h3>
+            <p class="text-xs text-gray-400 mb-6">Envie seus dados. O administrador analisará seu pedido.</p>
+            
+            <form id="form-solicitacao" class="space-y-4">
+                <input type="hidden" id="tipo-solicitacao">
+                <input id="solic-nome" placeholder="Seu Nome Completo" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                <input id="solic-contato" placeholder="Seu Email ou Telefone" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                <textarea id="solic-obs" placeholder="Motivo / Observação" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none h-20 resize-none"></textarea>
+                
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-blue-700">Enviar Pedido</button>
+            </form>
         </div>
     </div>
 
@@ -81,8 +106,9 @@
                     <i class="fas fa-calendar-day w-6"></i> Programação Diária
                 </a>
                 
-                <a href="#" onclick="navegar('admin')" id="nav-admin" class="nav-item hidden flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                <a href="#" onclick="navegar('admin')" id="nav-admin" class="nav-item hidden flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition relative">
                     <i class="fas fa-user-shield w-6"></i> Administração
+                    <span id="notificacao-admin" class="absolute right-4 w-2 h-2 bg-red-500 rounded-full hidden"></span>
                 </a>
 
                 <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
@@ -190,6 +216,14 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         
                         <div class="lg:col-span-2 space-y-6">
+                            
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações de Acesso</h3>
+                                <div id="lista-solicitacoes" class="space-y-3">
+                                    <p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>
+                                </div>
+                            </div>
+
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-users text-orange-500"></i> Usuários do Sistema</h3>
                                 <div class="overflow-x-auto">
@@ -202,16 +236,14 @@
                                                 <th class="px-4 py-3 text-right">Ações</th>
                                             </tr>
                                         </thead>
-                                        <tbody id="lista-usuarios">
-                                            </tbody>
+                                        <tbody id="lista-usuarios"></tbody>
                                     </table>
                                 </div>
                             </div>
 
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Relatório de Atividades</h3>
-                                <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs">
-                                    </div>
+                                <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                             </div>
                         </div>
 
@@ -238,14 +270,12 @@
                                         <option value="admin">Administrador (Total)</option>
                                     </select>
                                 </div>
-                                
                                 <div class="pt-2 flex gap-2">
                                     <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button>
                                     <button type="button" onclick="limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button>
                                 </div>
                             </form>
                         </div>
-
                     </div>
                 </div>
 
@@ -277,90 +307,95 @@
         let refRelatorio = null;
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
+        const refSolicitacoes = ref(db, 'solicitacoes');
 
         // INICIALIZAÇÃO
         const dateInput = document.getElementById('data-selector');
         dateInput.value = dataSelecionada;
         dateInput.addEventListener('change', (e) => mudarData(e.target.value));
 
-        // --- FUNÇÕES DE LOG ---
         function logActivity(acao, detalhe) {
-            push(refLogs, {
-                data: new Date().toISOString(),
-                usuario: localStorage.getItem('userName') || 'Sistema',
-                acao: acao,
-                detalhe: detalhe
-            });
+            push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe });
         }
 
-        // --- SISTEMA DE LOGIN (AGORA VIA BANCO DE DADOS) ---
+        // --- LOGIN INTELIGENTE ---
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
             const loginInput = document.getElementById('login-user').value;
             const senhaInput = document.getElementById('login-senha').value;
             const erroMsg = document.getElementById('login-erro');
 
-            // Busca usuário no Firebase
-            const q = query(refUsers, orderByChild('login'), equalTo(loginInput));
-            
-            try {
-                const snapshot = await get(q);
-                let userFound = null;
+            // 1. Verifica se o banco de usuários está vazio (Primeiro Acesso)
+            const snapshotUsers = await get(refUsers);
+            if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') {
+                push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin" });
+                alert("Banco inicializado com sucesso! Logado como Admin.");
+                localStorage.setItem('session_active', 'true');
+                localStorage.setItem('userName', 'Administrador');
+                localStorage.setItem('userRole', 'admin');
+                location.reload();
+                return;
+            }
 
-                if (snapshot.exists()) {
-                    snapshot.forEach((childSnapshot) => {
-                        const user = childSnapshot.val();
-                        if (user.senha === senhaInput) {
-                            userFound = user;
-                        }
-                    });
-                } else if (loginInput === 'admin' && senhaInput === 'admin') {
-                    // Ciar primeiro admin se DB vazio
-                    const snapshotAll = await get(refUsers);
-                    if(!snapshotAll.exists()) {
-                        userFound = { nome: "Administrador", login: "admin", role: "admin" };
-                        push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin" });
-                        alert("Primeiro acesso! Admin criado.");
+            // 2. Login Normal (Itera para evitar problemas com indexação)
+            let userFound = null;
+            if (snapshotUsers.exists()) {
+                snapshotUsers.forEach((child) => {
+                    const u = child.val();
+                    if (u.login === loginInput && u.senha === senhaInput) {
+                        userFound = u;
                     }
-                }
+                });
+            }
 
-                if (userFound) {
-                    localStorage.setItem('session_active', 'true');
-                    localStorage.setItem('userName', userFound.nome);
-                    localStorage.setItem('userRole', userFound.role);
-                    location.reload();
-                } else {
-                    erroMsg.classList.remove('hidden');
-                }
-            } catch (error) {
-                console.error(error);
-                erroMsg.innerText = "Erro de conexão.";
+            if (userFound) {
+                localStorage.setItem('session_active', 'true');
+                localStorage.setItem('userName', userFound.nome);
+                localStorage.setItem('userRole', userFound.role);
+                location.reload();
+            } else {
                 erroMsg.classList.remove('hidden');
             }
+        };
+
+        // --- SOLICITAÇÕES ---
+        window.abrirSolicitacao = (tipo) => {
+            document.getElementById('modal-solicitacao').classList.remove('hidden');
+            document.getElementById('tipo-solicitacao').value = tipo;
+            document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário';
+            document.getElementById('form-solicitacao').reset();
+        };
+        window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden');
+        
+        document.getElementById('form-solicitacao').onsubmit = (e) => {
+            e.preventDefault();
+            const dados = {
+                tipo: document.getElementById('tipo-solicitacao').value,
+                nome: document.getElementById('solic-nome').value,
+                contato: document.getElementById('solic-contato').value,
+                obs: document.getElementById('solic-obs').value,
+                data: new Date().toISOString()
+            };
+            push(refSolicitacoes, dados);
+            alert("Solicitação enviada! Entre em contato com o administrador.");
+            fecharSolicitacao();
         };
 
         // --- CARREGAR DADOS ---
         function carregarDadosData(data) {
             if(refProgramas) off(refProgramas);
             if(refRelatorio) off(refRelatorio);
-
             refProgramas = ref(db, `datas/${data}/programas`);
             refRelatorio = ref(db, `datas/${data}/relatorio`);
-
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             const isAdmin = localStorage.getItem('userRole') === 'admin';
 
-            // LISTA PROGRAMAS
             onValue(refProgramas, (snapshot) => {
                 const val = snapshot.val();
                 const container = document.getElementById('lista-programas');
-                if (!val) {
-                    container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>';
-                    return;
-                }
+                if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; }
                 let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
                 lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
-
                 container.innerHTML = lista.map(p => `
                     <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border border-transparent hover:border-orange-200 dark:hover:border-gray-600 transition flex gap-4" data-id="${p.id}">
                         ${isAdmin ? `<div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>` : ''}
@@ -368,30 +403,20 @@
                             ${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}
                         </div>
                         <div class="flex-1 flex flex-col justify-center py-1">
-                            <div>
-                                <h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4>
-                                <p class="text-sm text-gray-400 dark:text-gray-400 mt-1">${p.subtitulo || ''}</p>
-                            </div>
+                            <div><h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4><p class="text-sm text-gray-400 dark:text-gray-400 mt-1">${p.subtitulo || ''}</p></div>
                             <div class="flex items-center justify-between mt-3">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span>
-                                    <div class="h-3 w-px bg-gray-300"></div>
-                                    <div class="flex gap-1 flex-wrap">
-                                        ${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : '<span class="text-[10px] text-gray-300">Sem blocos</span>'}
-                                    </div>
+                                    <span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span><div class="h-3 w-px bg-gray-300"></div>
+                                    <div class="flex gap-1 flex-wrap">${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : '<span class="text-[10px] text-gray-300">Sem blocos</span>'}</div>
                                 </div>
                                 ${isAdmin ? `<button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button>` : ''}
                             </div>
                         </div>
                     </div>
                 `).join('');
-
-                if(isAdmin) {
-                    lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
-                }
+                if(isAdmin) lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
             });
 
-            // PASSAGEM
             onValue(refRelatorio, (snapshot) => {
                 const data = snapshot.val();
                 const textArea = document.getElementById('texto-passagem');
@@ -404,7 +429,37 @@
         function carregarAdminPanel() {
             if(localStorage.getItem('userRole') !== 'admin') return;
 
-            // Listar Usuários
+            // Carregar Solicitações
+            onValue(refSolicitacoes, (snapshot) => {
+                const s = snapshot.val();
+                const container = document.getElementById('lista-solicitacoes');
+                const notif = document.getElementById('notificacao-admin');
+                container.innerHTML = '';
+                
+                if(s) {
+                    notif.classList.remove('hidden'); // Mostra bolinha vermelha
+                    Object.keys(s).forEach(key => {
+                        const item = s[key];
+                        const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso';
+                        container.innerHTML += `
+                            <div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start">
+                                <div>
+                                    <p class="font-bold text-orange-500">${tipoLabel}</p>
+                                    <p class="font-bold">${item.nome}</p>
+                                    <p class="text-gray-400">${item.contato}</p>
+                                    <p class="mt-1 italic">"${item.obs}"</p>
+                                </div>
+                                <button onclick="removerSolicitacao('${key}')" class="text-gray-400 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                            </div>
+                        `;
+                    });
+                } else {
+                    notif.classList.add('hidden');
+                    container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>';
+                }
+            });
+
+            // Carregar Usuários
             onValue(refUsers, (snapshot) => {
                 const users = snapshot.val();
                 const tbody = document.getElementById('lista-usuarios');
@@ -428,27 +483,20 @@
                 }
             });
 
-            // Listar Logs
-            const logsQuery = query(refLogs); // Idealmente limitToLast(50)
-            onValue(logsQuery, (snapshot) => {
+            // Logs
+            onValue(refLogs, (snapshot) => {
                 const logs = snapshot.val();
                 const container = document.getElementById('lista-logs');
                 container.innerHTML = '';
                 if(logs) {
-                    const listaLogs = Object.values(logs).reverse(); // Mais recente primeiro
-                    listaLogs.forEach(l => {
-                        const dataFormatada = new Date(l.data).toLocaleString('pt-BR');
-                        container.innerHTML += `
-                            <div class="text-xs border-l-2 border-gray-300 pl-2 py-1">
-                                <p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${dataFormatada}</span></p>
-                                <p class="text-gray-500">${l.usuario}: ${l.detalhe}</p>
-                            </div>
-                        `;
+                    Object.values(logs).reverse().forEach(l => {
+                        container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`;
                     });
                 }
             });
         }
 
+        window.removerSolicitacao = (id) => remove(ref(db, `solicitacoes/${id}`));
         window.editarUsuario = (id, nome, login, role, senha) => {
             document.getElementById('admin-user-id').value = id;
             document.getElementById('admin-nome').value = nome;
@@ -456,86 +504,37 @@
             document.getElementById('admin-role').value = role;
             document.getElementById('admin-senha').value = senha;
         };
-
-        window.removerUsuario = (id) => {
-            if(confirm('Remover este usuário?')) {
-                remove(ref(db, `users/${id}`));
-                logActivity('Remover Usuário', `ID: ${id}`);
-            }
-        };
+        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } };
 
         document.getElementById('formUsuario').onsubmit = (e) => {
             e.preventDefault();
             const id = document.getElementById('admin-user-id').value;
-            const dados = {
-                nome: document.getElementById('admin-nome').value,
-                login: document.getElementById('admin-login').value,
-                senha: document.getElementById('admin-senha').value,
-                role: document.getElementById('admin-role').value
-            };
-
-            if(id) {
-                update(ref(db, `users/${id}`), dados);
-                logActivity('Editar Usuário', dados.login);
-            } else {
-                push(refUsers, dados);
-                logActivity('Criar Usuário', dados.login);
-            }
+            const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value };
+            if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); }
+            else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); }
             window.limparFormAdmin();
         };
+        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; };
 
-        window.limparFormAdmin = () => {
-            document.getElementById('formUsuario').reset();
-            document.getElementById('admin-user-id').value = "";
-        };
-
-        // EXPORTAR FUNÇÕES GLOBAIS
+        // GLOBAIS
         window.mudarData = (novaData) => { dataSelecionada = novaData; carregarDadosData(dataSelecionada); };
         window.salvarPassagemManual = () => {
             if(localStorage.getItem('userRole') !== 'admin') return alert("Apenas administradores podem salvar.");
             const texto = document.getElementById('texto-passagem').value;
             set(refRelatorio, { texto: texto, autor: localStorage.getItem('userName'), atualizado: new Date().toISOString() });
-            logActivity('Relatório', 'Atualizou Passagem do dia ' + dataSelecionada);
-            alert("Salvo!");
+            logActivity('Relatório', dataSelecionada); alert("Salvo!");
         };
-
-        // DRAG & DROP
         if(localStorage.getItem('userRole') === 'admin'){
-            new Sortable(document.getElementById('lista-programas'), {
-                handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card',
-                onEnd: function (evt) {
-                    const items = document.querySelectorAll('[data-id]');
-                    items.forEach((item, index) => {
-                        const id = item.getAttribute('data-id');
-                        update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index });
-                    });
-                }
-            });
+            new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('[data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         }
+        window.salvarPrograma = (id, dados) => { if (id) { update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados); logActivity('Editou', dados.titulo); } else { dados.ordem = 999; push(refProgramas, dados); logActivity('Criou', dados.titulo); } };
+        window.deletarPrograma = (id) => { remove(ref(db, `datas/${dataSelecionada}/programas/${id}`)); logActivity('Excluiu', 'ID: ' + id); };
 
-        window.salvarPrograma = (id, dados) => {
-            if (id) {
-                update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados);
-                logActivity('Editar Programa', dados.titulo);
-            } else { 
-                dados.ordem = 999; 
-                push(refProgramas, dados); 
-                logActivity('Novo Programa', dados.titulo);
-            }
-        };
-
-        window.deletarPrograma = (id) => {
-            remove(ref(db, `datas/${dataSelecionada}/programas/${id}`));
-            logActivity('Excluir Programa', 'ID: ' + id);
-        };
-
-        // INITS
         carregarDadosData(dataSelecionada);
         carregarAdminPanel();
     </script>
 
     <script>
-        // UI HELPERS
         window.navegar = (tela) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
@@ -569,7 +568,6 @@
             const role = localStorage.getItem('userRole');
             const isAdmin = role === 'admin';
             
-            // Elementos exclusivos
             const btnNovo = document.getElementById('btn-novo-programa');
             const btnSalvarRel = document.getElementById('btn-salvar-relatorio');
             const navAdmin = document.getElementById('nav-admin');
@@ -600,6 +598,10 @@
                 document.getElementById('display-nome').innerText = localStorage.getItem('userName');
                 carregarFotoLocal();
                 aplicarPermissoes();
+                // Carrega painel se já estiver logado como admin
+                if(localStorage.getItem('userRole') === 'admin') {
+                    // carregarAdminPanel será chamado automaticamente pelo módulo JS, mas permissoes visuais aqui
+                }
             }
         }
 
