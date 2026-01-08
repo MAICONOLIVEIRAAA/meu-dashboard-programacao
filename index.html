@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midias SP - Gestão Visual</title>
+    <title>Midias SP - Gestão Diária</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -17,15 +17,16 @@
     </script>
     
     <style>
-        /* Estilo do item de menu ativo */
         .nav-item.active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; font-weight: bold; }
         .dark .nav-item.active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; }
-        
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
         .ghost-card { opacity: 0.5; background: #f0f0f0; border: 2px dashed #ccc; }
+        /* Estilo personalizado para o input de data */
+        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
+        .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -33,7 +34,7 @@
     <div id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
         <div class="bg-white dark:bg-dark-800 max-w-sm w-full p-10 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-gray-700">
             <div class="mb-8">
-                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-layer-group"></i></div>
+                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-calendar-check"></i></div>
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP</h2>
                 <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Restrito</p>
             </div>
@@ -72,7 +73,7 @@
             
             <nav class="w-full space-y-1">
                 <a href="#" onclick="navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <i class="fas fa-calendar-alt w-6"></i> Programação
+                    <i class="fas fa-calendar-day w-6"></i> Programação Diária
                 </a>
                 <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-bell w-6"></i> Stand-By
@@ -80,7 +81,6 @@
                 <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-play-circle w-6"></i> Globoplay
                 </a>
-                
                 <a href="#" onclick="navegar('passagem')" id="nav-passagem" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-clipboard-list w-6"></i> Passagem de Serviço
                 </a>
@@ -89,7 +89,15 @@
 
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-16 bg-white dark:bg-dark-800 border-b dark:border-gray-700 flex items-center justify-between px-8 transition-colors">
-                <h1 id="header-title" class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade Ativa</h1>
+                <div class="flex items-center gap-4">
+                    <h1 id="header-title" class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade</h1>
+                    
+                    <div class="flex items-center bg-gray-100 dark:bg-dark-700 rounded-lg px-3 py-1 border dark:border-gray-600">
+                        <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>
+                        <input type="date" id="data-selector" class="bg-transparent text-sm font-bold text-gray-700 dark:text-white outline-none cursor-pointer">
+                    </div>
+                </div>
+
                 <div class="flex items-center space-x-4">
                     <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-yellow-400 hover:scale-110 transition"><i id="theme-icon" class="fas fa-moon"></i></button>
                     <div class="h-6 w-px bg-gray-200 dark:bg-gray-600 mx-2"></div>
@@ -100,10 +108,10 @@
             <div class="flex-1 overflow-y-auto p-8 bg-[#f8fafc] dark:bg-dark-900 no-scrollbar transition-colors">
                 
                 <div id="screen-grade">
-                    <div class="flex items-center space-x-4 mb-8">
-                        <div class="relative flex-1 max-w-lg">
+                    <div class="flex items-center justify-between mb-8">
+                        <div class="relative flex-1 max-w-lg mr-4">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                            <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
+                            <input type="text" placeholder="Pesquisar programa..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                         </div>
                         <button onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
                             <i class="fas fa-plus"></i> Novo Programa
@@ -114,7 +122,7 @@
                         <div class="lg:col-span-2 space-y-4" id="lista-programas">
                             <div class="flex flex-col items-center justify-center py-20 text-gray-400">
                                 <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
-                                <p class="text-sm">Sincronizando...</p>
+                                <p class="text-sm">Carregando dia...</p>
                             </div>
                         </div>
                         
@@ -155,7 +163,7 @@
                                     </div>
 
                                     <div class="flex space-x-2 pt-4">
-                                        <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
+                                        <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar na Data</button>
                                     </div>
                                     <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-2 text-[9px] text-red-400 hover:text-red-500 font-bold uppercase underline hidden">Excluir</button>
                                 </form>
@@ -167,13 +175,13 @@
                 <div id="screen-passagem" class="hidden h-full flex flex-col">
                     <div class="bg-white dark:bg-dark-800 p-8 rounded-2xl shadow-sm border dark:border-gray-700 flex-1 flex flex-col">
                         <div class="flex justify-between items-center mb-6">
-                            <h2 class="text-xl font-bold dark:text-white"><i class="fas fa-clipboard-list text-orange-500 mr-2"></i> Relatório de Ocorrências</h2>
-                            <span id="status-report" class="text-xs text-gray-400 italic">Sincronizado</span>
+                            <h2 class="text-xl font-bold dark:text-white"><i class="fas fa-clipboard-list text-orange-500 mr-2"></i> Relatório do Dia</h2>
+                            <span id="data-passagem-label" class="text-sm text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-dark-700 px-3 py-1 rounded">Hoje</span>
                         </div>
-                        <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed" placeholder="Descreva as ocorrências do turno, pendências e observações para a próxima equipe..."></textarea>
+                        <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed" placeholder="Descreva as ocorrências desta data..."></textarea>
                         <div class="mt-6 flex justify-end">
                             <button onclick="salvarPassagemManual()" class="bg-orange-500 text-white px-8 py-3 rounded-xl font-bold uppercase shadow-md hover:bg-orange-600 transition">
-                                <i class="fas fa-save mr-2"></i> Atualizar Relatório
+                                <i class="fas fa-save mr-2"></i> Salvar Relatório
                             </button>
                         </div>
                     </div>
@@ -185,9 +193,9 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIGURAÇÃO FIREBASE
+        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
             authDomain: "midias-sp.firebaseapp.com",
@@ -201,71 +209,94 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        // REFS
-        const dbProgramas = ref(db, 'programas');
-        const dbRelatorio = ref(db, 'relatorio_geral');
 
-        // --- 1. SINCRONIZAÇÃO DA GRADE (PROGRAMAS) ---
-        onValue(dbProgramas, (snapshot) => {
-            const data = snapshot.val();
-            const container = document.getElementById('lista-programas');
-            
-            if (!data) {
-                container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-layer-group text-4xl mb-2"></i><p class="text-sm">Lista vazia.</p></div>';
-                return;
-            }
+        // VARIAVEIS GLOBAIS
+        let dataSelecionada = new Date().toISOString().split('T')[0]; // Hoje (YYYY-MM-DD)
+        let refProgramas = null;
+        let refRelatorio = null;
 
-            let lista = Object.keys(data).map(key => ({ id: key, ...data[key] }));
-            lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+        // INICIALIZAÇÃO
+        const dateInput = document.getElementById('data-selector');
+        dateInput.value = dataSelecionada;
+        dateInput.addEventListener('change', (e) => mudarData(e.target.value));
 
-            container.innerHTML = lista.map(p => `
-                <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border border-transparent hover:border-orange-200 dark:hover:border-gray-600 transition flex gap-4" data-id="${p.id}">
-                    <div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>
-                    <div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 relative flex items-center justify-center">
-                        ${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}
-                    </div>
-                    <div class="flex-1 flex flex-col justify-center py-1">
-                        <div>
-                            <h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4>
-                            <p class="text-sm text-gray-400 dark:text-gray-400 mt-1">${p.subtitulo || ''}</p>
+        function carregarDadosData(data) {
+            // Desliga ouvintes antigos
+            if(refProgramas) off(refProgramas);
+            if(refRelatorio) off(refRelatorio);
+
+            // Define novos caminhos baseados na data
+            // Estrutura: db/2026-01-08/programas
+            // Estrutura: db/2026-01-08/relatorio
+            refProgramas = ref(db, `datas/${data}/programas`);
+            refRelatorio = ref(db, `datas/${data}/relatorio`);
+
+            // Atualiza Label da Passagem
+            document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
+
+            // 1. OUVINTE PROGRAMAS
+            onValue(refProgramas, (snapshot) => {
+                const val = snapshot.val();
+                const container = document.getElementById('lista-programas');
+                
+                if (!val) {
+                    container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado para este dia.</p></div>';
+                    return;
+                }
+
+                let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
+                lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
+
+                container.innerHTML = lista.map(p => `
+                    <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border border-transparent hover:border-orange-200 dark:hover:border-gray-600 transition flex gap-4" data-id="${p.id}">
+                        <div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>
+                        <div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 relative flex items-center justify-center">
+                            ${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}
                         </div>
-                        <div class="flex items-center justify-between mt-3">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span>
-                                <div class="h-3 w-px bg-gray-300"></div>
-                                <div class="flex gap-1 flex-wrap">
-                                    ${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : '<span class="text-[10px] text-gray-300">Sem blocos</span>'}
-                                </div>
+                        <div class="flex-1 flex flex-col justify-center py-1">
+                            <div>
+                                <h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4>
+                                <p class="text-sm text-gray-400 dark:text-gray-400 mt-1">${p.subtitulo || ''}</p>
                             </div>
-                            <button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button>
+                            <div class="flex items-center justify-between mt-3">
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span>
+                                    <div class="h-3 w-px bg-gray-300"></div>
+                                    <div class="flex gap-1 flex-wrap">
+                                        ${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : '<span class="text-[10px] text-gray-300">Sem blocos</span>'}
+                                    </div>
+                                </div>
+                                <button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
 
-            lista.forEach(p => {
-                document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p);
+                lista.forEach(p => {
+                    document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p);
+                });
             });
-        });
 
-        // --- 2. SINCRONIZAÇÃO DO RELATÓRIO (PASSAGEM) ---
-        onValue(dbRelatorio, (snapshot) => {
-            const data = snapshot.val();
-            if(data && data.texto) {
-                document.getElementById('texto-passagem').value = data.texto;
-            }
-        });
+            // 2. OUVINTE RELATÓRIO
+            onValue(refRelatorio, (snapshot) => {
+                const data = snapshot.val();
+                document.getElementById('texto-passagem').value = (data && data.texto) ? data.texto : '';
+            });
+        }
+
+        // --- FUNÇÕES DE CONTROLE ---
+        window.mudarData = (novaData) => {
+            dataSelecionada = novaData;
+            carregarDadosData(dataSelecionada);
+        };
 
         window.salvarPassagemManual = () => {
             const texto = document.getElementById('texto-passagem').value;
-            set(dbRelatorio, { 
+            set(refRelatorio, { 
                 texto: texto, 
                 autor: localStorage.getItem('userName'), 
-                data: new Date().toISOString() 
-            }).then(() => {
-                alert("Passagem salva com sucesso!");
-            });
+                atualizado: new Date().toISOString() 
+            }).then(() => alert("Relatório do dia salvo!"));
         };
 
         // DRAG & DROP
@@ -275,25 +306,26 @@
                 const items = document.querySelectorAll('[data-id]');
                 items.forEach((item, index) => {
                     const id = item.getAttribute('data-id');
-                    update(ref(db, 'programas/' + id), { ordem: index });
+                    update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index });
                 });
             }
         });
 
         window.salvarPrograma = (id, dados) => {
-            if (id) update(ref(db, 'programas/' + id), dados);
-            else { dados.ordem = 999; push(dbProgramas, dados); }
+            if (id) update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados);
+            else { dados.ordem = 999; push(refProgramas, dados); }
         };
 
-        window.deletarPrograma = (id) => remove(ref(db, 'programas/' + id));
+        window.deletarPrograma = (id) => remove(ref(db, `datas/${dataSelecionada}/programas/${id}`));
+
+        // Inicializa com a data de hoje
+        carregarDadosData(dataSelecionada);
     </script>
 
     <script>
         const SENHA_MESTRA = "1234";
 
-        // --- NAVEGAÇÃO ENTRE TELAS ---
         window.navegar = (tela) => {
-            // Remove active de todos
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
@@ -301,15 +333,19 @@
             if(tela === 'grade') {
                 document.getElementById('nav-grade').classList.add('active');
                 document.getElementById('screen-grade').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade Ativa';
+                document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
+                // Mostra seletor de data
+                document.getElementById('data-selector').parentElement.classList.remove('hidden');
             } else if (tela === 'passagem') {
                 document.getElementById('nav-passagem').classList.add('active');
                 document.getElementById('screen-passagem').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
+                // Esconde seletor de data para focar no relatório (opcional, aqui mantive visivel mas vc pode esconder)
+                // document.getElementById('data-selector').parentElement.classList.add('hidden'); 
             }
         }
 
-        // --- TEMA E LOGIN ---
+        // TEMA / LOGIN / FOTO (Igual versões anteriores)
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
@@ -340,106 +376,21 @@
         };
 
         window.logout = () => { localStorage.removeItem('session_active'); location.reload(); }
-
-        // --- FOTO PERFIL ---
-        function carregarFotoLocal() {
-            const url = localStorage.getItem('userAvatar');
-            if(url) {
-                document.getElementById('profile-img').src = url;
-                document.getElementById('profile-img-small').src = url;
-            }
-        }
+        function carregarFotoLocal() { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
         window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
         window.gerarAvatar = () => salvarFotoLocal(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
-        window.uploadFotoPerfil = (input) => {
-            if (input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => salvarFotoLocal(e.target.result);
-                reader.readAsDataURL(input.files[0]);
-            }
-        };
+        window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
         function salvarFotoLocal(url) { localStorage.setItem('userAvatar', url); carregarFotoLocal(); fecharModal(); }
-
-        // --- FORMULÁRIO ---
-        window.previewCapa = (input) => {
-            if (input.files && input.files[0]) {
-                const arquivo = input.files[0];
-                if(arquivo.size > 500 * 1024) { alert("Imagem muito grande (max 500kb)"); input.value = ""; return; }
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('cover-preview').src = e.target.result;
-                    document.getElementById('cover-preview').classList.remove('hidden');
-                    document.getElementById('cover-placeholder').classList.add('hidden');
-                    document.getElementById('in-cover-base64').value = e.target.result;
-                };
-                reader.readAsDataURL(arquivo);
-            }
-        };
-
-        window.abrirCriacao = () => {
-            document.getElementById('form-title').innerText = "Novo Programa"; 
-            document.getElementById('edit-id').value = ""; 
-            document.getElementById('formCadastro').reset();
-            resetCapaUI();
-            document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false);
-            document.getElementById('btn-delete').classList.add('hidden');
-            mostrarForm();
-        };
-
-        window.abrirEdicao = (p) => {
-            document.getElementById('edit-id').value = p.id;
-            document.getElementById('in-titulo').value = p.titulo;
-            document.getElementById('in-sub').value = p.subtitulo;
-            document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false);
-            if(p.tags) {
-                p.tags.split(' ').forEach(tag => {
-                    const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`);
-                    if(cb) cb.checked = true;
-                });
-            }
-            if(p.capa) {
-                document.getElementById('in-cover-base64').value = p.capa;
-                document.getElementById('cover-preview').src = p.capa;
-                document.getElementById('cover-preview').classList.remove('hidden');
-                document.getElementById('cover-placeholder').classList.add('hidden');
-            } else { resetCapaUI(); }
-            document.getElementById('btn-delete').classList.remove('hidden');
-            mostrarForm();
-        };
-
-        function resetCapaUI() {
-            document.getElementById('in-cover-base64').value = "";
-            document.getElementById('cover-preview').src = "";
-            document.getElementById('cover-preview').classList.add('hidden');
-            document.getElementById('cover-placeholder').classList.remove('hidden');
-        }
-
+        window.previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
+        
+        window.abrirCriacao = () => { document.getElementById('form-title').innerText = "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
+        window.abrirEdicao = (p) => { document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
+        function resetCapaUI() { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
         window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
         function mostrarForm() { document.getElementById('view-form').classList.remove('hidden'); }
-
-        document.getElementById('formCadastro').onsubmit = (e) => {
-            e.preventDefault();
-            const id = document.getElementById('edit-id').value;
-            const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' ');
-            const dados = {
-                titulo: document.getElementById('in-titulo').value,
-                subtitulo: document.getElementById('in-sub').value,
-                tags: blocosChecked,
-                capa: document.getElementById('in-cover-base64').value,
-                autor: localStorage.getItem('userName')
-            };
-            window.salvarPrograma(id || null, dados);
-            window.cancelar();
-        };
-
-        window.deletar = () => {
-            if(confirm('Tem certeza?')) {
-                window.deletarPrograma(document.getElementById('edit-id').value);
-                window.cancelar();
-            }
-        };
-
+        document.getElementById('formCadastro').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, tags: blocosChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; window.salvarPrograma(id || null, dados); window.cancelar(); };
+        window.deletar = () => { if(confirm('Tem certeza?')) { window.deletarPrograma(document.getElementById('edit-id').value); window.cancelar(); } };
         window.onload = verificarSessao;
     </script>
 </body>
