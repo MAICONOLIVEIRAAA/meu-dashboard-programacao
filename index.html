@@ -133,25 +133,37 @@
                                 <div>
                                     <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Blocos Exibidos</label>
                                     <div class="flex flex-wrap gap-3">
-                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600">
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
                                             <input type="checkbox" name="blocos" value="BL1" class="accent-orange-500 w-4 h-4">
                                             <span class="ml-2 text-xs font-bold dark:text-white">BL1</span>
                                         </label>
-                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600">
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
                                             <input type="checkbox" name="blocos" value="BL2" class="accent-orange-500 w-4 h-4">
                                             <span class="ml-2 text-xs font-bold dark:text-white">BL2</span>
                                         </label>
-                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600">
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
                                             <input type="checkbox" name="blocos" value="BL3" class="accent-orange-500 w-4 h-4">
                                             <span class="ml-2 text-xs font-bold dark:text-white">BL3</span>
                                         </label>
-                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600">
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
                                             <input type="checkbox" name="blocos" value="BL4" class="accent-orange-500 w-4 h-4">
                                             <span class="ml-2 text-xs font-bold dark:text-white">BL4</span>
                                         </label>
-                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600">
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
                                             <input type="checkbox" name="blocos" value="BL5" class="accent-orange-500 w-4 h-4">
                                             <span class="ml-2 text-xs font-bold dark:text-white">BL5</span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
+                                            <input type="checkbox" name="blocos" value="BL6" class="accent-orange-500 w-4 h-4">
+                                            <span class="ml-2 text-xs font-bold dark:text-white">BL6</span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
+                                            <input type="checkbox" name="blocos" value="BL7" class="accent-orange-500 w-4 h-4">
+                                            <span class="ml-2 text-xs font-bold dark:text-white">BL7</span>
+                                        </label>
+                                        <label class="flex items-center cursor-pointer bg-gray-50 dark:bg-dark-700 px-3 py-1 rounded-full border dark:border-gray-600 hover:border-orange-400 transition">
+                                            <input type="checkbox" name="blocos" value="BL8" class="accent-orange-500 w-4 h-4">
+                                            <span class="ml-2 text-xs font-bold dark:text-white">BL8</span>
                                         </label>
                                     </div>
                                 </div>
@@ -222,7 +234,7 @@
                             <div class="flex items-center gap-2">
                                 <span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span>
                                 <div class="h-3 w-px bg-gray-300"></div>
-                                <div class="flex gap-1">
+                                <div class="flex gap-1 flex-wrap">
                                     ${p.tags ? p.tags.split(' ').map(tag => 
                                         `<span class="bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`
                                     ).join('') : '<span class="text-[10px] text-gray-300">Sem blocos</span>'}
