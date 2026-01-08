@@ -27,7 +27,7 @@
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
         
-        /* Grid do Calendário */
+        /* Grid do Calendário Mensal */
         .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
         .calendar-day { min-height: 100px; transition: all 0.2s; }
         .calendar-day:hover { transform: translateY(-2px); }
@@ -218,6 +218,8 @@
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL4" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL4</span></label>
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL5" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL5</span></label>
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL6" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL6</span></label>
+                                            <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL7" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL7</span></label>
+                                            <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL8" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL8</span></label>
                                         </div>
                                     </div>
 
@@ -398,7 +400,6 @@
             const year = currentCalendarDate.getFullYear();
             const month = currentCalendarDate.getMonth();
             
-            // Header Texto
             const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
             document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
 
@@ -410,16 +411,12 @@
             const calendarBody = document.getElementById('calendar-body');
             calendarBody.innerHTML = "";
 
-            // Dias vazios antes do dia 1
-            for (let i = 0; i < startingDay; i++) {
-                calendarBody.innerHTML += `<div></div>`;
-            }
+            for (let i = 0; i < startingDay; i++) { calendarBody.innerHTML += `<div></div>`; }
 
-            // Dias do mês
             for (let day = 1; day <= daysInMonth; day++) {
                 const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 
-                // Verifica no DB se tem programa nesse dia
+                // Verifica no DB se tem programa
                 get(child(ref(db), `datas/${dateStr}/programas`)).then((snapshot) => {
                     const hasPrograms = snapshot.exists();
                     const el = document.getElementById(`day-${dateStr}`);
@@ -442,15 +439,12 @@
             window.navegar('grade');
         };
 
-        // --- SISTEMA DE ROTINA (MÁGICA) ---
+        // --- SISTEMA DE ROTINA ---
         document.getElementById('formRotina').onsubmit = (e) => {
             e.preventDefault();
-            
             const titulo = document.getElementById('rotina-titulo').value;
             const sub = document.getElementById('rotina-sub').value;
             const capa = document.getElementById('rotina-cover-base64').value;
-            
-            // Pega dias da semana selecionados (0=Dom, 1=Seg...)
             const diasSelecionados = Array.from(document.querySelectorAll('input[name="diasSemana"]:checked')).map(cb => parseInt(cb.value));
 
             if(diasSelecionados.length === 0) return alert("Selecione pelo menos um dia da semana.");
@@ -460,59 +454,46 @@
             const lastDay = new Date(year, month + 1, 0).getDate();
 
             let count = 0;
-            
-            // Loop por todos os dias do mês atual
             for (let day = 1; day <= lastDay; day++) {
                 const dateObj = new Date(year, month, day);
                 const dayOfWeek = dateObj.getDay();
-
                 if (diasSelecionados.includes(dayOfWeek)) {
-                    // Cadastra
                     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                     push(ref(db, `datas/${dateStr}/programas`), {
-                        titulo: titulo,
-                        subtitulo: sub,
-                        capa: capa,
-                        autor: 'Rotina',
-                        ordem: 999
+                        titulo: titulo, subtitulo: sub, capa: capa, autor: 'Rotina', ordem: 999
                     });
                     count++;
                 }
             }
-
-            alert(`${count} programas agendados no mês com sucesso!`);
+            alert(`${count} programas agendados no mês!`);
             fecharRotina();
-            renderCalendar(); // Atualiza bolinhas
+            renderCalendar();
         };
 
         // --- FERRAMENTAS ---
         window.copiarDiaAnterior = async () => {
-            if(!confirm("Copiar grade de ontem para hoje?")) return;
+            if(!confirm("Copiar grade de ontem?")) return;
             let ontem = new Date(dataSelecionada);
             ontem.setDate(ontem.getDate() - 1);
             const dataOntem = ontem.toISOString().split('T')[0];
             const snapshot = await get(child(ref(db), `datas/${dataOntem}/programas`));
-            if (snapshot.exists()) {
-                Object.values(snapshot.val()).forEach(p => push(refProgramas, { ...p, autor: 'Cópia' }));
-            } else { alert("Ontem estava vazio."); }
+            if (snapshot.exists()) { Object.values(snapshot.val()).forEach(p => push(refProgramas, { ...p, autor: 'Cópia' })); } else { alert("Ontem estava vazio."); }
         };
 
         window.salvarModelo = async () => {
             if(!confirm("Salvar como favorito?")) return;
             const snapshot = await get(refProgramas);
-            if(snapshot.exists()) { await set(ref(db, `modelos/favorito`), snapshot.val()); alert("Salvo!"); }
-            else { alert("Dia vazio."); }
+            if(snapshot.exists()) { await set(ref(db, `modelos/favorito`), snapshot.val()); alert("Salvo!"); } else { alert("Dia vazio."); }
         };
 
         window.colarModelo = async () => {
             if(!confirm("Colar favorito?")) return;
             const snapshot = await get(ref(db, `modelos/favorito`));
-            if(snapshot.exists()) { Object.values(snapshot.val()).forEach(p => push(refProgramas, p)); }
-            else { alert("Sem favoritos."); }
+            if(snapshot.exists()) { Object.values(snapshot.val()).forEach(p => push(refProgramas, p)); } else { alert("Sem favoritos."); }
         };
 
         carregarDadosData(dataSelecionada);
-        renderCalendar(); // Inicia calendário
+        renderCalendar();
     </script>
 
     <script>
@@ -523,7 +504,7 @@
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
             document.getElementById('screen-mensal').classList.add('hidden');
-            document.getElementById('header-date-picker').classList.add('hidden'); // Esconde data por padrão
+            document.getElementById('header-date-picker').classList.add('hidden');
 
             if(tela === 'grade') {
                 document.getElementById('nav-grade').classList.add('active');
