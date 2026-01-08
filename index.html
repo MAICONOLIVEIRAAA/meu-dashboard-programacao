@@ -3,18 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midias São Paulo - Programação</title>
+    <title>Midias São Paulo - Identificação</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         .sidebar-active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; }
-        .card-hover:hover { transform: translateY(-2px); transition: all 0.2s; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        /* Estilo para o modal da foto */
         .modal-overlay { background: rgba(0,0,0,0.4); backdrop-filter: blur(2px); }
+        /* Transição suave entre login e dashboard */
+        #tela-login, #main-layout { transition: opacity 0.5s ease; }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden">
+
+    <div id="tela-login" class="fixed inset-0 z-[100] bg-white flex items-center justify-center p-6">
+        <div class="max-w-md w-full text-center">
+            <div class="mb-8">
+                <div class="w-24 h-24 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl font-bold italic">g</div>
+                <h2 class="text-2xl font-bold text-gray-800">Identificação de Usuário</h2>
+                <p class="text-gray-400 text-sm">Bem-vindo ao Midias São Paulo</p>
+            </div>
+            <form id="form-login" class="space-y-4">
+                <input type="text" id="login-nome" placeholder="Seu Nome Completo" required class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500 transition text-center">
+                <input type="text" id="login-cargo" placeholder="Seu Cargo (ex: De Araujo Oliveira)" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-orange-500 transition text-center">
+                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-orange-600 transition">Entrar no Sistema</button>
+            </form>
+        </div>
+    </div>
 
     <div id="modal-foto" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
         <div class="bg-white rounded-2xl p-6 w-80 shadow-2xl text-center">
@@ -24,29 +39,27 @@
                     Fazer Upload
                     <input type="file" id="input-file" class="hidden" accept="image/*" onchange="uploadFoto(this)">
                 </label>
-                <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold hover:bg-orange-50 transition">
-                    Gerar Avatar Aleatório
-                </button>
+                <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold hover:bg-orange-50 transition">Gerar Avatar</button>
                 <button onclick="fecharModal()" class="w-full text-gray-400 text-xs uppercase font-bold pt-2">Cancelar</button>
             </div>
         </div>
     </div>
 
-    <div class="flex h-screen">
+    <div id="main-layout" class="flex h-screen hidden">
         <aside class="w-64 bg-white border-r flex flex-col py-8 items-center shrink-0">
             <div class="flex flex-col items-center mb-10 text-center px-4">
                 <div class="relative group cursor-pointer" onclick="abrirModal()">
-                    <img id="profile-img" src="https://i.pravatar.cc/150?u=maicon" class="w-20 h-20 rounded-full mb-3 border shadow-sm object-cover">
+                    <img id="profile-img" src="https://api.dicebear.com/7.x/avataaars/svg?seed=Maicon" class="w-20 h-20 rounded-full mb-3 border shadow-sm object-cover bg-gray-50">
                     <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
                         <i class="fas fa-camera text-white"></i>
                     </div>
                 </div>
-                <h3 class="font-bold text-gray-800 leading-tight">Maicon Carlos</h3>
-                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">De Araujo Oliveira</p>
+                <h3 id="display-nome" class="font-bold text-gray-800 leading-tight">Nome Usuário</h3>
+                <p id="display-cargo" class="text-[10px] text-gray-400 uppercase tracking-tighter">Cargo do Usuário</p>
+                <button onclick="logout()" class="text-[9px] text-orange-300 hover:text-orange-500 mt-2 font-bold uppercase underline">Trocar Usuário</button>
             </div>
             
             <nav class="w-full space-y-1">
-                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50"><i class="fas fa-th-large w-6"></i> Treinamento</a>
                 <a href="#" class="flex items-center px-8 py-3 text-sm sidebar-active font-bold"><i class="fas fa-calendar-alt w-6"></i> Programação</a>
                 <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50"><i class="fas fa-bell w-6"></i> Stand-By</a>
                 <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50"><i class="fas fa-play-circle w-6"></i> Globoplay</a>
@@ -58,9 +71,8 @@
             <header class="h-16 bg-white border-b flex items-center justify-between px-8 shrink-0">
                 <h1 class="text-xl font-bold">Midias São Paulo</h1>
                 <div class="flex items-center space-x-4 text-[11px] text-gray-400 font-bold uppercase">
-                    <span>Aspera</span><span>Backstage</span><span>Grabyo</span>
-                    <i class="fas fa-search ml-4 text-gray-300"></i>
-                    <img id="profile-img-small" src="https://i.pravatar.cc/30?u=maicon" class="w-7 h-7 rounded-full ml-2 border object-cover">
+                    <i class="fas fa-search text-gray-300"></i>
+                    <img id="profile-img-small" src="" class="w-7 h-7 rounded-full ml-2 border object-cover bg-gray-50">
                 </div>
             </header>
 
@@ -70,7 +82,6 @@
                         <i class="fas fa-search absolute left-3 top-3 text-gray-300 text-sm"></i>
                         <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400">
                     </div>
-                    <input type="text" value="08/01/2026" class="w-32 p-2 border rounded-lg text-sm text-center bg-white shadow-sm" readonly>
                     <button onclick="abrirCriacao()" class="bg-orange-500 text-white w-10 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center justify-center text-xl font-bold">+</button>
                 </div>
 
@@ -78,47 +89,29 @@
                     <div class="lg:col-span-2 space-y-4" id="lista-programas"></div>
                     <aside id="right-panel" class="sticky top-0 h-fit">
                         <div id="view-details" class="bg-white p-6 rounded-2xl shadow-sm border">
-                            <div class="flex items-center space-x-3 mb-6 border-b pb-4">
-                                <div class="w-12 h-12 bg-gray-800 rounded flex items-center justify-center text-white text-xl font-serif">g</div>
-                                <div>
-                                    <h4 class="font-bold text-sm">Painel de Controle</h4>
-                                    <p class="text-[10px] text-gray-400 italic">Pronto para novas inserções</p>
-                                </div>
-                            </div>
-                            <textarea class="w-full h-24 p-3 bg-gray-50 border rounded-xl text-sm outline-none resize-none italic mb-4" placeholder="Digite uma observação..."></textarea>
-                            <button class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold shadow-md">Salvar Nota</button>
+                            <h4 class="font-bold text-sm mb-4">Resumo da Estação</h4>
+                            <textarea class="w-full h-24 p-3 bg-gray-50 border rounded-xl text-sm italic mb-4" placeholder="Observações do dia..."></textarea>
+                            <button class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold shadow-md">Salvar</button>
                         </div>
 
                         <div id="view-form" class="bg-white p-6 rounded-2xl shadow-lg border border-orange-200 hidden">
-                            <h3 class="font-bold text-gray-800 mb-6 flex items-center" id="form-title">Novo Programa</h3>
+                            <h3 class="font-bold text-gray-800 mb-6" id="form-title">Novo Programa</h3>
                             <form id="formCadastro" class="space-y-4">
                                 <input type="hidden" id="edit-id">
-                                <div>
-                                    <label class="text-[10px] font-bold uppercase text-gray-400">Título</label>
-                                    <input id="in-titulo" name="titulo" type="text" required class="w-full border-b py-2 outline-none focus:border-orange-500 text-sm">
+                                <input id="in-titulo" name="titulo" type="text" placeholder="Título" required class="w-full border-b py-2 outline-none text-sm">
+                                <input id="in-sub" name="sub" type="text" placeholder="Subtítulo" class="w-full border-b py-2 outline-none text-sm">
+                                <div class="flex space-x-2">
+                                    <input id="in-hora" name="hora" type="time" required class="w-full border-b py-2 outline-none text-sm">
+                                    <select id="in-status" class="w-full border-b py-2 outline-none text-sm bg-white">
+                                        <option value="Agendado">Agendado</option>
+                                        <option value="No ar agora">No ar agora</option>
+                                    </select>
                                 </div>
-                                <div>
-                                    <label class="text-[10px] font-bold uppercase text-gray-400">Subtítulo / Cap</label>
-                                    <input id="in-sub" name="sub" type="text" class="w-full border-b py-2 outline-none focus:border-orange-500 text-sm">
+                                <div class="flex space-x-2 pt-4">
+                                    <button type="button" onclick="cancelar()" class="flex-1 text-xs font-bold text-gray-400 uppercase">Voltar</button>
+                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase">Salvar</button>
                                 </div>
-                                <div class="flex space-x-4">
-                                    <div class="flex-1">
-                                        <label class="text-[10px] font-bold uppercase text-gray-400">Hora</label>
-                                        <input id="in-hora" name="hora" type="time" required class="w-full border-b py-2 outline-none text-sm">
-                                    </div>
-                                    <div class="flex-1">
-                                        <label class="text-[10px] font-bold uppercase text-gray-400">Status</label>
-                                        <select id="in-status" name="status" class="w-full border-b py-2 outline-none text-sm bg-white">
-                                            <option value="Agendado">Agendado</option>
-                                            <option value="No ar agora">No ar agora</option>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="flex space-x-3 pt-6">
-                                    <button type="button" onclick="cancelar()" class="flex-1 py-2 text-xs font-bold text-gray-400 hover:text-gray-600 uppercase">Voltar</button>
-                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs shadow-md uppercase">Salvar</button>
-                                </div>
-                                <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-2 text-[9px] text-red-300 hover:text-red-500 uppercase font-bold hidden">Excluir</button>
+                                <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-4 text-[9px] text-red-300 uppercase font-bold hidden underline">Excluir Registro</button>
                             </form>
                         </div>
                     </aside>
@@ -128,18 +121,46 @@
     </div>
 
     <script>
-        // --- LÓGICA DA FOTO DE PERFIL ---
+        // --- LÓGICA DE LOGIN ---
+        const formLogin = document.getElementById('form-login');
+        
+        formLogin.onsubmit = (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('login-nome').value;
+            const cargo = document.getElementById('login-cargo').value;
+            
+            localStorage.setItem('userIdentified', 'true');
+            localStorage.setItem('userName', nome);
+            localStorage.setItem('userRole', cargo);
+            
+            verificarLogin();
+        };
+
+        function verificarLogin() {
+            const isIdentified = localStorage.getItem('userIdentified');
+            if (isIdentified) {
+                document.getElementById('tela-login').classList.add('hidden');
+                document.getElementById('main-layout').classList.remove('hidden');
+                document.getElementById('display-nome').innerText = localStorage.getItem('userName');
+                document.getElementById('display-cargo').innerText = localStorage.getItem('userRole');
+                renderizar();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('userIdentified');
+            location.reload();
+        }
+
+        // --- LÓGICA DA FOTO ---
         function abrirModal() { document.getElementById('modal-foto').classList.remove('hidden'); }
         function fecharModal() { document.getElementById('modal-foto').classList.add('hidden'); }
-
         function salvarFoto(url) {
             localStorage.setItem('userAvatar', url);
             document.getElementById('profile-img').src = url;
             document.getElementById('profile-img-small').src = url;
             fecharModal();
         }
-
-        // 1. Upload de Arquivo
         function uploadFoto(input) {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -147,21 +168,16 @@
                 reader.readAsDataURL(input.files[0]);
             }
         }
-
-        // 2. Gerar Avatar Aleatório (Usando API DiceBear)
         function gerarAvatar() {
-            const seed = Math.floor(Math.random() * 1000);
-            const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${seed}`;
+            const url = `https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`;
             salvarFoto(url);
         }
 
-        // --- LÓGICA DE PROGRAMAÇÃO (REAPROVEITADA) ---
-        const DEFAULT_DATA = [{ id: 1, titulo: "História de Amor", subtitulo: "Edição Especial • Cap 114", hora: "00:00", status: "No ar agora" }];
-
+        // --- LÓGICA DE PROGRAMAÇÃO ---
+        const DEFAULT_DATA = [{ id: 1, titulo: "História de Amor", subtitulo: "Edição Especial", hora: "00:00", status: "No ar agora" }];
         function getProgramas() { return JSON.parse(localStorage.getItem('meusProgramas')) || DEFAULT_DATA; }
 
         function renderizar() {
-            // Carregar Foto do LocalStorage
             const savedAvatar = localStorage.getItem('userAvatar');
             if(savedAvatar) {
                 document.getElementById('profile-img').src = savedAvatar;
@@ -174,14 +190,14 @@
                     <div class="w-24 h-16 rounded-xl bg-gray-100 flex items-center justify-center text-gray-300 text-[10px] font-bold">MIDIA</div>
                     <div class="flex-1">
                         <div class="flex justify-between items-start">
-                            <h4 class="font-bold text-sm">${p.titulo}</h4>
+                            <h4 class="font-bold text-sm text-gray-800">${p.titulo}</h4>
                             ${p.status === 'No ar agora' ? '<span class="text-[9px] font-bold bg-green-100 text-green-600 px-2 py-0.5 rounded-full uppercase">No ar agora</span>' : ''}
                         </div>
                         <p class="text-xs text-gray-400">${p.subtitulo}</p>
                         <div class="mt-2 text-xs flex items-center">
                             <span class="text-orange-600 font-bold">${p.hora}</span>
                             <span class="text-gray-200 mx-2">|</span>
-                            <span class="text-gray-400">Maicon Carlos</span>
+                            <span class="text-gray-400">${localStorage.getItem('userName')}</span>
                         </div>
                     </div>
                     <button onclick="abrirEdicao(${p.id})" class="p-2 hover:bg-orange-50 rounded-full transition group">
@@ -191,7 +207,6 @@
             `).join('');
         }
 
-        // Funções de controle do form (Idênticas ao código anterior)
         function abrirCriacao() { 
             document.getElementById('form-title').innerText = "Novo Programa"; 
             document.getElementById('edit-id').value = ""; 
@@ -223,15 +238,15 @@
         };
 
         function deletar() {
-            const id = document.getElementById('edit-id').value;
             if(confirm('Excluir?')) {
+                const id = document.getElementById('edit-id').value;
                 const progs = getProgramas().filter(p => p.id != id);
                 localStorage.setItem('meusProgramas', JSON.stringify(progs));
                 cancelar(); renderizar();
             }
         }
 
-        window.onload = renderizar;
+        window.onload = verificarLogin;
     </script>
 </body>
 </html>
