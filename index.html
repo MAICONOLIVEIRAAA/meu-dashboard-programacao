@@ -28,6 +28,9 @@
         .ghost-card { opacity: 0.5; background: #f0f0f0; border: 2px dashed #ccc; }
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        
+        /* Estilo para os Radio Buttons de Status */
+        .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -179,7 +182,6 @@
 
                                     <input id="in-titulo" placeholder="Nome do Programa" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
                                     <input id="in-sub" placeholder="Subtítulo / Edição" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                    
                                     <input id="in-versao" placeholder="Versão / Capítulo (Ex: Cap 05)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
                                     
                                     <div>
@@ -201,6 +203,24 @@
                                         <div class="flex flex-wrap gap-2">
                                             <label class="cursor-pointer"><input type="checkbox" name="xd" value="XD1" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-purple-600 peer-checked:text-white border dark:border-gray-600">XD1</span></label>
                                             <label class="cursor-pointer"><input type="checkbox" name="xd" value="XD3" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-purple-600 peer-checked:text-white border dark:border-gray-600">XD3</span></label>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Status do Programa</label>
+                                        <div class="flex gap-2">
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="status" value="pendente" class="hidden peer status-radio" checked>
+                                                <div class="bg-gray-100 dark:bg-dark-700 text-gray-500 dark:text-gray-400 text-xs font-bold py-2 rounded-lg text-center border dark:border-gray-600 peer-checked:bg-gray-200 peer-checked:text-gray-700 dark:peer-checked:bg-gray-600 dark:peer-checked:text-white transition">Pendente</div>
+                                            </label>
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="status" value="andamento" class="hidden peer status-radio">
+                                                <div class="bg-orange-50 dark:bg-dark-700 text-orange-400 text-xs font-bold py-2 rounded-lg text-center border border-orange-200 dark:border-gray-600 peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 transition">Andamento</div>
+                                            </label>
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="status" value="completo" class="hidden peer status-radio">
+                                                <div class="bg-green-50 dark:bg-dark-700 text-green-500 text-xs font-bold py-2 rounded-lg text-center border border-green-200 dark:border-gray-600 peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 transition">Completo</div>
+                                            </label>
                                         </div>
                                     </div>
 
@@ -299,7 +319,7 @@
         function logActivity(acao, detalhe) { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         window.enviarEmailNotificacao = (nome, email, senha) => { if(!email || !email.includes('@')) { alert("Email inválido."); return; } const templateParams = { to_name: nome, to_email: email, login: email, senha: senha, message: "Acesso liberado. No primeiro login, será necessário trocar sua senha." }; emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams).then(() => alert(`Email enviado para ${email}!`), () => alert('Falha ao enviar email.')); };
 
-        // LOGIN
+        // LOGIN E RESET (MANTIDO)
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
             const loginInput = document.getElementById('login-user').value;
@@ -322,19 +342,9 @@
                 location.reload();
             } else { erroMsg.classList.remove('hidden'); }
         };
+        document.getElementById('form-force-reset').onsubmit = async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Atualizado!"); location.reload(); };
 
-        document.getElementById('form-force-reset').onsubmit = async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('reset-user-id').value;
-            const s1 = document.getElementById('nova-senha-1').value;
-            const s2 = document.getElementById('nova-senha-2').value;
-            if(s1 !== s2) { alert("Senhas não coincidem!"); return; }
-            if(s1.length < 4) { alert("Senha curta!"); return; }
-            await update(ref(db, `users/${id}`), { senha: s1, forceReset: false });
-            alert("Atualizado!"); location.reload();
-        };
-
-        // ADMIN E CRUD
+        // ADMIN (MANTIDO)
         function carregarDadosData(data) {
             if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
@@ -348,8 +358,21 @@
                 let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
                 lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
                 
-                container.innerHTML = lista.map(p => `
-                    <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border border-transparent hover:border-orange-200 dark:hover:border-gray-600 transition flex gap-4" data-id="${p.id}">
+                container.innerHTML = lista.map(p => {
+                    // LÓGICA DE CORES DO STATUS
+                    let borderClass = 'border-transparent hover:border-orange-200 dark:hover:border-gray-600';
+                    let bgClass = 'bg-white dark:bg-dark-800';
+                    
+                    if (p.status === 'completo') {
+                        borderClass = 'border-green-500 border-2';
+                        bgClass = 'bg-green-50 dark:bg-green-900/20';
+                    } else if (p.status === 'andamento') {
+                        borderClass = 'border-orange-500 border-2';
+                        bgClass = 'bg-orange-50 dark:bg-orange-900/20';
+                    }
+
+                    return `
+                    <div class="group relative ${bgClass} p-3 rounded-xl shadow-sm border ${borderClass} transition flex gap-4" data-id="${p.id}">
                         ${isAdmin ? `<div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>` : ''}
                         <div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 relative flex items-center justify-center">
                             ${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}
@@ -374,8 +397,10 @@
                                 ${isAdmin ? `<button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button>` : ''}
                             </div>
                         </div>
+                        
+                        ${p.status === 'completo' ? '<div class="absolute top-2 right-2 text-green-500"><i class="fas fa-check-circle"></i></div>' : ''}
                     </div>
-                `).join('');
+                `}).join('');
                 if(isAdmin) lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
             });
 
@@ -394,6 +419,11 @@
             resetCapaUI();
             document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false);
             document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false);
+            
+            // Reset Status para Pendente
+            const radioPendente = document.querySelector('input[name="status"][value="pendente"]');
+            if(radioPendente) radioPendente.checked = true;
+
             document.getElementById('btn-delete').classList.add('hidden');
             mostrarForm();
         };
@@ -402,15 +432,18 @@
             document.getElementById('edit-id').value = p.id;
             document.getElementById('in-titulo').value = p.titulo;
             document.getElementById('in-sub').value = p.subtitulo;
-            document.getElementById('in-versao').value = p.versao || ""; // Popula versão
+            document.getElementById('in-versao').value = p.versao || "";
 
-            // Popula Blocos
+            // Checkboxes
             document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false);
             if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); }
-            
-            // Popula XD
             document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false);
             if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); }
+
+            // Radio Status
+            const statusVal = p.status || 'pendente';
+            const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`);
+            if(radio) radio.checked = true;
 
             if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); }
             document.getElementById('btn-delete').classList.remove('hidden');
@@ -422,6 +455,7 @@
             const id = document.getElementById('edit-id').value;
             const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' ');
             const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' ');
+            const statusChecked = document.querySelector('input[name="status"]:checked').value; // Pega o valor do radio
             
             const dados = {
                 titulo: document.getElementById('in-titulo').value,
@@ -429,6 +463,7 @@
                 versao: document.getElementById('in-versao').value,
                 tags: blocosChecked,
                 xd: xdChecked,
+                status: statusChecked,
                 capa: document.getElementById('in-cover-base64').value,
                 autor: localStorage.getItem('userName')
             };
@@ -436,48 +471,9 @@
             window.cancelar();
         };
 
-        // ... MANTIDA LOGICA ADMIN (APROVAR, REPROVAR, EMAIL, ETC) ...
+        // ADMIN PANEL FUNCTIONS (MANTIDAS)
         function carregarAdminPanel() {
             if(localStorage.getItem('userRole') !== 'admin') return;
             onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } });
             onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } });
-            onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } });
-        }
-        window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } };
-        window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } };
-        window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); };
-        window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden');
-        document.getElementById('form-solicitacao').onsubmit = (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); fecharSolicitacao(); };
-        
-        // UI HELPERS (MANTIDOS)
-        window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; };
-        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } };
-        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; };
-        document.getElementById('formUsuario').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); };
-        window.mudarData = (novaData) => { dataSelecionada = novaData; carregarDadosData(dataSelecionada); };
-        window.salvarPassagemManual = () => { if(localStorage.getItem('userRole') !== 'admin') return alert("Apenas administradores podem salvar."); const texto = document.getElementById('texto-passagem').value; set(refRelatorio, { texto: texto, autor: localStorage.getItem('userName'), atualizado: new Date().toISOString() }); logActivity('Relatório', dataSelecionada); alert("Salvo!"); };
-        if(localStorage.getItem('userRole') === 'admin'){ new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('[data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } }); }
-        window.salvarPrograma = (id, dados) => { if (id) { update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados); logActivity('Editou', dados.titulo); } else { dados.ordem = 999; push(refProgramas, dados); logActivity('Criou', dados.titulo); } };
-        window.deletarPrograma = (id) => { remove(ref(db, `datas/${dataSelecionada}/programas/${id}`)); logActivity('Excluiu', 'ID: ' + id); };
-        function resetCapaUI() { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
-        window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
-        function mostrarForm() { document.getElementById('view-form').classList.remove('hidden'); }
-        window.previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
-        window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
-        window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
-        window.gerarAvatar = () => salvarFotoLocal(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
-        window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
-        function salvarFotoLocal(url) { localStorage.setItem('userAvatar', url); carregarFotoLocal(); fecharModal(); }
-        function carregarFotoLocal() { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
-        window.navegar = (tela) => { document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active')); document.getElementById('screen-grade').classList.add('hidden'); document.getElementById('screen-passagem').classList.add('hidden'); document.getElementById('screen-admin').classList.add('hidden'); document.getElementById('date-picker-wrapper').classList.add('hidden'); if(tela === 'grade') { document.getElementById('nav-grade').classList.add('active'); document.getElementById('screen-grade').classList.remove('hidden'); document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade'; document.getElementById('date-picker-wrapper').classList.remove('hidden'); } else if (tela === 'passagem') { document.getElementById('nav-passagem').classList.add('active'); document.getElementById('screen-passagem').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Passagem de Serviço'; } else if (tela === 'admin') { document.getElementById('nav-admin').classList.add('active'); document.getElementById('screen-admin').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Administração'; } }
-        function toggleTheme() { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
-        function verificarSessao() { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; } if (localStorage.getItem('session_active') === 'true') { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('main-layout').classList.remove('hidden'); document.getElementById('display-nome').innerText = localStorage.getItem('userName'); carregarFotoLocal(); aplicarPermissoes(); } }
-        window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); location.reload(); }
-        window.deletar = () => { if(confirm('Tem certeza?')) { window.deletarPrograma(document.getElementById('edit-id').value); window.cancelar(); } };
-        
-        carregarDadosData(dataSelecionada);
-        carregarAdminPanel();
-        verificarSessao();
-    </script>
-</body>
-</html>
+            on
