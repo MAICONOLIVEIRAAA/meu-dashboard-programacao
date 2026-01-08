@@ -1,40 +1,337 @@
-// --- LÓGICA DA FOTO ---
-    function abrirModal() { document.getElementById('modal-foto').classList.remove('hidden'); }
-    function fecharModal() { document.getElementById('modal-foto').classList.add('hidden'); }
-
-    function salvarFoto(url) {
-        try {
-            localStorage.setItem('userAvatar', url);
-            document.getElementById('profile-img').src = url;
-            document.getElementById('profile-img-small').src = url;
-            fecharModal();
-        } catch (e) {
-            alert("Erro: A imagem é muito pesada para ser salva no navegador. Tente uma foto menor ou com qualidade mais baixa.");
-            console.error(e);
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Midias São Paulo - Sistema Integrado</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', // Permite alternar manualmente
+            theme: {
+                extend: {
+                    colors: {
+                        dark: {
+                            900: '#0f172a', // Fundo principal escuro
+                            800: '#1e293b', // Sidebar/Cards escuros
+                            700: '#334155', // Inputs escuros
+                        }
+                    }
+                }
+            }
         }
-    }
+    </script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Estilos Base */
+        .sidebar-active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; }
+        .dark .sidebar-active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; } /* Ajuste Dark Mode */
+        
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
+        #tela-login { transition: opacity 0.5s ease; }
+        
+        /* Suavizar transição de cores */
+        body, div, aside, header, input, textarea { transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; }
+    </style>
+</head>
+<body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
 
-    function uploadFoto(input) {
-        if (input.files && input.files[0]) {
-            const arquivo = input.files[0];
+    <div id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
+        <div class="bg-white dark:bg-dark-800 max-w-sm w-full p-10 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-gray-700">
+            <div class="mb-8">
+                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6">
+                    <i class="fas fa-lock"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Sistema de Mídias</h2>
+                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Restrito</p>
+            </div>
+            <form id="form-login" class="space-y-4">
+                <div class="text-left">
+                    <label class="text-[10px] font-bold text-gray-400 ml-2 uppercase">Identificação</label>
+                    <input type="text" id="login-nome" placeholder="Seu Nome" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 transition mb-3 dark:text-white">
+                    
+                    <label class="text-[10px] font-bold text-gray-400 ml-2 uppercase">Senha</label>
+                    <input type="password" id="login-senha" placeholder="••••••••" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 transition dark:text-white">
+                </div>
+                <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Senha incorreta.</p>
+                <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">
+                    Acessar Painel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modal-foto" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
+        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 w-80 shadow-2xl text-center border dark:border-gray-600">
+            <h3 class="font-bold mb-4 dark:text-white">Mudar Foto de Perfil</h3>
+            <div class="space-y-3">
+                <label class="block w-full bg-orange-500 text-white py-2 rounded-lg font-bold cursor-pointer hover:bg-orange-600">
+                    Upload Foto <input type="file" class="hidden" accept="image/*" onchange="uploadFoto(this)">
+                </label>
+                <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold hover:bg-orange-50 dark:hover:bg-gray-700">Gerar Avatar</button>
+                <button onclick="fecharModal()" class="w-full text-gray-400 text-[10px] font-bold pt-2 uppercase hover:text-gray-600">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="main-layout" class="flex h-screen hidden">
+        <aside class="w-64 bg-white dark:bg-dark-800 border-r dark:border-gray-700 flex flex-col py-8 items-center shrink-0">
+            <div class="flex flex-col items-center mb-10 text-center px-4">
+                <div class="relative group cursor-pointer" onclick="abrirModal()">
+                    <img id="profile-img" src="" class="w-20 h-20 rounded-full mb-3 border dark:border-gray-600 shadow-sm object-cover bg-gray-100 dark:bg-gray-700">
+                    <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300">
+                        <i class="fas fa-camera text-white"></i>
+                    </div>
+                </div>
+                <h3 id="display-nome" class="font-bold text-gray-800 dark:text-white leading-tight text-sm"></h3>
+                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Operador de Mídia</p>
+                <button onclick="logout()" class="text-[9px] text-red-400 hover:text-red-500 mt-3 font-bold uppercase underline">Sair</button>
+            </div>
+            <nav class="w-full space-y-1">
+                <a href="#" class="flex items-center px-8 py-3 text-sm sidebar-active font-bold"><i class="fas fa-calendar-alt w-6"></i> Programação</a>
+                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-bell w-6"></i> Stand-By</a>
+                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-play-circle w-6"></i> Globoplay</a>
+            </nav>
+        </aside>
+
+        <main class="flex-1 flex flex-col min-w-0">
+            <header class="h-16 bg-white dark:bg-dark-800 border-b dark:border-gray-700 flex items-center justify-between px-8 transition-colors">
+                <h1 class="text-xl font-bold dark:text-white">Midias São Paulo</h1>
+                <div class="flex items-center space-x-4">
+                    <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-yellow-400 hover:scale-110 transition shadow-sm">
+                        <i id="theme-icon" class="fas fa-moon"></i>
+                    </button>
+                    
+                    <div class="h-6 w-px bg-gray-200 dark:bg-gray-600 mx-2"></div>
+                    
+                    <i class="fas fa-search text-gray-300 dark:text-gray-500 cursor-pointer"></i>
+                    <img id="profile-img-small" src="" class="w-7 h-7 rounded-full border dark:border-gray-600 bg-gray-50 dark:bg-gray-700 object-cover">
+                </div>
+            </header>
+
+            <div class="flex-1 overflow-y-auto p-8 bg-[#f8fafc] dark:bg-dark-900 no-scrollbar transition-colors">
+                <div class="flex items-center space-x-4 mb-8">
+                    <div class="relative flex-1 max-w-lg">
+                        <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
+                        <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
+                    </div>
+                    <button onclick="abrirCriacao()" class="bg-orange-500 text-white w-10 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center justify-center text-xl font-bold">+</button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 space-y-4" id="lista-programas"></div>
+                    
+                    <aside id="right-panel" class="sticky top-0 h-fit">
+                        <div id="view-details" class="bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-sm border dark:border-gray-700 transition">
+                            <h4 class="font-bold text-sm mb-4 uppercase text-gray-400 dark:text-gray-500 text-[10px]">Passagem de Serviço</h4>
+                            <textarea class="w-full h-24 p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl text-sm italic mb-4 outline-none dark:text-gray-200" placeholder="Relatório de turno..."></textarea>
+                            <button class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md hover:bg-orange-700">Salvar Relatório</button>
+                        </div>
+
+                        <div id="view-form" class="bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-lg border border-orange-200 dark:border-orange-900 hidden transition">
+                            <h3 class="font-bold text-gray-800 dark:text-white mb-6 text-sm uppercase" id="form-title">Cadastrar</h3>
+                            <form id="formCadastro" class="space-y-4">
+                                <input type="hidden" id="edit-id">
+                                <input id="in-titulo" placeholder="Título" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white placeholder-gray-400">
+                                <input id="in-sub" placeholder="Subtítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white placeholder-gray-400">
+                                <div class="flex space-x-2">
+                                    <input id="in-hora" type="time" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                    <select id="in-status" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white dark:bg-dark-800">
+                                        <option value="Agendado">Agendado</option>
+                                        <option value="No ar agora">No ar agora</option>
+                                    </select>
+                                </div>
+                                <div class="flex space-x-2 pt-4">
+                                    <button type="button" onclick="cancelar()" class="flex-1 text-[10px] font-bold text-gray-400 hover:text-gray-500 uppercase">Voltar</button>
+                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-[10px] uppercase shadow-md hover:bg-orange-600">Confirmar</button>
+                                </div>
+                                <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-4 text-[9px] text-red-300 hover:text-red-400 font-bold uppercase underline hidden">Remover</button>
+                            </form>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // --- SENHA DE ACESSO ---
+        const SENHA_MESTRA = "1234"; 
+
+        // --- LÓGICA DARK MODE ---
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
             
-            // LIMITE DE TAMANHO (2MB)
-            const limiteTamanho = 2 * 1024 * 1024; // 2MB
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            } else {
+                html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
 
-            if (arquivo.size > limiteTamanho) {
-                alert("A imagem é muito grande! Por favor, escolha uma foto menor que 2MB.");
-                input.value = ""; // Limpa a seleção
-                return;
+        // Carregar tema salvo ao abrir
+        function carregarTema() {
+            const theme = localStorage.getItem('theme');
+            const icon = document.getElementById('theme-icon');
+            if (theme === 'dark') {
+                document.documentElement.classList.add('dark');
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
+
+        // --- LÓGICA DE LOGIN ---
+        const formLogin = document.getElementById('form-login');
+        const msgErro = document.getElementById('login-erro');
+
+        formLogin.onsubmit = (e) => {
+            e.preventDefault();
+            const nome = document.getElementById('login-nome').value;
+            const senha = document.getElementById('login-senha').value;
+
+            if (senha === SENHA_MESTRA) {
+                localStorage.setItem('session_active', 'true');
+                localStorage.setItem('userName', nome);
+                verificarSessao();
+            } else {
+                msgErro.classList.remove('hidden');
+                setTimeout(() => msgErro.classList.add('hidden'), 3000);
+            }
+        };
+
+        function verificarSessao() {
+            if (localStorage.getItem('session_active') === 'true') {
+                document.getElementById('tela-login').classList.add('hidden');
+                document.getElementById('main-layout').classList.remove('hidden');
+                document.getElementById('display-nome').innerText = localStorage.getItem('userName');
+                carregarTema(); // Carrega o tema após login
+                renderizar();
+            } else {
+                carregarTema(); // Carrega o tema na tela de login também
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('session_active');
+            location.reload();
+        }
+
+        // --- LÓGICA DE FOTO E UPLOAD (Com Proteção) ---
+        function abrirModal() { document.getElementById('modal-foto').classList.remove('hidden'); }
+        function fecharModal() { document.getElementById('modal-foto').classList.add('hidden'); }
+
+        function salvarFoto(url) {
+            try {
+                localStorage.setItem('userAvatar', url);
+                document.getElementById('profile-img').src = url;
+                document.getElementById('profile-img-small').src = url;
+                fecharModal();
+            } catch (e) {
+                alert("Erro: Imagem muito pesada. Tente uma menor.");
+            }
+        }
+
+        function uploadFoto(input) {
+            if (input.files && input.files[0]) {
+                const arquivo = input.files[0];
+                if (arquivo.size > 2 * 1024 * 1024) { // Limite 2MB
+                    alert("Escolha uma imagem menor que 2MB.");
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => salvarFoto(e.target.result);
+                reader.readAsDataURL(arquivo);
+            }
+        }
+
+        function gerarAvatar() {
+            salvarFoto(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
+        }
+
+        // --- LÓGICA DE PROGRAMAÇÃO (CRUD) ---
+        const DEFAULT_DATA = [{ id: 1, titulo: "História de Amor", subtitulo: "Edição Especial", hora: "00:00", status: "No ar agora" }];
+        function getProgramas() { return JSON.parse(localStorage.getItem('meusProgramas')) || DEFAULT_DATA; }
+
+        function renderizar() {
+            const savedAvatar = localStorage.getItem('userAvatar');
+            if(savedAvatar) {
+                document.getElementById('profile-img').src = savedAvatar;
+                document.getElementById('profile-img-small').src = savedAvatar;
             }
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                salvarFoto(e.target.result);
-            };
-            reader.readAsDataURL(arquivo);
+            const container = document.getElementById('lista-programas');
+            container.innerHTML = getProgramas().map(p => `
+                <div class="bg-white dark:bg-dark-800 p-4 rounded-2xl shadow-sm flex items-center space-x-4 border-l-4 ${p.status === 'No ar agora' ? 'border-green-500' : 'border-orange-500'} card-hover dark:border-opacity-80 transition border border-transparent dark:border-gray-700">
+                    <div class="w-24 h-16 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center text-gray-300 dark:text-gray-500 text-[10px] font-bold">MIDIA</div>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-start">
+                            <h4 class="font-bold text-sm text-gray-800 dark:text-gray-100">${p.titulo}</h4>
+                            ${p.status === 'No ar agora' ? '<span class="text-[8px] font-bold bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded-full uppercase">No ar</span>' : ''}
+                        </div>
+                        <p class="text-xs text-gray-400 dark:text-gray-400">${p.subtitulo}</p>
+                        <div class="mt-2 text-[10px] flex items-center font-bold">
+                            <span class="text-orange-600 dark:text-orange-400">${p.hora}</span>
+                            <span class="text-gray-200 dark:text-gray-600 mx-2">|</span>
+                            <span class="text-gray-400 dark:text-gray-500 uppercase">${localStorage.getItem('userName')}</span>
+                        </div>
+                    </div>
+                    <button onclick="abrirEdicao(${p.id})" class="p-2 hover:bg-orange-50 dark:hover:bg-dark-700 rounded-full transition group">
+                        <i class="fas fa-pencil-alt text-gray-200 dark:text-gray-600 group-hover:text-orange-500 dark:group-hover:text-orange-400"></i>
+                    </button>
+                </div>
+            `).join('');
         }
-    }
 
-    function gerarAvatar() {
-        salvarFoto(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
-    }
+        function abrirCriacao() { 
+            document.getElementById('form-title').innerText = "Novo"; 
+            document.getElementById('edit-id').value = ""; 
+            document.getElementById('formCadastro').reset(); 
+            document.getElementById('btn-delete').classList.add('hidden');
+            mostrarForm(); 
+        }
+        function abrirEdicao(id) {
+            const prog = getProgramas().find(p => p.id == id);
+            document.getElementById('edit-id').value = prog.id;
+            document.getElementById('in-titulo').value = prog.titulo;
+            document.getElementById('in-sub').value = prog.subtitulo;
+            document.getElementById('in-hora').value = prog.hora;
+            document.getElementById('in-status').value = prog.status;
+            document.getElementById('btn-delete').classList.remove('hidden');
+            mostrarForm();
+        }
+        function mostrarForm() { document.getElementById('view-details').classList.add('hidden'); document.getElementById('view-form').classList.remove('hidden'); }
+        function cancelar() { document.getElementById('view-form').classList.add('hidden'); document.getElementById('view-details').classList.remove('hidden'); }
+
+        document.getElementById('formCadastro').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            let progs = getProgramas();
+            const novo = { id: id ? Number(id) : Date.now(), titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, hora: document.getElementById('in-hora').value, status: document.getElementById('in-status').value };
+            if(id) { const i = progs.findIndex(p => p.id == id); progs[i] = novo; } else { progs.push(novo); }
+            localStorage.setItem('meusProgramas', JSON.stringify(progs));
+            cancelar(); renderizar();
+        };
+
+        function deletar() {
+            if(confirm('Remover programa?')) {
+                const id = document.getElementById('edit-id').value;
+                const progs = getProgramas().filter(p => p.id != id);
+                localStorage.setItem('meusProgramas', JSON.stringify(progs));
+                cancelar(); renderizar();
+            }
+        }
+
+        window.onload = verificarSessao;
+    </script>
+</body>
+</html>
