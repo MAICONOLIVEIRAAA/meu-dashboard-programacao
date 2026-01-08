@@ -25,6 +25,9 @@
         .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
+        .ghost-card { opacity: 0.5; background: #f0f0f0; border: 2px dashed #ccc; }
+        input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
+        .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
     </style>
 </head>
@@ -47,7 +50,7 @@
                 <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Usuário ou senha inválidos.</p>
                 <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Entrar</button>
             </form>
-            
+
             <div class="mt-6 flex justify-between text-xs px-2">
                 <button onclick="abrirSolicitacao('reset')" class="text-gray-400 hover:text-orange-500 underline">Esqueci a Senha</button>
                 <button onclick="abrirSolicitacao('novo')" class="text-gray-400 hover:text-orange-500 underline">Solicitar Acesso</button>
@@ -58,36 +61,39 @@
 
     <div id="modal-force-reset" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 hidden">
         <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl border-2 border-orange-500 relative text-center">
+            <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-key"></i></div>
             <h3 class="font-bold mb-2 dark:text-white text-lg">Defina sua Senha</h3>
-            <form id="form-force-reset" class="space-y-4 mt-4">
+            <p class="text-xs text-gray-400 mb-6">Para sua segurança, no primeiro acesso você deve definir uma senha pessoal.</p>
+            <form id="form-force-reset" class="space-y-4">
                 <input type="hidden" id="reset-user-id">
-                <input type="password" id="nova-senha-1" placeholder="Nova Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border rounded-lg px-3 py-2 text-center">
-                <input type="password" id="nova-senha-2" placeholder="Confirme a Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border rounded-lg px-3 py-2 text-center">
-                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold">Atualizar</button>
+                <input type="password" id="nova-senha-1" placeholder="Nova Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none text-center">
+                <input type="password" id="nova-senha-2" placeholder="Confirme a Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none text-center">
+                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-orange-600">Atualizar e Entrar</button>
             </form>
         </div>
     </div>
 
     <div id="modal-solicitacao" class="fixed inset-0 z-[110] flex items-center justify-center modal-overlay hidden">
-        <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl relative">
+        <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl border dark:border-gray-600 relative">
             <button onclick="fecharSolicitacao()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
             <h3 id="titulo-solicitacao" class="font-bold mb-2 dark:text-white text-lg">Solicitação</h3>
+            <p class="text-xs text-gray-400 mb-6">Envie seus dados. O administrador analisará seu pedido.</p>
             <form id="form-solicitacao" class="space-y-4">
                 <input type="hidden" id="tipo-solicitacao">
-                <input id="solic-nome" placeholder="Nome" required class="w-full bg-gray-50 dark:bg-dark-700 border rounded-lg px-3 py-2">
-                <input id="solic-contato" type="email" placeholder="Email" required class="w-full bg-gray-50 dark:bg-dark-700 border rounded-lg px-3 py-2">
-                <textarea id="solic-obs" placeholder="Obs" class="w-full bg-gray-50 dark:bg-dark-700 border rounded-lg px-3 py-2 h-20"></textarea>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold">Enviar</button>
+                <input id="solic-nome" placeholder="Seu Nome Completo" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                <input id="solic-contato" type="email" placeholder="Seu E-mail (Obrigatório)" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                <textarea id="solic-obs" placeholder="Motivo / Observação" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none h-20 resize-none"></textarea>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-blue-700">Enviar Pedido</button>
             </form>
         </div>
     </div>
 
     <div id="modal-foto" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
-        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 w-80 shadow-2xl text-center">
+        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 w-80 shadow-2xl text-center border dark:border-gray-600">
             <h3 class="font-bold mb-4 dark:text-white">Foto de Perfil</h3>
             <div class="space-y-3">
                 <label class="block w-full bg-orange-500 text-white py-2 rounded-lg font-bold cursor-pointer hover:bg-orange-600">Upload <input type="file" class="hidden" accept="image/*" onchange="uploadFotoPerfil(this)"></label>
-                <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold">Gerar Avatar</button>
+                <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold hover:bg-orange-50 dark:hover:bg-gray-700">Gerar Avatar</button>
                 <button onclick="fecharModal()" class="w-full text-gray-400 text-[10px] font-bold pt-2 uppercase">Fechar</button>
             </div>
         </div>
@@ -98,6 +104,7 @@
             <div class="flex flex-col items-center mb-10 text-center px-4">
                 <div class="relative group cursor-pointer" onclick="abrirModal()">
                     <img id="profile-img" src="" class="w-20 h-20 rounded-full mb-3 border dark:border-gray-600 shadow-sm object-cover bg-gray-100 dark:bg-gray-700">
+                    <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"><i class="fas fa-camera text-white"></i></div>
                 </div>
                 <h3 id="display-nome" class="font-bold text-gray-800 dark:text-white text-sm"></h3>
                 <span id="badge-cargo" class="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1"></span>
@@ -108,12 +115,18 @@
                 <a href="#" onclick="navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-calendar-day w-6"></i> Programação Diária
                 </a>
+                
                 <a href="#" onclick="navegar('admin')" id="nav-admin" class="nav-item hidden flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition relative">
                     <i class="fas fa-user-shield w-6"></i> Administração
                     <span id="notificacao-admin" class="absolute right-4 w-2 h-2 bg-red-500 rounded-full hidden"></span>
                 </a>
-                <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-bell w-6"></i> Stand-By</a>
-                <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-play-circle w-6"></i> Globoplay</a>
+
+                <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-bell w-6"></i> Stand-By
+                </a>
+                <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-play-circle w-6"></i> Globoplay
+                </a>
                 <a href="#" onclick="navegar('passagem')" id="nav-passagem" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-clipboard-list w-6"></i> Passagem de Serviço
                 </a>
@@ -142,7 +155,7 @@
                     <div class="flex items-center justify-between mb-8">
                         <div class="relative flex-1 max-w-lg mr-4">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                            <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-dark-800 dark:text-white">
+                            <input type="text" placeholder="Pesquisar programa..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                         </div>
                         <button id="btn-novo-programa" onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
                             <i class="fas fa-plus"></i> Novo Programa
@@ -159,16 +172,15 @@
                                 </h3>
                                 <form id="formCadastro" class="space-y-4">
                                     <input type="hidden" id="edit-id">
-                                    <div class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer group">
+                                    <div class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
                                         <input type="file" id="in-cover" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="previewCapa(this)">
                                         <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
                                         <div id="cover-placeholder" class="text-center"><i class="fas fa-image text-gray-400 text-2xl mb-1"></i><p class="text-[10px] text-gray-400 uppercase font-bold">Capa</p></div>
                                     </div>
                                     <input type="hidden" id="in-cover-base64">
                                     <input id="in-titulo" placeholder="Nome do Programa" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
-                                    <input id="in-sub" placeholder="Subtítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                    <input id="in-versao" placeholder="Versão / Capítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                    
+                                    <input id="in-sub" placeholder="Subtítulo / Edição" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                    <input id="in-versao" placeholder="Versão / Capítulo (Ex: Cap 05)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
                                     <div>
                                         <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Blocos</label>
                                         <div class="flex flex-wrap gap-2">
@@ -177,6 +189,9 @@
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL3" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL3</span></label>
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL4" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL4</span></label>
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL5" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL5</span></label>
+                                            <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL6" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL6</span></label>
+                                            <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL7" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL7</span></label>
+                                            <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL8" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL8</span></label>
                                         </div>
                                     </div>
                                     <div>
@@ -187,14 +202,22 @@
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Status</label>
+                                        <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Status do Programa</label>
                                         <div class="flex gap-2">
-                                            <label class="cursor-pointer flex-1"><input type="radio" name="status" value="pendente" class="hidden peer status-radio" checked><div class="bg-gray-100 dark:bg-dark-700 text-gray-500 text-xs font-bold py-2 rounded-lg text-center border peer-checked:bg-gray-200 peer-checked:text-gray-700">Pendente</div></label>
-                                            <label class="cursor-pointer flex-1"><input type="radio" name="status" value="andamento" class="hidden peer status-radio"><div class="bg-orange-50 dark:bg-dark-700 text-orange-400 text-xs font-bold py-2 rounded-lg text-center border peer-checked:bg-orange-500 peer-checked:text-white">Andamento</div></label>
-                                            <label class="cursor-pointer flex-1"><input type="radio" name="status" value="completo" class="hidden peer status-radio"><div class="bg-green-50 dark:bg-dark-700 text-green-500 text-xs font-bold py-2 rounded-lg text-center border peer-checked:bg-green-500 peer-checked:text-white">Completo</div></label>
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="status" value="pendente" class="hidden peer status-radio" checked>
+                                                <div class="bg-gray-100 dark:bg-dark-700 text-gray-500 dark:text-gray-400 text-xs font-bold py-2 rounded-lg text-center border dark:border-gray-600 peer-checked:bg-gray-200 peer-checked:text-gray-700 dark:peer-checked:bg-gray-600 dark:peer-checked:text-white transition">Pendente</div>
+                                            </label>
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="status" value="andamento" class="hidden peer status-radio">
+                                                <div class="bg-orange-50 dark:bg-dark-700 text-orange-400 text-xs font-bold py-2 rounded-lg text-center border border-orange-200 dark:border-gray-600 peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 transition">Andamento</div>
+                                            </label>
+                                            <label class="cursor-pointer flex-1">
+                                                <input type="radio" name="status" value="completo" class="hidden peer status-radio">
+                                                <div class="bg-green-50 dark:bg-dark-700 text-green-500 text-xs font-bold py-2 rounded-lg text-center border border-green-200 dark:border-gray-600 peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 transition">Completo</div>
+                                            </label>
                                         </div>
                                     </div>
-
                                     <div class="flex space-x-2 pt-4">
                                         <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
                                     </div>
@@ -216,14 +239,10 @@
                     <div class="flex-1 bg-white dark:bg-dark-800 p-8 rounded-2xl shadow-sm border dark:border-gray-700 flex flex-col">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-bold dark:text-white"><i class="fas fa-clipboard-list text-orange-500 mr-2"></i> Relatório do Dia</h2>
-                            <div class="flex items-center gap-3">
-                                <span id="status-lock" class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded hidden"><i class="fas fa-lock mr-1"></i> Bloqueado (Outro Autor)</span>
-                                <span id="data-passagem-label" class="text-sm text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-dark-700 px-3 py-1 rounded">Hoje</span>
-                            </div>
+                            <span id="data-passagem-label" class="text-sm text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-dark-700 px-3 py-1 rounded">Hoje</span>
                         </div>
-                        
                         <div class="flex-1 relative flex flex-col">
-                            <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed" placeholder="Relatório vazio..."></textarea>
+                            <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed focus:ring-2 focus:ring-orange-200 dark:focus:ring-gray-600 transition" placeholder="Escreva aqui..."></textarea>
                             <p id="info-autor" class="absolute bottom-4 right-4 text-[10px] text-gray-400 italic"></p>
                         </div>
                         <div class="mt-6 flex justify-end">
@@ -235,24 +254,28 @@
                 <div id="screen-admin" class="hidden">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-6">
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm">
-                                <h3 class="font-bold mb-4">Solicitações</h3>
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações de Acesso</h3>
                                 <div id="lista-solicitacoes" class="space-y-3"></div>
                             </div>
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm">
-                                <h3 class="font-bold mb-4">Usuários</h3>
-                                <div class="overflow-x-auto"><tbody id="lista-usuarios"></tbody></div>
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-users text-orange-500"></i> Usuários do Sistema</h3>
+                                <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-dark-700 dark:text-gray-400"><tr><th class="px-4 py-3">Nome</th><th class="px-4 py-3">Login/Email</th><th class="px-4 py-3">Função</th><th class="px-4 py-3 text-right">Ações</th></tr></thead><tbody id="lista-usuarios"></tbody></table></div>
+                            </div>
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Relatório de Atividades</h3>
+                                <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                             </div>
                         </div>
-                        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 h-fit sticky top-0">
-                            <h3 class="font-bold mb-6">Gerenciar Usuário</h3>
+                        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700 h-fit sticky top-0">
+                            <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm">Gerenciar Usuário</h3>
                             <form id="formUsuario" class="space-y-4">
                                 <input type="hidden" id="admin-user-id">
-                                <input id="admin-nome" placeholder="Nome" class="w-full bg-gray-50 border rounded-lg px-3 py-2">
-                                <input id="admin-login" placeholder="Login" class="w-full bg-gray-50 border rounded-lg px-3 py-2">
-                                <input id="admin-senha" placeholder="Senha" class="w-full bg-gray-50 border rounded-lg px-3 py-2">
-                                <select id="admin-role" class="w-full bg-gray-50 border rounded-lg px-3 py-2"><option value="user">Usuário</option><option value="admin">Admin</option></select>
-                                <button type="submit" class="w-full bg-orange-500 text-white py-2 rounded-lg font-bold">Salvar</button>
+                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome Completo</label><input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label><input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Reset/Nova)</label><input id="admin-senha" type="text" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Permissão</label><select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"><option value="user">Usuário (Visualizar)</option><option value="admin">Administrador (Total)</option></select></div>
+                                <div class="pt-2 flex gap-2"><button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar & Enviar Email</button><button type="button" onclick="limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button></div>
                             </form>
                         </div>
                     </div>
@@ -263,9 +286,14 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, off, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        // CONFIG EMAILJS
-        (function() { try { emailjs.init("SUA_PUBLIC_KEY"); } catch(e){} })();
+        import { getDatabase, ref, set, push, onValue, remove, update, off, get, child, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+        // === CONFIG EMAILJS ===
+        const EMAILJS_PUBLIC_KEY = "SUA_PUBLIC_KEY"; 
+        const EMAILJS_SERVICE_ID = "SEU_SERVICE_ID"; 
+        const EMAILJS_TEMPLATE_ID = "SEU_TEMPLATE_ID"; 
+
+        (function() { try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.log("EmailJS não configurado"); } })();
 
         const firebaseConfig = {
             apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
@@ -277,150 +305,177 @@
             appId: "1:550605985336:web:7dd3a01aefb9248675b8cd",
             measurementId: "G-LVE7DW8MSF"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
         let dataSelecionada = new Date().toISOString().split('T')[0];
         let refProgramas = null;
         let refRelatorio = null;
+        let refDatas = ref(db, 'datas'); 
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
         const refSolicitacoes = ref(db, 'solicitacoes');
 
-        document.getElementById('data-selector').value = dataSelecionada;
-        document.getElementById('data-selector').addEventListener('change', (e) => mudarData(e.target.value));
+        const dateInput = document.getElementById('data-selector');
+        dateInput.value = dataSelecionada;
+        dateInput.addEventListener('change', (e) => mudarData(e.target.value));
 
-        // LOGIN
+        function logActivity(acao, detalhe) { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
+        window.enviarEmailNotificacao = (nome, email, senha) => { if(!email || !email.includes('@')) { alert("Email inválido."); return; } const templateParams = { to_name: nome, to_email: email, login: email, senha: senha, message: "Acesso liberado. No primeiro login, será necessário trocar sua senha." }; emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams).then(() => alert(`Email enviado para ${email}!`), () => alert('Falha ao enviar email.')); };
+
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
-            const login = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-senha').value;
-            const snap = await get(refUsers);
-            if (!snap.exists() && login === 'admin' && pass === 'admin') {
-                push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin" });
+            const loginInput = document.getElementById('login-user').value;
+            const senhaInput = document.getElementById('login-senha').value;
+            const erroMsg = document.getElementById('login-erro');
+
+            const snapshotUsers = await get(refUsers);
+            if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') {
+                push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false });
                 localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin');
                 location.reload(); return;
             }
-            let user = null; let key = null;
-            if (snap.exists()) snap.forEach(c => { const u = c.val(); if (u.login === login && u.senha === pass) { user = u; key = c.key; } });
-            if (user) {
-                if(user.forceReset) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = key; return; }
-                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', user.nome); localStorage.setItem('userRole', user.role);
-                location.reload();
-            } else { document.getElementById('login-erro').classList.remove('hidden'); }
-        };
 
-        // CARREGAR DADOS COM REGRA DE AUTOR
+            let userFound = null; let userKey = null;
+            if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); }
+
+            if (userFound) {
+                if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; }
+                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role);
+                location.reload();
+            } else { erroMsg.classList.remove('hidden'); }
+        };
+        document.getElementById('form-force-reset').onsubmit = async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Atualizado!"); location.reload(); };
+
         function carregarDadosData(data) {
             if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
-            refProgramas = ref(db, `datas/${data}/programas`);
-            refRelatorio = ref(db, `datas/${data}/relatorio`);
+            refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
-            const currentUser = localStorage.getItem('userName');
-            const isAdmin = localStorage.getItem('userRole') === 'admin';
-
-            // LISTA PROGRAMAS
             onValue(refProgramas, (snapshot) => {
                 const val = snapshot.val(); const container = document.getElementById('lista-programas');
-                if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><p>Nada agendado.</p></div>'; return; }
-                let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })).sort((a,b)=>(a.ordem||0)-(b.ordem||0));
+                if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; }
+                let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
+                lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
                 
                 container.innerHTML = lista.map(p => {
-                    const isOwner = (p.autor === currentUser) || isAdmin;
-                    let border = 'border-transparent hover:border-orange-200';
-                    if (p.status === 'completo') border = 'border-green-500 border-2';
-                    else if (p.status === 'andamento') border = 'border-orange-500 border-2';
-
+                    let borderClass = 'border-transparent hover:border-orange-200 dark:hover:border-gray-600';
+                    let bgClass = 'bg-white dark:bg-dark-800';
+                    if (p.status === 'completo') { borderClass = 'border-green-500 border-2'; bgClass = 'bg-green-50 dark:bg-green-900/20'; } 
+                    else if (p.status === 'andamento') { borderClass = 'border-orange-500 border-2'; bgClass = 'bg-orange-50 dark:bg-orange-900/20'; }
                     return `
-                    <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border ${border} transition flex gap-4" data-id="${p.id}">
-                        ${isOwner ? `<div class="drag-handle px-1 text-gray-300 cursor-grab"><i class="fas fa-grip-vertical"></i></div>` : ''}
-                        <div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 relative flex items-center justify-center">${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image"></i>`}</div>
-                        <div class="flex-1 flex flex-col justify-center">
-                            <h4 class="font-bold text-gray-800 dark:text-gray-100">${p.titulo}</h4>
-                            <p class="text-sm text-gray-400">${p.subtitulo || ''} ${p.versao ? `| ${p.versao}` : ''}</p>
-                            <div class="flex justify-between mt-2 items-center">
-                                <span class="text-xs font-bold text-gray-400">${p.autor || 'Sistema'}</span>
-                                <div class="flex gap-2">
-                                    ${isOwner ? `<button onclick="window.confirmarDelecao('${p.id}')" class="text-red-400 hover:text-red-600 w-8 h-8 rounded-full flex items-center justify-center" title="Excluir"><i class="fas fa-trash"></i></button>` : ''}
-                                    ${isOwner ? `<button id="btn-edit-${p.id}" class="text-blue-400 hover:text-blue-600 w-8 h-8 rounded-full flex items-center justify-center" title="Editar"><i class="fas fa-pencil-alt"></i></button>` : ''}
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
+                    <div class="group relative ${bgClass} p-3 rounded-xl shadow-sm border ${borderClass} transition flex gap-4" data-id="${p.id}">
+                        <div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>
+                        <div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 relative flex items-center justify-center">${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}</div>
+                        <div class="flex-1 flex flex-col justify-center py-1"><div><h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4><div class="flex gap-2 items-center text-sm text-gray-400 dark:text-gray-400 mt-1"><span>${p.subtitulo || ''}</span>${p.versao ? `<span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 rounded border dark:border-gray-600 font-bold">${p.versao}</span>` : ''}</div></div><div class="flex items-center justify-between mt-3"><div class="flex items-center gap-2"><span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span><div class="h-3 w-px bg-gray-300"></div><div class="flex gap-1 flex-wrap">${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : ''}${p.xd ? p.xd.split(' ').map(tag => `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-200 dark:border-purple-800">${tag}</span>`).join('') : ''}${(!p.tags && !p.xd) ? '<span class="text-[10px] text-gray-300">Sem tags</span>' : ''}</div></div><button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button></div></div>
+                        ${p.status === 'completo' ? '<div class="absolute top-2 right-2 text-green-500"><i class="fas fa-check-circle"></i></div>' : ''}</div>`;
                 }).join('');
-                
-                lista.forEach(p => { 
-                    const btn = document.getElementById(`btn-edit-${p.id}`);
-                    if(btn) btn.onclick = () => abrirEdicao(p); 
-                });
+                lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
             });
 
-            // PASSAGEM DE SERVIÇO
+            // RELATÓRIO DE PASSAGEM - SEM TRAVA DE EDIÇÃO
             onValue(refRelatorio, (snapshot) => {
-                const dados = snapshot.val();
+                const dadosRelatorio = snapshot.val();
                 const textArea = document.getElementById('texto-passagem');
-                const btnSalvar = document.getElementById('btn-salvar-relatorio');
-                const lockMsg = document.getElementById('status-lock');
                 const infoAutor = document.getElementById('info-autor');
                 
-                textArea.value = (dados && dados.texto) ? dados.texto : '';
+                textArea.value = (dadosRelatorio && dadosRelatorio.texto) ? dadosRelatorio.texto : '';
                 
-                // REGRA: Se tem autor, e não sou eu, e não sou admin -> BLOQUEIA
-                const temAutor = (dados && dados.autor);
-                const souAutor = (temAutor && dados.autor === currentUser);
-                
-                if (!temAutor || souAutor || isAdmin) {
-                    textArea.removeAttribute('readonly');
-                    textArea.classList.remove('bg-gray-100');
-                    btnSalvar.classList.remove('hidden');
-                    lockMsg.classList.add('hidden');
-                    infoAutor.innerText = dados ? `Editado por: ${dados.autor}` : "";
+                // Exibe quem editou por último, mas NÃO bloqueia
+                if (dadosRelatorio && dadosRelatorio.autor) {
+                    infoAutor.innerText = `Última edição por: ${dadosRelatorio.autor}`;
                 } else {
-                    textArea.setAttribute('readonly', true);
-                    textArea.classList.add('bg-gray-100');
-                    btnSalvar.classList.add('hidden');
-                    lockMsg.classList.remove('hidden');
-                    infoAutor.innerText = `Bloqueado. Autor: ${dados.autor}`;
+                    infoAutor.innerText = "";
                 }
             });
         }
 
-        window.abrirCriacao = () => { document.getElementById('form-title').innerText = "Novo"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
-        window.abrirEdicao = (p) => { 
-            const currentUser = localStorage.getItem('userName');
-            const isAdmin = localStorage.getItem('userRole') === 'admin';
-            
-            // VERIFICAÇÃO EXTRA DE SEGURANÇA
-            if (p.autor !== currentUser && !isAdmin) { alert("Você não é o dono deste item."); return; }
+        // CARREGAR HISTÓRICO LATERAL
+        function carregarHistoricoPassagem() {
+            onValue(refDatas, (snapshot) => {
+                const datas = snapshot.val();
+                const container = document.getElementById('lista-historico-passagem');
+                container.innerHTML = '';
+                
+                if(!datas) return;
 
-            document.getElementById('edit-id').value = p.id; 
-            document.getElementById('in-titulo').value = p.titulo; 
-            document.getElementById('in-sub').value = p.subtitulo; 
-            document.getElementById('in-versao').value = p.versao || ""; 
-            
-            // Exibe botão de excluir no form também, por garantia
-            document.getElementById('btn-delete').classList.remove('hidden'); 
-            
-            if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); }
-            mostrarForm(); 
+                const datasComRelatorio = Object.keys(datas)
+                    .filter(key => datas[key].relatorio && datas[key].relatorio.texto)
+                    .sort((a,b) => b.localeCompare(a)); 
+
+                datasComRelatorio.forEach(data => {
+                    const rel = datas[data].relatorio;
+                    const dataFormatada = data.split('-').reverse().join('/');
+                    const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600";
+                    
+                    container.innerHTML += `
+                        <div onclick="mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group">
+                            <div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${rel.autor}</p></div>
+                            <i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        window.abrirCriacao = () => { document.getElementById('form-title').innerText = "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
+        window.abrirEdicao = (p) => { document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
+        document.getElementById('formCadastro').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; window.salvarPrograma(id || null, dados); window.cancelar(); };
+        
+        function carregarAdminPanel() {
+            if(localStorage.getItem('userRole') !== 'admin') return;
+            onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } });
+            onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } });
+            onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } });
+        }
+        window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } };
+        window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } };
+        window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); };
+        window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden');
+        document.getElementById('form-solicitacao').onsubmit = (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); fecharSolicitacao(); };
+        window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; };
+        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } };
+        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; };
+        document.getElementById('formUsuario').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); };
+        
+        window.mudarData = (novaData) => { 
+            dataSelecionada = novaData; 
+            document.getElementById('data-selector').value = dataSelecionada;
+            carregarDadosData(dataSelecionada); 
+            carregarHistoricoPassagem(); 
         };
 
-        window.confirmarDelecao = (id) => { if(confirm('Excluir programa permanentemente?')) { remove(ref(db, `datas/${dataSelecionada}/programas/${id}`)); } };
-        window.deletar = () => { window.confirmarDelecao(document.getElementById('edit-id').value); window.cancelar(); }; // Deletar via Form
+        window.salvarPassagemManual = () => { 
+            const texto = document.getElementById('texto-passagem').value; 
+            // Atualiza texto e autor
+            set(refRelatorio, { 
+                texto: texto, 
+                autor: localStorage.getItem('userName'), 
+                atualizado: new Date().toISOString() 
+            }); 
+            logActivity('Relatório', dataSelecionada); 
+            alert("Salvo!"); 
+        };
         
-        document.getElementById('formCadastro').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, status: document.querySelector('input[name="status"]:checked').value, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; if(id) update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados); else { dados.ordem = 999; push(ref(db, `datas/${dataSelecionada}/programas`), dados); } window.cancelar(); };
-        window.mudarData = (d) => { dataSelecionada = d; carregarDadosData(d); };
-        window.salvarPassagemManual = () => { set(refRelatorio, { texto: document.getElementById('texto-passagem').value, autor: localStorage.getItem('userName') }); alert("Salvo!"); };
-        
-        // Helpers
+        new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('[data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
+        window.salvarPrograma = (id, dados) => { if (id) { update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados); logActivity('Editou', dados.titulo); } else { dados.ordem = 999; push(refProgramas, dados); logActivity('Criou', dados.titulo); } };
+        window.deletarPrograma = (id) => { remove(ref(db, `datas/${dataSelecionada}/programas/${id}`)); logActivity('Excluiu', 'ID: ' + id); };
+        window.deletar = () => { if(confirm('Tem certeza?')) { window.deletarPrograma(document.getElementById('edit-id').value); window.cancelar(); } };
         function resetCapaUI() { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
-        window.cancelar = () => document.getElementById('view-form').classList.add('hidden');
+        window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
         function mostrarForm() { document.getElementById('view-form').classList.remove('hidden'); }
         window.previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
+        window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
+        window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
+        window.gerarAvatar = () => salvarFotoLocal(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
+        window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
+        function salvarFotoLocal(url) { localStorage.setItem('userAvatar', url); carregarFotoLocal(); fecharModal(); }
+        function carregarFotoLocal() { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         
         carregarDadosData(dataSelecionada);
-        // Código Admin Panel suprimido para brevidade, mas deve ser mantido se necessário.
+        carregarHistoricoPassagem();
+        carregarAdminPanel();
     </script>
 
     <script>
@@ -429,21 +484,63 @@
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
             document.getElementById('screen-admin').classList.add('hidden');
-            if(tela === 'grade') { document.getElementById('nav-grade').classList.add('active'); document.getElementById('screen-grade').classList.remove('hidden'); }
-            else if (tela === 'passagem') { document.getElementById('nav-passagem').classList.add('active'); document.getElementById('screen-passagem').classList.remove('hidden'); }
-            else if (tela === 'admin') { document.getElementById('nav-admin').classList.add('active'); document.getElementById('screen-admin').classList.remove('hidden'); }
+            document.getElementById('date-picker-wrapper').classList.add('hidden');
+
+            if(tela === 'grade') {
+                document.getElementById('nav-grade').classList.add('active');
+                document.getElementById('screen-grade').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
+                document.getElementById('date-picker-wrapper').classList.remove('hidden');
+            } else if (tela === 'passagem') {
+                document.getElementById('nav-passagem').classList.add('active');
+                document.getElementById('screen-passagem').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
+            } else if (tela === 'admin') {
+                document.getElementById('nav-admin').classList.add('active');
+                document.getElementById('screen-admin').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Administração';
+            }
         }
+
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function aplicarPermissoes() {
+            const role = localStorage.getItem('userRole');
+            const isAdmin = (role === 'admin'); 
+            
+            const btnNovo = document.getElementById('btn-novo-programa');
+            const navAdmin = document.getElementById('nav-admin');
+            const badge = document.getElementById('badge-cargo');
+            
+            // TODOS VEEM BOTÕES DE AÇÃO
+            if(btnNovo) btnNovo.classList.remove('hidden');
+
+            // SOMENTE ADMIN VÊ MENU ADMIN
+            if(isAdmin) {
+                if(navAdmin) navAdmin.classList.remove('hidden'); 
+                if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; }
+            } else {
+                if(navAdmin) navAdmin.classList.add('hidden'); 
+                if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-blue-100 text-blue-600"; badge.innerText = "Usuário"; }
+            }
+        }
+
         function verificarSessao() {
+            if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; }
             if (localStorage.getItem('session_active') === 'true') {
                 document.getElementById('tela-login').classList.add('hidden');
                 document.getElementById('main-layout').classList.remove('hidden');
-                document.getElementById('display-nome').innerText = localStorage.getItem('userName');
-                
-                // Mostrar Admin Tab apenas para admin
-                if(localStorage.getItem('userRole') === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
+                if(document.getElementById('display-nome')) { document.getElementById('display-nome').innerText = localStorage.getItem('userName'); }
+                const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; }
+                aplicarPermissoes();
             }
         }
-        window.logout = () => { localStorage.clear(); location.reload(); }
+
+        window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); localStorage.removeItem('userName'); location.reload(); }
         window.onload = verificarSessao;
     </script>
 </body>
