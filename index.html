@@ -3,23 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midias SP - Cloud System</title>
+    <title>Midias SP - Gestão Visual</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
     </script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
         .sidebar-active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; }
         .dark .sidebar-active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
-        body { transition: background-color 0.3s, color 0.3s; }
+        /* Cursor de movimento para o botão de arrastar */
+        .drag-handle { cursor: grab; }
+        .drag-handle:active { cursor: grabbing; }
+        /* Animação suave */
+        .ghost-card { opacity: 0.5; background: #f0f0f0; border: 2px dashed #ccc; }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -27,24 +33,24 @@
     <div id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
         <div class="bg-white dark:bg-dark-800 max-w-sm w-full p-10 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-gray-700">
             <div class="mb-8">
-                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-cloud"></i></div>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP Cloud</h2>
-                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Sincronizado</p>
+                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-layer-group"></i></div>
+                <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP</h2>
+                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Grade de Programação</p>
             </div>
             <form id="form-login" class="space-y-4">
                 <input type="text" id="login-nome" placeholder="Seu Nome" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
-                <input type="password" id="login-senha" placeholder="Senha de Acesso" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
+                <input type="password" id="login-senha" placeholder="Senha" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
                 <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Senha incorreta.</p>
-                <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Acessar Sistema</button>
+                <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Entrar</button>
             </form>
         </div>
     </div>
 
     <div id="modal-foto" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
         <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 w-80 shadow-2xl text-center border dark:border-gray-600">
-            <h3 class="font-bold mb-4 dark:text-white">Sua Foto (Local)</h3>
+            <h3 class="font-bold mb-4 dark:text-white">Foto de Perfil</h3>
             <div class="space-y-3">
-                <label class="block w-full bg-orange-500 text-white py-2 rounded-lg font-bold cursor-pointer hover:bg-orange-600">Upload <input type="file" class="hidden" accept="image/*" onchange="uploadFoto(this)"></label>
+                <label class="block w-full bg-orange-500 text-white py-2 rounded-lg font-bold cursor-pointer hover:bg-orange-600">Upload <input type="file" class="hidden" accept="image/*" onchange="uploadFotoPerfil(this)"></label>
                 <button onclick="gerarAvatar()" class="w-full border-2 border-orange-500 text-orange-500 py-2 rounded-lg font-bold hover:bg-orange-50 dark:hover:bg-gray-700">Gerar Avatar</button>
                 <button onclick="fecharModal()" class="w-full text-gray-400 text-[10px] font-bold pt-2 uppercase">Fechar</button>
             </div>
@@ -59,18 +65,19 @@
                     <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"><i class="fas fa-camera text-white"></i></div>
                 </div>
                 <h3 id="display-nome" class="font-bold text-gray-800 dark:text-white text-sm"></h3>
-                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Conectado</p>
+                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Editor</p>
                 <button onclick="logout()" class="text-[9px] text-red-400 hover:text-red-500 mt-3 font-bold uppercase underline">Sair</button>
             </div>
             <nav class="w-full space-y-1">
                 <a href="#" class="flex items-center px-8 py-3 text-sm sidebar-active font-bold"><i class="fas fa-calendar-alt w-6"></i> Programação</a>
                 <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"><i class="fas fa-bell w-6"></i> Stand-By</a>
+                <a href="#" class="flex items-center px-8 py-3 text-sm text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700"><i class="fas fa-play-circle w-6"></i> Globoplay</a>
             </nav>
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0">
             <header class="h-16 bg-white dark:bg-dark-800 border-b dark:border-gray-700 flex items-center justify-between px-8 transition-colors">
-                <h1 class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Online</h1>
+                <h1 class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade Ao Vivo</h1>
                 <div class="flex items-center space-x-4">
                     <button onclick="toggleTheme()" class="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-yellow-400 hover:scale-110 transition"><i id="theme-icon" class="fas fa-moon"></i></button>
                     <div class="h-6 w-px bg-gray-200 dark:bg-gray-600 mx-2"></div>
@@ -82,32 +89,50 @@
                 <div class="flex items-center space-x-4 mb-8">
                     <div class="relative flex-1 max-w-lg">
                         <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                        <input type="text" placeholder="Pesquisar na nuvem..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
+                        <input type="text" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                     </div>
-                    <button onclick="abrirCriacao()" class="bg-orange-500 text-white w-10 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center justify-center text-xl font-bold">+</button>
+                    <button onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
+                        <i class="fas fa-plus"></i> Novo Programa
+                    </button>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <div class="lg:col-span-2 space-y-4" id="lista-programas">
                         <div class="flex flex-col items-center justify-center py-20 text-gray-400">
-                            <i class="fas fa-cloud-download-alt text-3xl mb-4 animate-bounce"></i>
-                            <p class="text-sm">Sincronizando com Firebase...</p>
+                            <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
+                            <p class="text-sm">Carregando grade...</p>
                         </div>
                     </div>
                     
                     <aside id="right-panel" class="sticky top-0 h-fit">
                         <div id="view-details" class="bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-sm border dark:border-gray-700 transition">
                             <h4 class="font-bold text-sm mb-4 uppercase text-gray-400 dark:text-gray-500 text-[10px]">Passagem de Serviço</h4>
-                            <textarea class="w-full h-24 p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl text-sm italic mb-4 outline-none dark:text-gray-200" placeholder="Relatório de turno..."></textarea>
-                            <button class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md hover:bg-orange-700">Salvar Relatório</button>
+                            <textarea class="w-full h-24 p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl text-sm italic mb-4 outline-none dark:text-gray-200" placeholder="Digite uma passagem de serviço..."></textarea>
+                            <button class="w-full bg-orange-600 text-white py-3 rounded-xl font-bold text-xs uppercase shadow-md hover:bg-orange-700">Enviar</button>
                         </div>
 
                         <div id="view-form" class="bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-lg border border-orange-200 dark:border-orange-900 hidden transition">
-                            <h3 class="font-bold text-gray-800 dark:text-white mb-6 text-sm uppercase" id="form-title">Cadastrar</h3>
+                            <h3 class="font-bold text-gray-800 dark:text-white mb-6 text-sm uppercase flex items-center justify-between">
+                                <span id="form-title">Cadastrar</span>
+                                <i class="fas fa-times cursor-pointer text-gray-400" onclick="cancelar()"></i>
+                            </h3>
                             <form id="formCadastro" class="space-y-4">
                                 <input type="hidden" id="edit-id">
-                                <input id="in-titulo" placeholder="Título" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                <input id="in-sub" placeholder="Subtítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                
+                                <div class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
+                                    <input type="file" id="in-cover" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="previewCapa(this)">
+                                    <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
+                                    <div id="cover-placeholder" class="text-center">
+                                        <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
+                                        <p class="text-[10px] text-gray-400 uppercase font-bold">Arraste ou clique para Capa</p>
+                                    </div>
+                                </div>
+                                <input type="hidden" id="in-cover-base64">
+
+                                <input id="in-titulo" placeholder="Nome do Programa (ex: História de Amor)" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
+                                <input id="in-sub" placeholder="Subtítulo / Capítulo (ex: Edição Especial • Cap 114)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                <input id="in-tags" placeholder="Blocos (ex: BL1 BL2 BL3)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white uppercase tracking-widest text-xs">
+                                
                                 <div class="flex space-x-2">
                                     <input id="in-hora" type="time" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
                                     <select id="in-status" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white dark:bg-dark-800">
@@ -115,11 +140,11 @@
                                         <option value="No ar agora">No ar agora</option>
                                     </select>
                                 </div>
+
                                 <div class="flex space-x-2 pt-4">
-                                    <button type="button" onclick="cancelar()" class="flex-1 text-[10px] font-bold text-gray-400 hover:text-gray-500 uppercase">Voltar</button>
-                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-[10px] uppercase shadow-md hover:bg-orange-600">Salvar na Nuvem</button>
+                                    <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar Programa</button>
                                 </div>
-                                <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-4 text-[9px] text-red-300 hover:text-red-400 font-bold uppercase underline hidden">Remover</button>
+                                <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-2 text-[9px] text-red-400 hover:text-red-500 font-bold uppercase underline hidden">Excluir este programa</button>
                             </form>
                         </div>
                     </aside>
@@ -132,7 +157,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // SUAS CHAVES REAIS
+        // --- CONFIGURAÇÃO FIREBASE (As chaves que você forneceu) ---
         const firebaseConfig = {
             apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
             authDomain: "midias-sp.firebaseapp.com",
@@ -148,47 +173,91 @@
         const db = getDatabase(app);
         const dbRef = ref(db, 'programas');
 
-        // Sincronização em Tempo Real
+        // --- SINCRONIZAÇÃO EM TEMPO REAL ---
         onValue(dbRef, (snapshot) => {
             const data = snapshot.val();
             const container = document.getElementById('lista-programas');
             
             if (!data) {
-                container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-inbox text-4xl mb-2"></i><p class="text-sm">Nenhum programa na lista</p></div>';
+                container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-tv text-4xl mb-2"></i><p class="text-sm">Nenhum programa na grade.</p></div>';
                 return;
             }
 
-            const lista = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            // Converte e Ordena pelo campo 'ordem' (se existir)
+            let lista = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
 
+            // RENDERIZAÇÃO DOS CARDS (Estilo da Foto)
             container.innerHTML = lista.map(p => `
-                <div class="bg-white dark:bg-dark-800 p-4 rounded-2xl shadow-sm flex items-center space-x-4 border-l-4 ${p.status === 'No ar agora' ? 'border-green-500' : 'border-orange-500'} card-hover dark:border-opacity-80 transition border border-transparent dark:border-gray-700">
-                    <div class="w-24 h-16 rounded-xl bg-gray-100 dark:bg-dark-700 flex items-center justify-center text-gray-300 dark:text-gray-500 text-[10px] font-bold">CLOUD</div>
-                    <div class="flex-1">
-                        <div class="flex justify-between items-start">
-                            <h4 class="font-bold text-sm text-gray-800 dark:text-gray-100">${p.titulo}</h4>
-                            ${p.status === 'No ar agora' ? '<span class="text-[8px] font-bold bg-green-100 text-green-600 dark:bg-green-900 dark:text-green-300 px-2 py-0.5 rounded-full uppercase animate-pulse">No ar</span>' : ''}
+                <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border border-transparent hover:border-orange-200 dark:hover:border-gray-600 transition flex gap-4" data-id="${p.id}">
+                    
+                    <div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab">
+                        <i class="fas fa-grip-vertical"></i>
+                    </div>
+
+                    <div class="w-32 h-20 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 relative">
+                        ${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : 
+                        `<div class="w-full h-full flex items-center justify-center text-gray-300 text-xs font-bold uppercase">Sem Capa</div>`}
+                        ${p.status === 'No ar agora' ? '<div class="absolute top-1 right-1 bg-green-500 text-white text-[8px] font-bold px-2 py-0.5 rounded shadow-sm animate-pulse">NO AR</div>' : ''}
+                    </div>
+
+                    <div class="flex-1 flex flex-col justify-between py-0.5">
+                        <div>
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-base text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4>
+                                ${p.status === 'No ar agora' ? '<span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded">No ar agora</span>' : ''}
+                            </div>
+                            <p class="text-xs text-gray-400 dark:text-gray-400 mt-0.5">${p.subtitulo || 'Sem detalhes'}</p>
                         </div>
-                        <p class="text-xs text-gray-400 dark:text-gray-400">${p.subtitulo}</p>
-                        <div class="mt-2 text-[10px] flex items-center font-bold">
-                            <span class="text-orange-600 dark:text-orange-400">${p.hora}</span>
-                            <span class="text-gray-200 dark:text-gray-600 mx-2">|</span>
-                            <span class="text-gray-400 dark:text-gray-500 uppercase">${p.autor || 'Sistema'}</span>
+                        
+                        <div class="flex items-end justify-between mt-2">
+                            <div class="text-xs">
+                                <span class="text-orange-600 dark:text-orange-400 font-bold text-sm">${p.hora}</span>
+                                <span class="text-gray-300 mx-2">•</span>
+                                <span class="text-gray-500 dark:text-gray-400">${p.autor || 'Sistema'}</span>
+                                <div class="mt-1 flex gap-2 text-[10px] text-gray-400 font-mono uppercase tracking-wide">
+                                    ${p.tags ? p.tags.split(' ').map(tag => `<span>${tag}</span>`).join(' ') : '<span>BL1</span> <span>BL2</span> <span>BL3</span>'}
+                                </div>
+                            </div>
+                            
+                            <button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center">
+                                <i class="fas fa-pencil-alt text-sm"></i>
+                            </button>
                         </div>
                     </div>
-                    <button id="btn-edit-${p.id}" class="p-2 hover:bg-orange-50 dark:hover:bg-dark-700 rounded-full transition group">
-                        <i class="fas fa-pencil-alt text-gray-200 dark:text-gray-600 group-hover:text-orange-500"></i>
-                    </button>
                 </div>
             `).join('');
 
+            // Reconecta os eventos de clique do botão editar
             lista.forEach(p => {
                 document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p);
             });
         });
 
+        // --- INICIALIZA DRAG & DROP (SortableJS) ---
+        const listaEl = document.getElementById('lista-programas');
+        new Sortable(listaEl, {
+            handle: '.drag-handle', // Só arrasta se clicar nos pontinhos
+            animation: 150,
+            ghostClass: 'ghost-card',
+            onEnd: function (evt) {
+                // Atualiza a ordem no Firebase após soltar
+                const items = listaEl.querySelectorAll('[data-id]');
+                items.forEach((item, index) => {
+                    const id = item.getAttribute('data-id');
+                    update(ref(db, 'programas/' + id), { ordem: index });
+                });
+            }
+        });
+
+        // --- FUNÇÕES GLOBAIS (Conexão Módulo <-> HTML) ---
         window.salvarPrograma = (id, dados) => {
             if (id) update(ref(db, 'programas/' + id), dados);
-            else push(dbRef, dados);
+            else {
+                // Ao criar, coloca no final da lista
+                dados.ordem = 999; 
+                push(dbRef, dados);
+            }
         };
 
         window.deletarPrograma = (id) => remove(ref(db, 'programas/' + id));
@@ -197,6 +266,7 @@
     <script>
         const SENHA_MESTRA = "1234";
 
+        // TEMA & LOGIN
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
@@ -230,6 +300,7 @@
 
         window.logout = () => { localStorage.removeItem('session_active'); location.reload(); }
 
+        // FOTO DE PERFIL (LOCAL)
         function carregarFotoLocal() {
             const url = localStorage.getItem('userAvatar');
             if(url) {
@@ -241,23 +312,46 @@
         window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
         window.gerarAvatar = () => salvarFotoLocal(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
         
-        window.uploadFoto = (input) => {
+        window.uploadFotoPerfil = (input) => {
             if (input.files[0]) {
-                if(input.files[0].size > 2*1024*1024) return alert("Foto muito grande!");
                 const reader = new FileReader();
                 reader.onload = (e) => salvarFotoLocal(e.target.result);
                 reader.readAsDataURL(input.files[0]);
             }
         };
         function salvarFotoLocal(url) {
-            try { localStorage.setItem('userAvatar', url); carregarFotoLocal(); fecharModal(); } 
-            catch { alert("Erro ao salvar foto local."); }
+            localStorage.setItem('userAvatar', url);
+            carregarFotoLocal();
+            fecharModal();
         }
 
+        // --- PREVIEW DA CAPA DO PROGRAMA ---
+        window.previewCapa = (input) => {
+            if (input.files && input.files[0]) {
+                const arquivo = input.files[0];
+                // Limite simples de tamanho (ex: 500kb para não travar o Firebase)
+                if(arquivo.size > 500 * 1024) {
+                    alert("A imagem é muito grande! Tente uma imagem menor que 500KB.");
+                    input.value = "";
+                    return;
+                }
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    document.getElementById('cover-preview').src = e.target.result;
+                    document.getElementById('cover-preview').classList.remove('hidden');
+                    document.getElementById('cover-placeholder').classList.add('hidden');
+                    document.getElementById('in-cover-base64').value = e.target.result;
+                };
+                reader.readAsDataURL(arquivo);
+            }
+        };
+
+        // --- CONTROLE DE FORMULÁRIO ---
         window.abrirCriacao = () => {
-            document.getElementById('form-title').innerText = "Novo"; 
+            document.getElementById('form-title').innerText = "Novo Programa"; 
             document.getElementById('edit-id').value = ""; 
             document.getElementById('formCadastro').reset();
+            resetCapaUI();
             document.getElementById('btn-delete').classList.add('hidden');
             mostrarForm();
         };
@@ -268,9 +362,28 @@
             document.getElementById('in-sub').value = p.subtitulo;
             document.getElementById('in-hora').value = p.hora;
             document.getElementById('in-status').value = p.status;
+            document.getElementById('in-tags').value = p.tags || "";
+            
+            // Carregar Capa se existir
+            if(p.capa) {
+                document.getElementById('in-cover-base64').value = p.capa;
+                document.getElementById('cover-preview').src = p.capa;
+                document.getElementById('cover-preview').classList.remove('hidden');
+                document.getElementById('cover-placeholder').classList.add('hidden');
+            } else {
+                resetCapaUI();
+            }
+
             document.getElementById('btn-delete').classList.remove('hidden');
             mostrarForm();
         };
+
+        function resetCapaUI() {
+            document.getElementById('in-cover-base64').value = "";
+            document.getElementById('cover-preview').src = "";
+            document.getElementById('cover-preview').classList.add('hidden');
+            document.getElementById('cover-placeholder').classList.remove('hidden');
+        }
 
         window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); document.getElementById('view-details').classList.remove('hidden'); };
         function mostrarForm() { document.getElementById('view-details').classList.add('hidden'); document.getElementById('view-form').classList.remove('hidden'); }
@@ -283,6 +396,8 @@
                 subtitulo: document.getElementById('in-sub').value,
                 hora: document.getElementById('in-hora').value,
                 status: document.getElementById('in-status').value,
+                tags: document.getElementById('in-tags').value.toUpperCase(),
+                capa: document.getElementById('in-cover-base64').value,
                 autor: localStorage.getItem('userName')
             };
             window.salvarPrograma(id || null, dados);
@@ -290,7 +405,7 @@
         };
 
         window.deletar = () => {
-            if(confirm('Excluir da nuvem?')) {
+            if(confirm('Tem certeza?')) {
                 window.deletarPrograma(document.getElementById('edit-id').value);
                 window.cancelar();
             }
