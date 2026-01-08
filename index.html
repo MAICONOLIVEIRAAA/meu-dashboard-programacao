@@ -172,18 +172,15 @@
                                 </h3>
                                 <form id="formCadastro" class="space-y-4">
                                     <input type="hidden" id="edit-id">
-                                    
                                     <div class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
                                         <input type="file" id="in-cover" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="previewCapa(this)">
                                         <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
                                         <div id="cover-placeholder" class="text-center"><i class="fas fa-image text-gray-400 text-2xl mb-1"></i><p class="text-[10px] text-gray-400 uppercase font-bold">Capa</p></div>
                                     </div>
                                     <input type="hidden" id="in-cover-base64">
-
                                     <input id="in-titulo" placeholder="Nome do Programa" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
                                     <input id="in-sub" placeholder="Subtítulo / Edição" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
                                     <input id="in-versao" placeholder="Versão / Capítulo (Ex: Cap 05)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                    
                                     <div>
                                         <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Blocos</label>
                                         <div class="flex flex-wrap gap-2">
@@ -197,7 +194,6 @@
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL8" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL8</span></label>
                                         </div>
                                     </div>
-
                                     <div>
                                         <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Canais XD</label>
                                         <div class="flex flex-wrap gap-2">
@@ -205,7 +201,6 @@
                                             <label class="cursor-pointer"><input type="checkbox" name="xd" value="XD3" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-purple-600 peer-checked:text-white border dark:border-gray-600">XD3</span></label>
                                         </div>
                                     </div>
-
                                     <div>
                                         <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Status do Programa</label>
                                         <div class="flex gap-2">
@@ -223,7 +218,6 @@
                                             </label>
                                         </div>
                                     </div>
-
                                     <div class="flex space-x-2 pt-4">
                                         <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
                                     </div>
@@ -239,24 +233,18 @@
                         <div class="p-4 border-b dark:border-gray-700 bg-gray-50 dark:bg-dark-700/50">
                             <h3 class="font-bold dark:text-white text-sm flex items-center gap-2"><i class="fas fa-history text-orange-500"></i> Histórico</h3>
                         </div>
-                        <div id="lista-historico-passagem" class="flex-1 overflow-y-auto p-2 space-y-2">
-                            </div>
+                        <div id="lista-historico-passagem" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
                     </div>
 
                     <div class="flex-1 bg-white dark:bg-dark-800 p-8 rounded-2xl shadow-sm border dark:border-gray-700 flex flex-col">
                         <div class="flex justify-between items-center mb-6">
                             <h2 class="text-xl font-bold dark:text-white"><i class="fas fa-clipboard-list text-orange-500 mr-2"></i> Relatório do Dia</h2>
-                            <div class="flex items-center gap-3">
-                                <span id="status-lock" class="text-xs font-bold text-red-500 bg-red-100 px-2 py-1 rounded hidden"><i class="fas fa-lock mr-1"></i> Somente Leitura</span>
-                                <span id="data-passagem-label" class="text-sm text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-dark-700 px-3 py-1 rounded">Hoje</span>
-                            </div>
+                            <span id="data-passagem-label" class="text-sm text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-dark-700 px-3 py-1 rounded">Hoje</span>
                         </div>
-                        
                         <div class="flex-1 relative flex flex-col">
-                            <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed focus:ring-2 focus:ring-orange-200 dark:focus:ring-gray-600 transition" placeholder="Nenhum relatório para esta data..."></textarea>
+                            <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed focus:ring-2 focus:ring-orange-200 dark:focus:ring-gray-600 transition" placeholder="Escreva aqui..."></textarea>
                             <p id="info-autor" class="absolute bottom-4 right-4 text-[10px] text-gray-400 italic"></p>
                         </div>
-
                         <div class="mt-6 flex justify-end">
                             <button id="btn-salvar-relatorio" onclick="salvarPassagemManual()" class="bg-orange-500 text-white px-8 py-3 rounded-xl font-bold uppercase shadow-md hover:bg-orange-600 transition"><i class="fas fa-save mr-2"></i> Salvar Relatório</button>
                         </div>
@@ -324,7 +312,7 @@
         let dataSelecionada = new Date().toISOString().split('T')[0];
         let refProgramas = null;
         let refRelatorio = null;
-        let refDatas = ref(db, 'datas'); // Referência global para histórico
+        let refDatas = ref(db, 'datas'); 
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
         const refSolicitacoes = ref(db, 'solicitacoes');
@@ -336,7 +324,6 @@
         function logActivity(acao, detalhe) { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         window.enviarEmailNotificacao = (nome, email, senha) => { if(!email || !email.includes('@')) { alert("Email inválido."); return; } const templateParams = { to_name: nome, to_email: email, login: email, senha: senha, message: "Acesso liberado. No primeiro login, será necessário trocar sua senha." }; emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams).then(() => alert(`Email enviado para ${email}!`), () => alert('Falha ao enviar email.')); };
 
-        // LOGIN E RESET
         document.getElementById('form-login').onsubmit = async (e) => {
             e.preventDefault();
             const loginInput = document.getElementById('login-user').value;
@@ -361,13 +348,11 @@
         };
         document.getElementById('form-force-reset').onsubmit = async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Atualizado!"); location.reload(); };
 
-        // ADMIN E CRUD
         function carregarDadosData(data) {
             if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
-            // GRADE DE PROGRAMAS
             onValue(refProgramas, (snapshot) => {
                 const val = snapshot.val(); const container = document.getElementById('lista-programas');
                 if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; }
@@ -389,38 +374,24 @@
                 lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
             });
 
-            // RELATÓRIO DE PASSAGEM COM TRAVA DE EDIÇÃO
+            // RELATÓRIO DE PASSAGEM - SEM TRAVA DE EDIÇÃO
             onValue(refRelatorio, (snapshot) => {
                 const dadosRelatorio = snapshot.val();
                 const textArea = document.getElementById('texto-passagem');
-                const btnSalvar = document.getElementById('btn-salvar-relatorio');
-                const lockMsg = document.getElementById('status-lock');
                 const infoAutor = document.getElementById('info-autor');
                 
-                const currentUser = localStorage.getItem('userName');
-                const isAdmin = localStorage.getItem('userRole') === 'admin';
-
                 textArea.value = (dadosRelatorio && dadosRelatorio.texto) ? dadosRelatorio.texto : '';
                 
-                // LÓGICA DE PERMISSÃO: Se não tiver autor (novo) OU autor for o usuário atual OU for admin -> LIBERA
-                if (!dadosRelatorio || !dadosRelatorio.autor || dadosRelatorio.autor === currentUser || isAdmin) {
-                    textArea.removeAttribute('readonly');
-                    textArea.classList.remove('bg-gray-100', 'dark:bg-dark-800/50', 'text-gray-500'); // Estilo visual ativo
-                    btnSalvar.classList.remove('hidden');
-                    lockMsg.classList.add('hidden');
-                    infoAutor.innerText = dadosRelatorio ? `Última edição por: ${dadosRelatorio.autor}` : "";
+                // Exibe quem editou por último, mas NÃO bloqueia
+                if (dadosRelatorio && dadosRelatorio.autor) {
+                    infoAutor.innerText = `Última edição por: ${dadosRelatorio.autor}`;
                 } else {
-                    // BLOQUEIA
-                    textArea.setAttribute('readonly', true);
-                    textArea.classList.add('bg-gray-100', 'dark:bg-dark-800/50', 'text-gray-500'); // Estilo visual bloqueado
-                    btnSalvar.classList.add('hidden');
-                    lockMsg.classList.remove('hidden');
-                    infoAutor.innerText = `Bloqueado. Criado por: ${dadosRelatorio.autor}`;
+                    infoAutor.innerText = "";
                 }
             });
         }
 
-        // --- CARREGAR HISTÓRICO DE PASSAGEM ---
+        // CARREGAR HISTÓRICO LATERAL
         function carregarHistoricoPassagem() {
             onValue(refDatas, (snapshot) => {
                 const datas = snapshot.val();
@@ -429,10 +400,9 @@
                 
                 if(!datas) return;
 
-                // Filtra datas que tem relatório e ordena (mais recente primeiro)
                 const datasComRelatorio = Object.keys(datas)
                     .filter(key => datas[key].relatorio && datas[key].relatorio.texto)
-                    .sort((a,b) => b.localeCompare(a)); // Decrescente
+                    .sort((a,b) => b.localeCompare(a)); 
 
                 datasComRelatorio.forEach(data => {
                     const rel = datas[data].relatorio;
@@ -441,10 +411,7 @@
                     
                     container.innerHTML += `
                         <div onclick="mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group">
-                            <div>
-                                <p class="font-bold text-xs">${dataFormatada}</p>
-                                <p class="text-[10px] opacity-70 truncate w-32">${rel.autor}</p>
-                            </div>
+                            <div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${rel.autor}</p></div>
                             <i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i>
                         </div>
                     `;
@@ -456,7 +423,6 @@
         window.abrirEdicao = (p) => { document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
         document.getElementById('formCadastro').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; window.salvarPrograma(id || null, dados); window.cancelar(); };
         
-        // --- FUNÇÕES ADMIN MANTIDAS (Para gerenciar usuários) ---
         function carregarAdminPanel() {
             if(localStorage.getItem('userRole') !== 'admin') return;
             onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } });
@@ -475,14 +441,14 @@
         
         window.mudarData = (novaData) => { 
             dataSelecionada = novaData; 
-            document.getElementById('data-selector').value = dataSelecionada; // Atualiza o input visualmente
+            document.getElementById('data-selector').value = dataSelecionada;
             carregarDadosData(dataSelecionada); 
-            carregarHistoricoPassagem(); // Atualiza seleção no histórico
+            carregarHistoricoPassagem(); 
         };
 
         window.salvarPassagemManual = () => { 
             const texto = document.getElementById('texto-passagem').value; 
-            // Salva também o autor
+            // Atualiza texto e autor
             set(refRelatorio, { 
                 texto: texto, 
                 autor: localStorage.getItem('userName'), 
@@ -508,12 +474,11 @@
         function carregarFotoLocal() { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         
         carregarDadosData(dataSelecionada);
-        carregarHistoricoPassagem(); // Inicia o histórico
+        carregarHistoricoPassagem();
         carregarAdminPanel();
     </script>
 
     <script>
-        // --- NAVEGAÇÃO E PERMISSÕES ---
         window.navegar = (tela) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
@@ -548,15 +513,13 @@
             const isAdmin = (role === 'admin'); 
             
             const btnNovo = document.getElementById('btn-novo-programa');
-            const btnSalvarRel = document.getElementById('btn-salvar-relatorio');
             const navAdmin = document.getElementById('nav-admin');
             const badge = document.getElementById('badge-cargo');
             
-            // TODOS PODEM EDITAR A GRADE E PASSAGEM
+            // TODOS VEEM BOTÕES DE AÇÃO
             if(btnNovo) btnNovo.classList.remove('hidden');
-            if(btnSalvarRel) btnSalvarRel.classList.remove('hidden');
 
-            // SOMENTE ADMIN VÊ A ABA ADMINISTRAÇÃO
+            // SOMENTE ADMIN VÊ MENU ADMIN
             if(isAdmin) {
                 if(navAdmin) navAdmin.classList.remove('hidden'); 
                 if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; }
