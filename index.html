@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midias SP - Gestão Diária</title>
+    <title>Midias SP - Gestão Corporativa</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -24,7 +24,6 @@
         .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
         .ghost-card { opacity: 0.5; background: #f0f0f0; border: 2px dashed #ccc; }
-        /* Estilo personalizado para o input de data */
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
     </style>
@@ -34,16 +33,22 @@
     <div id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
         <div class="bg-white dark:bg-dark-800 max-w-sm w-full p-10 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-gray-700">
             <div class="mb-8">
-                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-calendar-check"></i></div>
+                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-users-cog"></i></div>
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP</h2>
-                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Restrito</p>
+                <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Corporativo</p>
             </div>
             <form id="form-login" class="space-y-4">
-                <input type="text" id="login-nome" placeholder="Seu Nome" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
-                <input type="password" id="login-senha" placeholder="Senha" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
-                <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Senha incorreta.</p>
+                <input type="text" id="login-user" placeholder="Usuário (Login)" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
+                
+                <div class="relative">
+                    <input type="password" id="login-senha" placeholder="Senha" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
+                    <i class="fas fa-lock absolute right-4 top-4 text-gray-400"></i>
+                </div>
+
+                <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Usuário ou senha inválidos.</p>
                 <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Entrar</button>
             </form>
+            <p class="text-[10px] text-gray-400 mt-4">Login Inicial: <b>admin</b> / Senha: <b>admin</b></p>
         </div>
     </div>
 
@@ -67,7 +72,7 @@
                     <div class="absolute inset-0 bg-black bg-opacity-40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300"><i class="fas fa-camera text-white"></i></div>
                 </div>
                 <h3 id="display-nome" class="font-bold text-gray-800 dark:text-white text-sm"></h3>
-                <p class="text-[10px] text-gray-400 uppercase tracking-tighter">Editor</p>
+                <span id="badge-cargo" class="text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1"></span>
                 <button onclick="logout()" class="text-[9px] text-red-400 hover:text-red-500 mt-3 font-bold uppercase underline">Sair</button>
             </div>
             
@@ -75,6 +80,11 @@
                 <a href="#" onclick="navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-calendar-day w-6"></i> Programação Diária
                 </a>
+                
+                <a href="#" onclick="navegar('admin')" id="nav-admin" class="nav-item hidden flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-user-shield w-6"></i> Administração
+                </a>
+
                 <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-bell w-6"></i> Stand-By
                 </a>
@@ -92,7 +102,7 @@
                 <div class="flex items-center gap-4">
                     <h1 id="header-title" class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade</h1>
                     
-                    <div class="flex items-center bg-gray-100 dark:bg-dark-700 rounded-lg px-3 py-1 border dark:border-gray-600">
+                    <div id="date-picker-wrapper" class="flex items-center bg-gray-100 dark:bg-dark-700 rounded-lg px-3 py-1 border dark:border-gray-600">
                         <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>
                         <input type="date" id="data-selector" class="bg-transparent text-sm font-bold text-gray-700 dark:text-white outline-none cursor-pointer">
                     </div>
@@ -113,18 +123,14 @@
                             <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
                             <input type="text" placeholder="Pesquisar programa..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                         </div>
-                        <button onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
+                        <button id="btn-novo-programa" onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2 hidden">
                             <i class="fas fa-plus"></i> Novo Programa
                         </button>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-4" id="lista-programas">
-                            <div class="flex flex-col items-center justify-center py-20 text-gray-400">
-                                <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
-                                <p class="text-sm">Carregando dia...</p>
                             </div>
-                        </div>
                         
                         <aside id="right-panel" class="sticky top-0 h-fit">
                             <div id="view-form" class="bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-lg border border-orange-200 dark:border-orange-900 hidden transition relative">
@@ -134,20 +140,14 @@
                                 </h3>
                                 <form id="formCadastro" class="space-y-4">
                                     <input type="hidden" id="edit-id">
-                                    
                                     <div class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
                                         <input type="file" id="in-cover" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="previewCapa(this)">
                                         <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
-                                        <div id="cover-placeholder" class="text-center">
-                                            <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold">Capa do Programa</p>
-                                        </div>
+                                        <div id="cover-placeholder" class="text-center"><i class="fas fa-image text-gray-400 text-2xl mb-1"></i><p class="text-[10px] text-gray-400 uppercase font-bold">Capa</p></div>
                                     </div>
                                     <input type="hidden" id="in-cover-base64">
-
                                     <input id="in-titulo" placeholder="Nome do Programa" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
                                     <input id="in-sub" placeholder="Subtítulo / Edição" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                    
                                     <div>
                                         <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Blocos</label>
                                         <div class="flex flex-wrap gap-2">
@@ -161,9 +161,8 @@
                                             <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL8" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL8</span></label>
                                         </div>
                                     </div>
-
                                     <div class="flex space-x-2 pt-4">
-                                        <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar na Data</button>
+                                        <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
                                     </div>
                                     <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-2 text-[9px] text-red-400 hover:text-red-500 font-bold uppercase underline hidden">Excluir</button>
                                 </form>
@@ -180,10 +179,73 @@
                         </div>
                         <textarea id="texto-passagem" class="flex-1 w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl p-6 text-sm dark:text-gray-200 outline-none resize-none leading-relaxed" placeholder="Descreva as ocorrências desta data..."></textarea>
                         <div class="mt-6 flex justify-end">
-                            <button onclick="salvarPassagemManual()" class="bg-orange-500 text-white px-8 py-3 rounded-xl font-bold uppercase shadow-md hover:bg-orange-600 transition">
+                            <button id="btn-salvar-relatorio" onclick="salvarPassagemManual()" class="bg-orange-500 text-white px-8 py-3 rounded-xl font-bold uppercase shadow-md hover:bg-orange-600 transition hidden">
                                 <i class="fas fa-save mr-2"></i> Salvar Relatório
                             </button>
                         </div>
+                    </div>
+                </div>
+
+                <div id="screen-admin" class="hidden">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <div class="lg:col-span-2 space-y-6">
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-users text-orange-500"></i> Usuários do Sistema</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                                        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-dark-700 dark:text-gray-400">
+                                            <tr>
+                                                <th class="px-4 py-3">Nome</th>
+                                                <th class="px-4 py-3">Login</th>
+                                                <th class="px-4 py-3">Função</th>
+                                                <th class="px-4 py-3 text-right">Ações</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="lista-usuarios">
+                                            </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Relatório de Atividades</h3>
+                                <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs">
+                                    </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700 h-fit sticky top-0">
+                            <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm">Gerenciar Usuário</h3>
+                            <form id="formUsuario" class="space-y-4">
+                                <input type="hidden" id="admin-user-id">
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome Completo</label>
+                                    <input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login de Acesso</label>
+                                    <input id="admin-login" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Reset/Nova)</label>
+                                    <input id="admin-senha" type="password" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Permissão</label>
+                                    <select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                        <option value="user">Usuário (Visualizar)</option>
+                                        <option value="admin">Administrador (Total)</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="pt-2 flex gap-2">
+                                    <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button>
+                                    <button type="button" onclick="limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button>
+                                </div>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
 
@@ -193,9 +255,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, off, get, child, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // FIREBASE CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
             authDomain: "midias-sp.firebaseapp.com",
@@ -210,46 +271,99 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // VARIAVEIS GLOBAIS
-        let dataSelecionada = new Date().toISOString().split('T')[0]; // Hoje (YYYY-MM-DD)
+        // REFS GLOBAIS
+        let dataSelecionada = new Date().toISOString().split('T')[0];
         let refProgramas = null;
         let refRelatorio = null;
+        const refUsers = ref(db, 'users');
+        const refLogs = ref(db, 'logs');
 
         // INICIALIZAÇÃO
         const dateInput = document.getElementById('data-selector');
         dateInput.value = dataSelecionada;
         dateInput.addEventListener('change', (e) => mudarData(e.target.value));
 
+        // --- FUNÇÕES DE LOG ---
+        function logActivity(acao, detalhe) {
+            push(refLogs, {
+                data: new Date().toISOString(),
+                usuario: localStorage.getItem('userName') || 'Sistema',
+                acao: acao,
+                detalhe: detalhe
+            });
+        }
+
+        // --- SISTEMA DE LOGIN (AGORA VIA BANCO DE DADOS) ---
+        document.getElementById('form-login').onsubmit = async (e) => {
+            e.preventDefault();
+            const loginInput = document.getElementById('login-user').value;
+            const senhaInput = document.getElementById('login-senha').value;
+            const erroMsg = document.getElementById('login-erro');
+
+            // Busca usuário no Firebase
+            const q = query(refUsers, orderByChild('login'), equalTo(loginInput));
+            
+            try {
+                const snapshot = await get(q);
+                let userFound = null;
+
+                if (snapshot.exists()) {
+                    snapshot.forEach((childSnapshot) => {
+                        const user = childSnapshot.val();
+                        if (user.senha === senhaInput) {
+                            userFound = user;
+                        }
+                    });
+                } else if (loginInput === 'admin' && senhaInput === 'admin') {
+                    // Ciar primeiro admin se DB vazio
+                    const snapshotAll = await get(refUsers);
+                    if(!snapshotAll.exists()) {
+                        userFound = { nome: "Administrador", login: "admin", role: "admin" };
+                        push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin" });
+                        alert("Primeiro acesso! Admin criado.");
+                    }
+                }
+
+                if (userFound) {
+                    localStorage.setItem('session_active', 'true');
+                    localStorage.setItem('userName', userFound.nome);
+                    localStorage.setItem('userRole', userFound.role);
+                    location.reload();
+                } else {
+                    erroMsg.classList.remove('hidden');
+                }
+            } catch (error) {
+                console.error(error);
+                erroMsg.innerText = "Erro de conexão.";
+                erroMsg.classList.remove('hidden');
+            }
+        };
+
+        // --- CARREGAR DADOS ---
         function carregarDadosData(data) {
-            // Desliga ouvintes antigos
             if(refProgramas) off(refProgramas);
             if(refRelatorio) off(refRelatorio);
 
-            // Define novos caminhos baseados na data
-            // Estrutura: db/2026-01-08/programas
-            // Estrutura: db/2026-01-08/relatorio
             refProgramas = ref(db, `datas/${data}/programas`);
             refRelatorio = ref(db, `datas/${data}/relatorio`);
 
-            // Atualiza Label da Passagem
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
+            const isAdmin = localStorage.getItem('userRole') === 'admin';
 
-            // 1. OUVINTE PROGRAMAS
+            // LISTA PROGRAMAS
             onValue(refProgramas, (snapshot) => {
                 const val = snapshot.val();
                 const container = document.getElementById('lista-programas');
-                
                 if (!val) {
-                    container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado para este dia.</p></div>';
+                    container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>';
                     return;
                 }
-
                 let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
                 lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
 
                 container.innerHTML = lista.map(p => `
                     <div class="group relative bg-white dark:bg-dark-800 p-3 rounded-xl shadow-sm border border-transparent hover:border-orange-200 dark:hover:border-gray-600 transition flex gap-4" data-id="${p.id}">
-                        <div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>
+                        ${isAdmin ? `<div class="drag-handle flex items-center justify-center px-1 text-gray-300 hover:text-orange-500 cursor-grab"><i class="fas fa-grip-vertical"></i></div>` : ''}
                         <div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 relative flex items-center justify-center">
                             ${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}
                         </div>
@@ -266,91 +380,213 @@
                                         ${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : '<span class="text-[10px] text-gray-300">Sem blocos</span>'}
                                     </div>
                                 </div>
-                                <button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button>
+                                ${isAdmin ? `<button id="btn-edit-${p.id}" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button>` : ''}
                             </div>
                         </div>
                     </div>
                 `).join('');
 
-                lista.forEach(p => {
-                    document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p);
-                });
+                if(isAdmin) {
+                    lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
+                }
             });
 
-            // 2. OUVINTE RELATÓRIO
+            // PASSAGEM
             onValue(refRelatorio, (snapshot) => {
                 const data = snapshot.val();
-                document.getElementById('texto-passagem').value = (data && data.texto) ? data.texto : '';
+                const textArea = document.getElementById('texto-passagem');
+                textArea.value = (data && data.texto) ? data.texto : '';
+                if(!isAdmin) textArea.setAttribute('readonly', true); else textArea.removeAttribute('readonly');
             });
         }
 
-        // --- FUNÇÕES DE CONTROLE ---
-        window.mudarData = (novaData) => {
-            dataSelecionada = novaData;
-            carregarDadosData(dataSelecionada);
+        // --- PAINEL ADMIN ---
+        function carregarAdminPanel() {
+            if(localStorage.getItem('userRole') !== 'admin') return;
+
+            // Listar Usuários
+            onValue(refUsers, (snapshot) => {
+                const users = snapshot.val();
+                const tbody = document.getElementById('lista-usuarios');
+                tbody.innerHTML = '';
+                if(users) {
+                    Object.keys(users).forEach(key => {
+                        const u = users[key];
+                        const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>';
+                        tbody.innerHTML += `
+                            <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                                <td class="px-4 py-2 font-bold">${u.nome}</td>
+                                <td class="px-4 py-2 text-xs">${u.login}</td>
+                                <td class="px-4 py-2">${roleLabel}</td>
+                                <td class="px-4 py-2 text-right">
+                                    <button onclick="editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button>
+                                    <button onclick="removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            });
+
+            // Listar Logs
+            const logsQuery = query(refLogs); // Idealmente limitToLast(50)
+            onValue(logsQuery, (snapshot) => {
+                const logs = snapshot.val();
+                const container = document.getElementById('lista-logs');
+                container.innerHTML = '';
+                if(logs) {
+                    const listaLogs = Object.values(logs).reverse(); // Mais recente primeiro
+                    listaLogs.forEach(l => {
+                        const dataFormatada = new Date(l.data).toLocaleString('pt-BR');
+                        container.innerHTML += `
+                            <div class="text-xs border-l-2 border-gray-300 pl-2 py-1">
+                                <p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${dataFormatada}</span></p>
+                                <p class="text-gray-500">${l.usuario}: ${l.detalhe}</p>
+                            </div>
+                        `;
+                    });
+                }
+            });
+        }
+
+        window.editarUsuario = (id, nome, login, role, senha) => {
+            document.getElementById('admin-user-id').value = id;
+            document.getElementById('admin-nome').value = nome;
+            document.getElementById('admin-login').value = login;
+            document.getElementById('admin-role').value = role;
+            document.getElementById('admin-senha').value = senha;
         };
 
+        window.removerUsuario = (id) => {
+            if(confirm('Remover este usuário?')) {
+                remove(ref(db, `users/${id}`));
+                logActivity('Remover Usuário', `ID: ${id}`);
+            }
+        };
+
+        document.getElementById('formUsuario').onsubmit = (e) => {
+            e.preventDefault();
+            const id = document.getElementById('admin-user-id').value;
+            const dados = {
+                nome: document.getElementById('admin-nome').value,
+                login: document.getElementById('admin-login').value,
+                senha: document.getElementById('admin-senha').value,
+                role: document.getElementById('admin-role').value
+            };
+
+            if(id) {
+                update(ref(db, `users/${id}`), dados);
+                logActivity('Editar Usuário', dados.login);
+            } else {
+                push(refUsers, dados);
+                logActivity('Criar Usuário', dados.login);
+            }
+            window.limparFormAdmin();
+        };
+
+        window.limparFormAdmin = () => {
+            document.getElementById('formUsuario').reset();
+            document.getElementById('admin-user-id').value = "";
+        };
+
+        // EXPORTAR FUNÇÕES GLOBAIS
+        window.mudarData = (novaData) => { dataSelecionada = novaData; carregarDadosData(dataSelecionada); };
         window.salvarPassagemManual = () => {
+            if(localStorage.getItem('userRole') !== 'admin') return alert("Apenas administradores podem salvar.");
             const texto = document.getElementById('texto-passagem').value;
-            set(refRelatorio, { 
-                texto: texto, 
-                autor: localStorage.getItem('userName'), 
-                atualizado: new Date().toISOString() 
-            }).then(() => alert("Relatório do dia salvo!"));
+            set(refRelatorio, { texto: texto, autor: localStorage.getItem('userName'), atualizado: new Date().toISOString() });
+            logActivity('Relatório', 'Atualizou Passagem do dia ' + dataSelecionada);
+            alert("Salvo!");
         };
 
         // DRAG & DROP
-        new Sortable(document.getElementById('lista-programas'), {
-            handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card',
-            onEnd: function (evt) {
-                const items = document.querySelectorAll('[data-id]');
-                items.forEach((item, index) => {
-                    const id = item.getAttribute('data-id');
-                    update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index });
-                });
-            }
-        });
+        if(localStorage.getItem('userRole') === 'admin'){
+            new Sortable(document.getElementById('lista-programas'), {
+                handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card',
+                onEnd: function (evt) {
+                    const items = document.querySelectorAll('[data-id]');
+                    items.forEach((item, index) => {
+                        const id = item.getAttribute('data-id');
+                        update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index });
+                    });
+                }
+            });
+        }
 
         window.salvarPrograma = (id, dados) => {
-            if (id) update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados);
-            else { dados.ordem = 999; push(refProgramas, dados); }
+            if (id) {
+                update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados);
+                logActivity('Editar Programa', dados.titulo);
+            } else { 
+                dados.ordem = 999; 
+                push(refProgramas, dados); 
+                logActivity('Novo Programa', dados.titulo);
+            }
         };
 
-        window.deletarPrograma = (id) => remove(ref(db, `datas/${dataSelecionada}/programas/${id}`));
+        window.deletarPrograma = (id) => {
+            remove(ref(db, `datas/${dataSelecionada}/programas/${id}`));
+            logActivity('Excluir Programa', 'ID: ' + id);
+        };
 
-        // Inicializa com a data de hoje
+        // INITS
         carregarDadosData(dataSelecionada);
+        carregarAdminPanel();
     </script>
 
     <script>
-        const SENHA_MESTRA = "1234";
-
+        // UI HELPERS
         window.navegar = (tela) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
+            document.getElementById('screen-admin').classList.add('hidden');
+            document.getElementById('date-picker-wrapper').classList.add('hidden');
 
             if(tela === 'grade') {
                 document.getElementById('nav-grade').classList.add('active');
                 document.getElementById('screen-grade').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
-                // Mostra seletor de data
-                document.getElementById('data-selector').parentElement.classList.remove('hidden');
+                document.getElementById('date-picker-wrapper').classList.remove('hidden');
             } else if (tela === 'passagem') {
                 document.getElementById('nav-passagem').classList.add('active');
                 document.getElementById('screen-passagem').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
-                // Esconde seletor de data para focar no relatório (opcional, aqui mantive visivel mas vc pode esconder)
-                // document.getElementById('data-selector').parentElement.classList.add('hidden'); 
+            } else if (tela === 'admin') {
+                document.getElementById('nav-admin').classList.add('active');
+                document.getElementById('screen-admin').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Administração';
             }
         }
 
-        // TEMA / LOGIN / FOTO (Igual versões anteriores)
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
-            const isDark = document.documentElement.classList.contains('dark');
-            localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            document.getElementById('theme-icon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+            document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        function aplicarPermissoes() {
+            const role = localStorage.getItem('userRole');
+            const isAdmin = role === 'admin';
+            
+            // Elementos exclusivos
+            const btnNovo = document.getElementById('btn-novo-programa');
+            const btnSalvarRel = document.getElementById('btn-salvar-relatorio');
+            const navAdmin = document.getElementById('nav-admin');
+            
+            if(isAdmin) {
+                if(btnNovo) btnNovo.classList.remove('hidden');
+                if(btnSalvarRel) btnSalvarRel.classList.remove('hidden');
+                if(navAdmin) navAdmin.classList.remove('hidden');
+            } else {
+                if(btnNovo) btnNovo.classList.add('hidden');
+                if(btnSalvarRel) btnSalvarRel.classList.add('hidden');
+                if(navAdmin) navAdmin.classList.add('hidden');
+            }
+
+            const badge = document.getElementById('badge-cargo');
+            badge.className = isAdmin ? "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600" : "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-blue-100 text-blue-600";
+            badge.innerText = isAdmin ? "Administrador" : "Usuário";
         }
 
         function verificarSessao() {
@@ -363,19 +599,11 @@
                 document.getElementById('main-layout').classList.remove('hidden');
                 document.getElementById('display-nome').innerText = localStorage.getItem('userName');
                 carregarFotoLocal();
+                aplicarPermissoes();
             }
         }
 
-        document.getElementById('form-login').onsubmit = (e) => {
-            e.preventDefault();
-            if (document.getElementById('login-senha').value === SENHA_MESTRA) {
-                localStorage.setItem('session_active', 'true');
-                localStorage.setItem('userName', document.getElementById('login-nome').value);
-                verificarSessao();
-            } else { document.getElementById('login-erro').classList.remove('hidden'); }
-        };
-
-        window.logout = () => { localStorage.removeItem('session_active'); location.reload(); }
+        window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); location.reload(); }
         function carregarFotoLocal() { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
         window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
@@ -391,6 +619,7 @@
         function mostrarForm() { document.getElementById('view-form').classList.remove('hidden'); }
         document.getElementById('formCadastro').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, tags: blocosChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; window.salvarPrograma(id || null, dados); window.cancelar(); };
         window.deletar = () => { if(confirm('Tem certeza?')) { window.deletarPrograma(document.getElementById('edit-id').value); window.cancelar(); } };
+
         window.onload = verificarSessao;
     </script>
 </body>
