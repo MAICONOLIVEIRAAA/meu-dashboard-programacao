@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Midias SP - Gestão Completa</title>
+    <title>Midias SP - Gestão Diária</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
@@ -24,13 +24,9 @@
         .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
         .ghost-card { opacity: 0.5; background: #f0f0f0; border: 2px dashed #ccc; }
+        /* Estilo personalizado para o input de data */
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
-        
-        /* Grid do Calendário Mensal */
-        .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; }
-        .calendar-day { min-height: 100px; transition: all 0.2s; }
-        .calendar-day:hover { transform: translateY(-2px); }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -38,7 +34,7 @@
     <div id="tela-login" class="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-900 dark:to-gray-800">
         <div class="bg-white dark:bg-dark-800 max-w-sm w-full p-10 rounded-3xl shadow-2xl text-center border border-gray-100 dark:border-gray-700">
             <div class="mb-8">
-                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-tv"></i></div>
+                <div class="w-20 h-20 bg-orange-500 text-white rounded-2xl flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg transform -rotate-6"><i class="fas fa-calendar-check"></i></div>
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP</h2>
                 <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Restrito</p>
             </div>
@@ -62,46 +58,6 @@
         </div>
     </div>
 
-    <div id="modal-rotina" class="fixed inset-0 z-50 flex items-center justify-center modal-overlay hidden">
-        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 w-[500px] shadow-2xl border dark:border-gray-600 relative">
-            <button onclick="fecharRotina()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-            
-            <h3 class="font-bold mb-1 dark:text-white text-lg"><i class="fas fa-sync text-orange-500 mr-2"></i> Criar Rotina Mensal</h3>
-            <p class="text-xs text-gray-400 mb-6">Cadastre um programa e escolha os dias de repetição.</p>
-            
-            <form id="formRotina" class="space-y-3">
-                <div class="grid grid-cols-2 gap-3">
-                    <input id="rotina-titulo" placeholder="Nome do Programa" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                    <input id="rotina-sub" placeholder="Subtítulo" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                </div>
-                
-                <div class="relative w-full h-20 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
-                    <input type="file" id="rotina-cover" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="previewCapaRotina(this)">
-                    <img id="rotina-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
-                    <div id="rotina-placeholder" class="text-center">
-                        <p class="text-[10px] text-gray-400 uppercase font-bold">Capa (Opcional)</p>
-                    </div>
-                </div>
-                <input type="hidden" id="rotina-cover-base64">
-
-                <div class="bg-orange-50 dark:bg-dark-700/50 p-3 rounded-lg border border-orange-100 dark:border-gray-700">
-                    <label class="text-[10px] font-bold uppercase text-gray-500 dark:text-gray-400 block mb-2">Repetir nestes dias:</label>
-                    <div class="flex justify-between">
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="1" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Seg</span></label>
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="2" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Ter</span></label>
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="3" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Qua</span></label>
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="4" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Qui</span></label>
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="5" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Sex</span></label>
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="6" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Sab</span></label>
-                        <label class="cursor-pointer flex flex-col items-center"><input type="checkbox" name="diasSemana" value="0" class="accent-orange-500 w-4 h-4"><span class="text-[10px] mt-1 font-bold">Dom</span></label>
-                    </div>
-                </div>
-                
-                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-orange-600 transition">Gerar Programação no Mês</button>
-            </form>
-        </div>
-    </div>
-
     <div id="main-layout" class="flex h-screen hidden">
         
         <aside class="w-64 bg-white dark:bg-dark-800 border-r dark:border-gray-700 flex flex-col py-8 items-center shrink-0">
@@ -119,11 +75,6 @@
                 <a href="#" onclick="navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-calendar-day w-6"></i> Programação Diária
                 </a>
-                
-                <a href="#" onclick="navegar('mensal')" id="nav-mensal" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <i class="fas fa-calendar-alt w-6"></i> Programação Mensal
-                </a>
-
                 <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-bell w-6"></i> Stand-By
                 </a>
@@ -141,7 +92,7 @@
                 <div class="flex items-center gap-4">
                     <h1 id="header-title" class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade</h1>
                     
-                    <div id="header-date-picker" class="flex items-center bg-gray-100 dark:bg-dark-700 rounded-lg px-3 py-1 border dark:border-gray-600">
+                    <div class="flex items-center bg-gray-100 dark:bg-dark-700 rounded-lg px-3 py-1 border dark:border-gray-600">
                         <i class="fas fa-calendar-alt text-gray-400 mr-2"></i>
                         <input type="date" id="data-selector" class="bg-transparent text-sm font-bold text-gray-700 dark:text-white outline-none cursor-pointer">
                     </div>
@@ -158,32 +109,20 @@
                 
                 <div id="screen-grade">
                     <div class="flex items-center justify-between mb-8">
-                        <div class="flex items-center gap-4 flex-1">
-                            <div class="flex items-center bg-white dark:bg-dark-800 rounded-lg shadow-sm border dark:border-gray-700 overflow-hidden">
-                                <button onclick="copiarDiaAnterior()" class="px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 border-r dark:border-gray-700 flex items-center gap-2">
-                                    <i class="fas fa-history text-orange-500"></i> Copiar Ontem
-                                </button>
-                                <button onclick="salvarModelo()" class="px-4 py-2 text-xs font-bold text-gray-400 dark:text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-700 border-l dark:border-gray-700 flex items-center gap-2">
-                                    <i class="fas fa-save"></i> Favorito
-                                </button>
-                                <button onclick="colarModelo()" class="px-4 py-2 text-xs font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 flex items-center gap-2">
-                                    <i class="fas fa-paste text-blue-500"></i> Colar
-                                </button>
-                            </div>
+                        <div class="relative flex-1 max-w-lg mr-4">
+                            <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
+                            <input type="text" placeholder="Pesquisar programa..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                         </div>
-                        
-                        <div class="flex gap-3">
-                            <button onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
-                                <i class="fas fa-plus"></i> Novo Programa
-                            </button>
-                        </div>
+                        <button onclick="abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
+                            <i class="fas fa-plus"></i> Novo Programa
+                        </button>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-4" id="lista-programas">
                             <div class="flex flex-col items-center justify-center py-20 text-gray-400">
                                 <i class="fas fa-spinner fa-spin text-3xl mb-4"></i>
-                                <p class="text-sm">Carregando...</p>
+                                <p class="text-sm">Carregando dia...</p>
                             </div>
                         </div>
                         
@@ -201,7 +140,7 @@
                                         <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
                                         <div id="cover-placeholder" class="text-center">
                                             <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
-                                            <p class="text-[10px] text-gray-400 uppercase font-bold">Capa</p>
+                                            <p class="text-[10px] text-gray-400 uppercase font-bold">Capa do Programa</p>
                                         </div>
                                     </div>
                                     <input type="hidden" id="in-cover-base64">
@@ -224,42 +163,12 @@
                                     </div>
 
                                     <div class="flex space-x-2 pt-4">
-                                        <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
+                                        <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar na Data</button>
                                     </div>
                                     <button type="button" id="btn-delete" onclick="deletar()" class="w-full mt-2 text-[9px] text-red-400 hover:text-red-500 font-bold uppercase underline hidden">Excluir</button>
                                 </form>
                             </div>
                         </aside>
-                    </div>
-                </div>
-
-                <div id="screen-mensal" class="hidden h-full flex flex-col">
-                    <div class="flex justify-between items-center mb-6">
-                        <div class="flex items-center gap-4">
-                            <h2 id="calendar-month-year" class="text-2xl font-bold dark:text-white capitalize">Janeiro 2026</h2>
-                            <div class="flex space-x-1">
-                                <button onclick="mudarMes(-1)" class="w-8 h-8 rounded-full bg-white dark:bg-dark-800 shadow flex items-center justify-center hover:bg-gray-50"><i class="fas fa-chevron-left"></i></button>
-                                <button onclick="mudarMes(1)" class="w-8 h-8 rounded-full bg-white dark:bg-dark-800 shadow flex items-center justify-center hover:bg-gray-50"><i class="fas fa-chevron-right"></i></button>
-                            </div>
-                        </div>
-                        
-                        <button onclick="abrirRotina()" class="bg-orange-500 text-white px-6 py-2 rounded-xl font-bold shadow-lg hover:bg-orange-600 transition flex items-center gap-2">
-                            <i class="fas fa-sync"></i> Criar Rotina
-                        </button>
-                    </div>
-
-                    <div class="bg-white dark:bg-dark-800 rounded-2xl shadow-sm border dark:border-gray-700 p-6 flex-1 flex flex-col">
-                        <div class="grid grid-cols-7 gap-4 mb-4 text-center">
-                            <div class="text-xs font-bold uppercase text-gray-400">Dom</div>
-                            <div class="text-xs font-bold uppercase text-gray-400">Seg</div>
-                            <div class="text-xs font-bold uppercase text-gray-400">Ter</div>
-                            <div class="text-xs font-bold uppercase text-gray-400">Qua</div>
-                            <div class="text-xs font-bold uppercase text-gray-400">Qui</div>
-                            <div class="text-xs font-bold uppercase text-gray-400">Sex</div>
-                            <div class="text-xs font-bold uppercase text-gray-400">Sab</div>
-                        </div>
-                        <div id="calendar-body" class="calendar-grid flex-1">
-                            </div>
                     </div>
                 </div>
 
@@ -284,7 +193,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, set, push, onValue, remove, update, off, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        import { getDatabase, ref, set, push, onValue, remove, update, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // FIREBASE CONFIG
         const firebaseConfig = {
@@ -300,32 +209,38 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-        
-        let dataSelecionada = new Date().toISOString().split('T')[0];
-        let currentCalendarDate = new Date();
+
+        // VARIAVEIS GLOBAIS
+        let dataSelecionada = new Date().toISOString().split('T')[0]; // Hoje (YYYY-MM-DD)
         let refProgramas = null;
         let refRelatorio = null;
 
+        // INICIALIZAÇÃO
         const dateInput = document.getElementById('data-selector');
         dateInput.value = dataSelecionada;
         dateInput.addEventListener('change', (e) => mudarData(e.target.value));
 
-        // --- LÓGICA DA GRADE DIÁRIA ---
         function carregarDadosData(data) {
+            // Desliga ouvintes antigos
             if(refProgramas) off(refProgramas);
             if(refRelatorio) off(refRelatorio);
 
+            // Define novos caminhos baseados na data
+            // Estrutura: db/2026-01-08/programas
+            // Estrutura: db/2026-01-08/relatorio
             refProgramas = ref(db, `datas/${data}/programas`);
             refRelatorio = ref(db, `datas/${data}/relatorio`);
 
+            // Atualiza Label da Passagem
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
 
+            // 1. OUVINTE PROGRAMAS
             onValue(refProgramas, (snapshot) => {
                 const val = snapshot.val();
                 const container = document.getElementById('lista-programas');
                 
                 if (!val) {
-                    container.innerHTML = `<div class="text-center py-10 opacity-50 flex flex-col items-center"><i class="fas fa-calendar-plus text-4xl mb-3 text-orange-200"></i><p class="text-sm font-bold">Dia vazio!</p></div>`;
+                    container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado para este dia.</p></div>';
                     return;
                 }
 
@@ -357,22 +272,34 @@
                     </div>
                 `).join('');
 
-                lista.forEach(p => { document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p); });
+                lista.forEach(p => {
+                    document.getElementById(`btn-edit-${p.id}`).onclick = () => abrirEdicao(p);
+                });
             });
 
+            // 2. OUVINTE RELATÓRIO
             onValue(refRelatorio, (snapshot) => {
                 const data = snapshot.val();
                 document.getElementById('texto-passagem').value = (data && data.texto) ? data.texto : '';
             });
         }
 
-        window.mudarData = (novaData) => { dataSelecionada = novaData; carregarDadosData(dataSelecionada); };
-        window.salvarPassagemManual = () => {
-            const texto = document.getElementById('texto-passagem').value;
-            set(refRelatorio, { texto: texto, autor: localStorage.getItem('userName'), atualizado: new Date().toISOString() })
-            .then(() => alert("Relatório salvo!"));
+        // --- FUNÇÕES DE CONTROLE ---
+        window.mudarData = (novaData) => {
+            dataSelecionada = novaData;
+            carregarDadosData(dataSelecionada);
         };
 
+        window.salvarPassagemManual = () => {
+            const texto = document.getElementById('texto-passagem').value;
+            set(refRelatorio, { 
+                texto: texto, 
+                autor: localStorage.getItem('userName'), 
+                atualizado: new Date().toISOString() 
+            }).then(() => alert("Relatório do dia salvo!"));
+        };
+
+        // DRAG & DROP
         new Sortable(document.getElementById('lista-programas'), {
             handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card',
             onEnd: function (evt) {
@@ -388,112 +315,11 @@
             if (id) update(ref(db, `datas/${dataSelecionada}/programas/${id}`), dados);
             else { dados.ordem = 999; push(refProgramas, dados); }
         };
+
         window.deletarPrograma = (id) => remove(ref(db, `datas/${dataSelecionada}/programas/${id}`));
 
-        // === LÓGICA DO CALENDÁRIO MENSAL & ROTINA ===
-        window.mudarMes = (delta) => {
-            currentCalendarDate.setMonth(currentCalendarDate.getMonth() + delta);
-            renderCalendar();
-        };
-
-        function renderCalendar() {
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
-            
-            const monthNames = ["Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"];
-            document.getElementById('calendar-month-year').innerText = `${monthNames[month]} ${year}`;
-
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            const startingDay = firstDay.getDay(); // 0 = Domingo
-
-            const calendarBody = document.getElementById('calendar-body');
-            calendarBody.innerHTML = "";
-
-            for (let i = 0; i < startingDay; i++) { calendarBody.innerHTML += `<div></div>`; }
-
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                
-                // Verifica no DB se tem programa
-                get(child(ref(db), `datas/${dateStr}/programas`)).then((snapshot) => {
-                    const hasPrograms = snapshot.exists();
-                    const el = document.getElementById(`day-${dateStr}`);
-                    if(hasPrograms && el) {
-                        el.innerHTML += `<div class="absolute bottom-2 right-2 w-2 h-2 rounded-full bg-orange-500"></div>`;
-                    }
-                });
-
-                calendarBody.innerHTML += `
-                    <div id="day-${dateStr}" onclick="goToDay('${dateStr}')" class="calendar-day bg-gray-50 dark:bg-dark-700/50 rounded-lg p-2 border border-transparent hover:border-orange-400 cursor-pointer relative flex flex-col justify-between">
-                        <span class="text-sm font-bold dark:text-gray-300">${day}</span>
-                    </div>
-                `;
-            }
-        }
-
-        window.goToDay = (dateStr) => {
-            document.getElementById('data-selector').value = dateStr;
-            mudarData(dateStr);
-            window.navegar('grade');
-        };
-
-        // --- SISTEMA DE ROTINA ---
-        document.getElementById('formRotina').onsubmit = (e) => {
-            e.preventDefault();
-            const titulo = document.getElementById('rotina-titulo').value;
-            const sub = document.getElementById('rotina-sub').value;
-            const capa = document.getElementById('rotina-cover-base64').value;
-            const diasSelecionados = Array.from(document.querySelectorAll('input[name="diasSemana"]:checked')).map(cb => parseInt(cb.value));
-
-            if(diasSelecionados.length === 0) return alert("Selecione pelo menos um dia da semana.");
-
-            const year = currentCalendarDate.getFullYear();
-            const month = currentCalendarDate.getMonth();
-            const lastDay = new Date(year, month + 1, 0).getDate();
-
-            let count = 0;
-            for (let day = 1; day <= lastDay; day++) {
-                const dateObj = new Date(year, month, day);
-                const dayOfWeek = dateObj.getDay();
-                if (diasSelecionados.includes(dayOfWeek)) {
-                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                    push(ref(db, `datas/${dateStr}/programas`), {
-                        titulo: titulo, subtitulo: sub, capa: capa, autor: 'Rotina', ordem: 999
-                    });
-                    count++;
-                }
-            }
-            alert(`${count} programas agendados no mês!`);
-            fecharRotina();
-            renderCalendar();
-        };
-
-        // --- FERRAMENTAS ---
-        window.copiarDiaAnterior = async () => {
-            if(!confirm("Copiar grade de ontem?")) return;
-            let ontem = new Date(dataSelecionada);
-            ontem.setDate(ontem.getDate() - 1);
-            const dataOntem = ontem.toISOString().split('T')[0];
-            const snapshot = await get(child(ref(db), `datas/${dataOntem}/programas`));
-            if (snapshot.exists()) { Object.values(snapshot.val()).forEach(p => push(refProgramas, { ...p, autor: 'Cópia' })); } else { alert("Ontem estava vazio."); }
-        };
-
-        window.salvarModelo = async () => {
-            if(!confirm("Salvar como favorito?")) return;
-            const snapshot = await get(refProgramas);
-            if(snapshot.exists()) { await set(ref(db, `modelos/favorito`), snapshot.val()); alert("Salvo!"); } else { alert("Dia vazio."); }
-        };
-
-        window.colarModelo = async () => {
-            if(!confirm("Colar favorito?")) return;
-            const snapshot = await get(ref(db, `modelos/favorito`));
-            if(snapshot.exists()) { Object.values(snapshot.val()).forEach(p => push(refProgramas, p)); } else { alert("Sem favoritos."); }
-        };
-
+        // Inicializa com a data de hoje
         carregarDadosData(dataSelecionada);
-        renderCalendar();
     </script>
 
     <script>
@@ -503,25 +329,23 @@
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
-            document.getElementById('screen-mensal').classList.add('hidden');
-            document.getElementById('header-date-picker').classList.add('hidden');
 
             if(tela === 'grade') {
                 document.getElementById('nav-grade').classList.add('active');
                 document.getElementById('screen-grade').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
-                document.getElementById('header-date-picker').classList.remove('hidden');
+                // Mostra seletor de data
+                document.getElementById('data-selector').parentElement.classList.remove('hidden');
             } else if (tela === 'passagem') {
                 document.getElementById('nav-passagem').classList.add('active');
                 document.getElementById('screen-passagem').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
-            } else if (tela === 'mensal') {
-                document.getElementById('nav-mensal').classList.add('active');
-                document.getElementById('screen-mensal').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = 'Visão Mensal';
+                // Esconde seletor de data para focar no relatório (opcional, aqui mantive visivel mas vc pode esconder)
+                // document.getElementById('data-selector').parentElement.classList.add('hidden'); 
             }
         }
 
+        // TEMA / LOGIN / FOTO (Igual versões anteriores)
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
             const isDark = document.documentElement.classList.contains('dark');
@@ -567,12 +391,6 @@
         function mostrarForm() { document.getElementById('view-form').classList.remove('hidden'); }
         document.getElementById('formCadastro').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, tags: blocosChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; window.salvarPrograma(id || null, dados); window.cancelar(); };
         window.deletar = () => { if(confirm('Tem certeza?')) { window.deletarPrograma(document.getElementById('edit-id').value); window.cancelar(); } };
-
-        // ROTINA MENSAL UI
-        window.abrirRotina = () => { document.getElementById('modal-rotina').classList.remove('hidden'); };
-        window.fecharRotina = () => { document.getElementById('modal-rotina').classList.add('hidden'); };
-        window.previewCapaRotina = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('rotina-preview').src = e.target.result; document.getElementById('rotina-preview').classList.remove('hidden'); document.getElementById('rotina-placeholder').classList.add('hidden'); document.getElementById('rotina-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
-
         window.onload = verificarSessao;
     </script>
 </body>
