@@ -21,6 +21,11 @@
     <style>
         .nav-item.active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; font-weight: bold; }
         .dark .nav-item.active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; }
+        
+        /* Submenu Ativo */
+        .sub-nav-item.active { color: #e15b31; font-weight: bold; }
+        .dark .sub-nav-item.active { color: #fb923c; }
+
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .drag-handle { cursor: grab; }
@@ -29,6 +34,9 @@
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
         .img-bank-selected { ring: 4px solid #f97316; transform: scale(0.95); }
+        
+        /* Transição do submenu */
+        #submenu-admin { transition: all 0.3s ease-in-out; }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -75,7 +83,6 @@
         <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl border dark:border-gray-600 relative">
             <button type="button" onclick="window.fecharSolicitacao()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
             <h3 id="titulo-solicitacao" class="font-bold mb-2 dark:text-white text-lg">Solicitação</h3>
-            <p class="text-xs text-gray-400 mb-6">Envie seus dados. O administrador analisará seu pedido.</p>
             <form id="form-solicitacao" class="space-y-4">
                 <input type="hidden" id="tipo-solicitacao">
                 <input id="solic-nome" placeholder="Seu Nome Completo" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
@@ -97,7 +104,7 @@
     </div>
 
     <div id="main-layout" class="flex h-screen hidden">
-        <aside class="w-64 bg-white dark:bg-dark-800 border-r dark:border-gray-700 flex flex-col py-8 items-center shrink-0">
+        <aside class="w-64 bg-white dark:bg-dark-800 border-r dark:border-gray-700 flex flex-col py-8 items-center shrink-0 overflow-y-auto no-scrollbar">
             <div class="flex flex-col items-center mb-10 text-center px-4">
                 <div class="w-20 h-20 relative group cursor-pointer mb-3" onclick="window.abrirModal()">
                     <img id="profile-img" src="" class="w-full h-full rounded-full border dark:border-gray-600 shadow-sm object-cover bg-gray-100 dark:bg-gray-700">
@@ -112,19 +119,40 @@
                 <a href="#" onclick="window.navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-calendar-day w-6"></i> Programação Diária
                 </a>
-                <a href="#" onclick="window.navegar('admin')" id="nav-admin" class="nav-item hidden flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition relative">
-                    <i class="fas fa-user-shield w-6"></i> Administração
-                    <span id="notificacao-admin" class="absolute right-4 w-2 h-2 bg-red-500 rounded-full hidden"></span>
-                </a>
+                
                 <a href="#" onclick="window.navegar('standby')" id="nav-standby" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-bell w-6"></i> Stand-By
                 </a>
+
                 <a href="#" onclick="window.navegar('links')" id="nav-links" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-link w-6"></i> Links Úteis
                 </a>
+
                 <a href="#" onclick="window.navegar('passagem')" id="nav-passagem" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-clipboard-list w-6"></i> Passagem de Serviço
                 </a>
+
+                <div id="wrapper-admin" class="hidden w-full">
+                    <button onclick="window.toggleAdminMenu()" class="w-full flex items-center justify-between px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition outline-none">
+                        <span class="flex items-center"><i class="fas fa-user-shield w-6"></i> Administração</span>
+                        <i id="admin-chevron" class="fas fa-chevron-down text-xs transition-transform duration-300"></i>
+                        <span id="notificacao-admin" class="absolute right-12 w-2 h-2 bg-red-500 rounded-full hidden"></span>
+                    </button>
+                    <div id="submenu-admin" class="hidden bg-gray-50 dark:bg-dark-900/50 py-2">
+                         <a href="#" onclick="window.navegar('admin-banco')" id="nav-admin-banco" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition">
+                            <i class="fas fa-images mr-2"></i> Banco de Dados
+                        </a>
+                        <a href="#" onclick="window.navegar('admin-users')" id="nav-admin-users" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition">
+                            <i class="fas fa-users mr-2"></i> Usuários
+                        </a>
+                        <a href="#" onclick="window.navegar('admin-solic')" id="nav-admin-solic" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition relative">
+                            <i class="fas fa-bell mr-2"></i> Solicitações
+                        </a>
+                        <a href="#" onclick="window.navegar('admin-clean')" id="nav-admin-clean" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition">
+                            <i class="fas fa-trash mr-2"></i> Limpeza de Dados
+                        </a>
+                    </div>
+                </div>
             </nav>
         </aside>
 
@@ -148,6 +176,7 @@
                 
                 <div id="screen-container-master" class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     <div class="lg:col-span-2 space-y-4">
+                        
                         <div id="screen-grade">
                             <div class="flex items-center justify-between mb-8">
                                 <div class="relative flex-1 max-w-lg mr-4">
@@ -163,7 +192,13 @@
 
                         <div id="screen-standby" class="hidden">
                              <div class="flex items-center justify-between mb-8">
-                                <input type="text" id="busca-standby" oninput="window.filtrarLista('lista-standby', this.value)" placeholder="Pesquisar stand-by..." class="w-full max-w-lg p-2 border rounded-lg dark:bg-dark-800 dark:text-white">
+                                <div class="relative flex-1 max-w-lg mr-4">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
+                                    <input type="text" id="busca-standby" oninput="window.filtrarLista('lista-standby', this.value)" placeholder="Pesquisar stand-by..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none bg-white dark:bg-dark-800 dark:text-white">
+                                </div>
+                                <button onclick="window.abrirCriacao()" class="bg-purple-600 text-white px-4 h-10 rounded-lg shadow-md hover:bg-purple-700 transition flex items-center text-sm font-bold gap-2">
+                                    <i class="fas fa-plus"></i> Novo Item
+                                </button>
                              </div>
                              <div id="lista-standby" class="space-y-4"></div>
                         </div>
@@ -172,9 +207,18 @@
                              <div id="lista-links-publica" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                         </div>
 
-                        <div id="screen-admin" class="hidden space-y-8">
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 uppercase text-sm">Usuários Cadastrados</h3>
+                        <div id="screen-admin" class="hidden">
+                            
+                            <div id="view-admin-banco" class="hidden bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-purple-100 dark:border-purple-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-images text-purple-500"></i> Banco de Imagens</h3>
+                                <div id="admin-banco-imagens" class="grid grid-cols-4 gap-3"></div>
+                                <label class="block mt-6 bg-purple-500 text-white text-center py-3 rounded-lg text-xs font-bold cursor-pointer hover:bg-purple-600 transition">
+                                    <i class="fas fa-upload mr-2"></i> Upload Nova Imagem <input type="file" class="hidden" onchange="window.adicionarImagemBanco(this)">
+                                </label>
+                            </div>
+
+                            <div id="view-admin-users" class="hidden bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 uppercase text-sm">Gerenciar Usuários</h3>
                                 <div class="overflow-x-auto">
                                     <table class="w-full text-left border-collapse">
                                         <thead>
@@ -188,25 +232,38 @@
                                         <tbody id="lista-usuarios"></tbody>
                                     </table>
                                 </div>
+                                <div class="mt-8 pt-6 border-t dark:border-gray-700">
+                                    <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2 text-sm"><i class="fas fa-link text-blue-500"></i> Gerenciar Links</h3>
+                                    <form id="formLink" class="flex gap-2 mb-4">
+                                        <input id="link-titulo" placeholder="Título" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                        <input id="link-url" placeholder="URL" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                        <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg font-bold text-xs uppercase hover:bg-blue-600">Add</button>
+                                    </form>
+                                    <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links"></div>
+                                </div>
                             </div>
 
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-purple-100 dark:border-purple-900/30">
-                                    <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-images text-purple-500"></i> Banco de Imagens</h3>
-                                    <div id="admin-banco-imagens" class="grid grid-cols-4 gap-2"></div>
-                                    <label class="block mt-4 bg-purple-500 text-white text-center py-2 rounded-lg text-xs font-bold cursor-pointer">
-                                        Upload para Banco <input type="file" class="hidden" onchange="window.adicionarImagemBanco(this)">
-                                    </label>
-                                </div>
-                                <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
-                                    <h3 class="font-bold text-red-500 mb-4 flex items-center gap-2"><i class="fas fa-trash"></i> Limpeza de Dados</h3>
-                                    <select id="limpeza-periodo" class="w-full p-2 text-sm rounded bg-gray-50 dark:bg-dark-700 dark:text-white border mb-4">
-                                        <option value="30">Mais de 30 dias</option>
-                                        <option value="90">Mais de 3 meses</option>
-                                    </select>
-                                    <button onclick="window.executarLimpeza()" class="w-full bg-red-500 text-white py-2 rounded-lg text-xs font-bold">Executar Limpeza</button>
+                            <div id="view-admin-solic" class="hidden bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações Pendentes</h3>
+                                <div id="lista-solicitacoes" class="space-y-3"></div>
+                                <div class="mt-8 pt-6 border-t dark:border-gray-700">
+                                    <h3 class="font-bold text-gray-800 dark:text-white mb-4 text-sm">Logs do Sistema</h3>
+                                    <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                                 </div>
                             </div>
+
+                            <div id="view-admin-clean" class="hidden bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-200 dark:border-red-900/50">
+                                <h3 class="font-bold text-red-600 dark:text-red-400 mb-4 flex items-center gap-2"><i class="fas fa-trash-alt"></i> Limpeza de Dados</h3>
+                                <p class="text-xs text-gray-500 mb-4">Selecione um período para excluir permanentemente registros antigos.</p>
+                                <select id="limpeza-periodo" class="w-full p-3 text-sm rounded-lg bg-gray-50 dark:bg-dark-700 dark:text-white border dark:border-gray-600 mb-4 outline-none font-bold">
+                                    <option value="30">Mais de 30 dias</option>
+                                    <option value="90">Mais de 3 meses</option>
+                                    <option value="180">Mais de 6 meses</option>
+                                    <option value="365">Mais de 1 ano</option>
+                                </select>
+                                <button onclick="window.executarLimpeza()" class="w-full bg-red-500 text-white py-3 rounded-lg text-xs font-bold uppercase hover:bg-red-600 shadow-md">Executar Limpeza</button>
+                            </div>
+
                         </div>
                     </div>
 
@@ -243,21 +300,25 @@
                                 <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
                                 <button type="button" id="btn-delete" onclick="window.deletar()" class="w-full mt-2 text-[9px] text-red-400 hover:text-red-500 font-bold uppercase underline hidden">Excluir</button>
                             </form>
-
-                            <div id="form-admin-user" class="hidden mt-8 pt-8 border-t dark:border-gray-700">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 uppercase text-xs">Novo/Editar Usuário</h3>
-                                <form id="formUsuario" class="space-y-3">
-                                    <input type="hidden" id="admin-user-id">
-                                    <input id="admin-nome" placeholder="Nome Completo" required class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white">
-                                    <input id="admin-login" placeholder="Login (Email)" required class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white">
-                                    <input id="admin-senha" placeholder="Senha" type="password" required class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white">
-                                    <select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white">
-                                        <option value="user">Usuário</option>
-                                        <option value="admin">Administrador</option>
-                                    </select>
-                                    <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold uppercase">Salvar Usuário</button>
-                                </form>
-                            </div>
+                        </div>
+                        
+                        <div id="form-admin-user" class="hidden bg-white dark:bg-dark-800 p-6 rounded-2xl shadow-lg border border-blue-200 dark:border-blue-900 transition relative">
+                            <h3 class="font-bold text-gray-800 dark:text-white mb-4 uppercase text-xs flex justify-between">
+                                Novo/Editar Usuário
+                                <i class="fas fa-times cursor-pointer text-gray-400" onclick="document.getElementById('form-admin-user').classList.add('hidden')"></i>
+                            </h3>
+                            <form id="formUsuario" class="space-y-3">
+                                <input type="hidden" id="admin-user-id">
+                                <input id="admin-nome" placeholder="Nome Completo" required class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white outline-none">
+                                <input id="admin-login" placeholder="Login (Email)" required class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white outline-none">
+                                <input id="admin-senha" placeholder="Senha" type="password" required class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white outline-none">
+                                <select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 p-2 text-sm rounded border dark:border-gray-600 dark:text-white outline-none">
+                                    <option value="user">Usuário</option>
+                                    <option value="admin">Administrador</option>
+                                </select>
+                                <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded-lg text-xs font-bold uppercase hover:bg-blue-700">Salvar Usuário</button>
+                                <button type="button" onclick="window.limparFormAdmin()" class="w-full text-[10px] text-gray-400 uppercase font-bold">Limpar / Novo</button>
+                            </form>
                         </div>
                     </aside>
                 </div>
@@ -270,10 +331,18 @@
                         <div id="lista-historico-passagem" class="flex-1 overflow-y-auto p-2 space-y-2"></div>
                     </div>
                     <div class="flex-1 bg-white dark:bg-dark-800 rounded-2xl shadow-sm border dark:border-gray-700 flex flex-col overflow-hidden">
+                         <div class="p-6 border-b dark:border-gray-700 flex justify-between items-center bg-white dark:bg-dark-800 z-10">
+                            <h2 class="text-xl font-bold dark:text-white"><i class="fas fa-comments text-orange-500 mr-2"></i> Passagem de Serviço</h2>
+                            <span id="data-passagem-label" class="text-sm text-gray-500 dark:text-gray-400 font-bold bg-gray-100 dark:bg-dark-700 px-3 py-1 rounded">Hoje</span>
+                        </div>
                         <div id="feed-passagem" class="flex-1 overflow-y-auto p-6 space-y-4"></div>
                         <div class="p-6 bg-white dark:bg-dark-800 border-t dark:border-gray-700 flex flex-col gap-2">
+                             <input type="hidden" id="note-id-editing">
                             <textarea id="texto-passagem" class="w-full bg-gray-50 dark:bg-dark-700 border rounded-xl p-4 text-sm dark:text-white outline-none h-24" placeholder="Nova ocorrência..."></textarea>
-                            <button onclick="window.enviarNota()" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-bold text-sm ml-auto">Enviar</button>
+                            <div class="flex justify-between items-center">
+                                <button onclick="window.cancelarEdicaoNota()" id="btn-cancel-note" class="text-xs text-gray-400 hover:text-red-500 font-bold hidden">Cancelar Edição</button>
+                                <button onclick="window.enviarNota()" class="bg-orange-500 text-white px-6 py-2 rounded-lg font-bold text-sm ml-auto">Enviar</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -286,7 +355,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update, off, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // Configuração Firebase igual ao original...
         const firebaseConfig = {
             apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
             authDomain: "midias-sp.firebaseapp.com",
@@ -299,134 +367,216 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // Referências
+        // VARS
         const getHojeLocal = () => { const d = new Date(); return d.toISOString().split('T')[0]; };
         let dataSelecionada = getHojeLocal();
+        let refProgramas = null; 
+        let refRelatorio = null;
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
         const refSolicitacoes = ref(db, 'solicitacoes');
         const refBancoImagens = ref(db, 'banco_imagens');
         const refLinks = ref(db, 'links');
 
-        // Renderizadores e Logicas do Firebase...
-        const carregarAdminPanel = () => {
-            if(localStorage.getItem('userRole') !== 'admin') return;
-            
-            // ESCUTA USUÁRIOS (A lógica que já existia mas não tinha onde renderizar)
-            onValue(refUsers, (snapshot) => {
-                const users = snapshot.val();
-                const tbody = document.getElementById('lista-usuarios');
-                if(!tbody) return;
-                tbody.innerHTML = '';
-                if(users) {
-                    Object.keys(users).forEach(key => {
-                        const u = users[key];
-                        const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>';
-                        tbody.innerHTML += `
-                            <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                                <td class="px-4 py-2 font-bold text-xs">${u.nome}</td>
-                                <td class="px-4 py-2 text-xs text-gray-400">${u.login}</td>
-                                <td class="px-4 py-2">${roleLabel}</td>
-                                <td class="px-4 py-2 text-right">
-                                    <button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button>
-                                    <button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button>
-                                </td>
-                            </tr>`;
-                    });
-                }
-            });
-
-            // Logs...
-            onValue(refLogs, (snapshot) => {
-                const container = document.getElementById('lista-logs');
-                if(!container) return;
-                const logs = snapshot.val();
-                container.innerHTML = '';
-                if(logs) Object.values(logs).reverse().slice(0, 10).forEach(l => {
-                    container.innerHTML += `<div class="text-[10px] text-gray-500 border-l border-gray-200 pl-2"><b>${l.acao}</b>: ${l.detalhe}</div>`;
-                });
-            });
+        // ====== NAVEGAÇÃO & MENU ADMIN ======
+        
+        window.toggleAdminMenu = () => {
+            const menu = document.getElementById('submenu-admin');
+            const chevron = document.getElementById('admin-chevron');
+            if(menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                chevron.style.transform = "rotate(180deg)";
+            } else {
+                menu.classList.add('hidden');
+                chevron.style.transform = "rotate(0deg)";
+            }
         };
-
-        // Funções Window
-        window.editarUsuario = (id, nome, login, role, senha) => {
-            document.getElementById('admin-user-id').value = id;
-            document.getElementById('admin-nome').value = nome;
-            document.getElementById('admin-login').value = login;
-            document.getElementById('admin-role').value = role;
-            document.getElementById('admin-senha').value = senha;
-            document.getElementById('view-form').classList.remove('hidden');
-        };
-
-        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) remove(ref(db, `users/${id}`)); };
 
         window.navegar = (tela) => {
+            window.cancelar(); // Fecha form cadastro
+            document.getElementById('form-admin-user').classList.add('hidden'); // Fecha form user
+
+            // Reseta classes ativas
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sub-nav-item').forEach(el => el.classList.remove('active'));
+
+            // Esconde todas as telas maiores
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-standby').classList.add('hidden');
+            document.getElementById('screen-links').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
             document.getElementById('screen-admin').classList.add('hidden');
-            document.getElementById('screen-links').classList.add('hidden');
+            document.getElementById('date-picker-wrapper').classList.add('hidden');
+
+            // Lógica de Sub-menus Admin
+            if(tela.startsWith('admin-')) {
+                document.getElementById('screen-admin').classList.remove('hidden');
+                document.getElementById('wrapper-admin').querySelector('button').classList.add('text-orange-500'); // Destaque pai
+                
+                // Esconde todas sub-seções admin
+                document.getElementById('view-admin-banco').classList.add('hidden');
+                document.getElementById('view-admin-users').classList.add('hidden');
+                document.getElementById('view-admin-solic').classList.add('hidden');
+                document.getElementById('view-admin-clean').classList.add('hidden');
+
+                // Mostra específica
+                if(tela === 'admin-banco') { document.getElementById('view-admin-banco').classList.remove('hidden'); document.getElementById('nav-admin-banco').classList.add('active'); document.getElementById('header-title').innerText = "Banco de Imagens"; }
+                if(tela === 'admin-users') { 
+                    document.getElementById('view-admin-users').classList.remove('hidden'); 
+                    document.getElementById('nav-admin-users').classList.add('active'); 
+                    document.getElementById('header-title').innerText = "Gerenciar Usuários";
+                    document.getElementById('form-admin-user').classList.remove('hidden'); // Mostra form usuario
+                }
+                if(tela === 'admin-solic') { document.getElementById('view-admin-solic').classList.remove('hidden'); document.getElementById('nav-admin-solic').classList.add('active'); document.getElementById('header-title').innerText = "Solicitações"; }
+                if(tela === 'admin-clean') { document.getElementById('view-admin-clean').classList.remove('hidden'); document.getElementById('nav-admin-clean').classList.add('active'); document.getElementById('header-title').innerText = "Limpeza de Dados"; }
+
+                window.contextoGlobal = 'admin';
+                return;
+            }
+
+            // Telas Normais
+            if(tela === 'grade') {
+                document.getElementById('nav-grade').classList.add('active');
+                document.getElementById('screen-grade').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
+                document.getElementById('date-picker-wrapper').classList.remove('hidden');
+                window.contextoGlobal = 'grade';
+            } else if (tela === 'standby') {
+                document.getElementById('nav-standby').classList.add('active');
+                document.getElementById('screen-standby').classList.remove('hidden');
+                document.getElementById('header-title').innerText = 'Stand-By';
+                window.contextoGlobal = 'standby';
+            } else if (tela === 'links') {
+                document.getElementById('nav-links').classList.add('active');
+                document.getElementById('screen-links').classList.remove('hidden');
+                document.getElementById('header-title').innerText = 'Links Úteis';
+            } else if (tela === 'passagem') {
+                document.getElementById('nav-passagem').classList.add('active');
+                document.getElementById('screen-passagem').classList.remove('hidden');
+                document.getElementById('header-title').innerText = 'Passagem de Serviço';
+            }
+        };
+
+        // ====== CARREGAMENTO DE DADOS ======
+        const carregarDadosData = (data) => {
+            if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
+            refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
+            document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
-            // Controle de formulários laterais
-            document.getElementById('formCadastro').classList.remove('hidden');
-            document.getElementById('form-admin-user').classList.add('hidden');
+            // Grade
+            onValue(refProgramas, (snapshot) => { 
+                const val = snapshot.val(); 
+                const container = document.getElementById('lista-programas'); 
+                if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Vazio</p></div>'; return; } 
+                let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); 
+                lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); 
+                renderizarCards(container, lista); 
+            });
+            // Passagem
+            onValue(refRelatorio, (snapshot) => {
+                const feed = document.getElementById('feed-passagem'); feed.innerHTML = ''; const val = snapshot.val(); const currentUser = localStorage.getItem('userName');
+                if(val) Object.keys(val).forEach(key => {
+                    const nota = val[key];
+                    const isOwner = (nota.autor === currentUser) || localStorage.getItem('userRole') === 'admin';
+                    const hora = new Date(nota.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+                    feed.innerHTML += `<div class="bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 relative group">
+                        <div class="flex justify-between items-start mb-2"><div class="flex items-center gap-2"><div class="w-6 h-6 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] font-bold">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold dark:text-white">${nota.autor}</p><p class="text-[9px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}','${encodeURIComponent(nota.texto)}')" class="text-blue-400 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap">${nota.texto}</p></div>`;
+                });
+                feed.scrollTop = feed.scrollHeight;
+            });
+        }
 
-            if(tela === 'admin') {
-                document.getElementById('formCadastro').classList.add('hidden');
-                document.getElementById('form-admin-user').classList.remove('hidden');
-            }
-
-            document.getElementById('screen-' + tela).classList.remove('hidden');
-            document.getElementById('nav-' + tela).classList.add('active');
-            window.contextoGlobal = tela;
+        const renderizarCards = (container, lista) => {
+            container.innerHTML = lista.map(p => {
+                let statusColor = p.status === 'completo' ? 'border-green-500 bg-green-50 dark:bg-green-900/20' : (p.status === 'andamento' ? 'border-orange-500 bg-orange-50 dark:bg-orange-900/20' : 'border-transparent bg-white dark:bg-dark-800');
+                return `<div class="group relative ${statusColor} p-3 rounded-xl shadow-sm border-2 transition flex gap-4" data-id="${p.id}"><div class="drag-handle flex items-center justify-center px-1 text-gray-300 cursor-grab"><i class="fas fa-grip-vertical"></i></div><div class="w-24 h-24 shrink-0 rounded-lg overflow-hidden bg-gray-100 dark:bg-dark-700 flex items-center justify-center">${p.capa ? `<img src="${p.capa}" class="w-full h-full object-cover">` : `<i class="fas fa-image text-gray-300 text-2xl"></i>`}</div><div class="flex-1 py-1"><div><h4 class="font-bold text-lg dark:text-gray-100 leading-tight">${p.titulo}</h4><div class="flex gap-2 text-sm text-gray-400 mt-1"><span>${p.subtitulo || ''}</span>${p.versao ? `<span class="bg-gray-100 dark:bg-dark-700 px-2 rounded font-bold">${p.versao}</span>` : ''}</div></div><div class="flex justify-between mt-3"><div class="flex items-center gap-2"><span class="text-xs font-bold uppercase text-gray-400">${p.autor||'Sistema'}</span><div class="flex gap-1">${p.tags?p.tags.split(' ').map(t=>`<span class="bg-gray-100 dark:bg-dark-700 px-1 rounded text-[10px]">${t}</span>`).join(''):''}</div></div><button onclick="window.abrirEdicaoGlobal('${p.id}')" class="w-8 h-8 rounded-full hover:bg-gray-100 dark:hover:bg-dark-700 flex items-center justify-center text-gray-400"><i class="fas fa-pencil-alt"></i></button></div></div></div>`;
+            }).join('');
+            window.dadosTemporarios = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
         };
 
-        // Restante da inicialização...
-        window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); };
-        window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
-        window.abrirCriacao = () => { document.getElementById('view-form').classList.remove('hidden'); };
-
-        // INIT
-        onValue(refUsers, (snapshot) => { carregarAdminPanel(); });
-        const verificarSessao = () => {
-             if (localStorage.getItem('session_active') === 'true') {
-                document.getElementById('tela-login').classList.add('hidden');
-                document.getElementById('main-layout').classList.remove('hidden');
-                document.getElementById('display-nome').innerText = localStorage.getItem('userName');
-                if(localStorage.getItem('userRole') === 'admin') document.getElementById('nav-admin').classList.remove('hidden');
-             }
-        };
-        verificarSessao();
+        // Listeners e Helpers Admin/Geral
+        window.filtrarLista = (id, termo) => { const l = document.getElementById(id); if(!l)return; Array.from(l.children).forEach(i => { i.classList.toggle('hidden', !i.innerText.toLowerCase().includes(termo.toLowerCase())); if(!i.classList.contains('hidden')) i.classList.add('flex'); }); }
         
-        // Listeners originais (Login, Cadastro etc)
-        document.getElementById('form-login').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const login = document.getElementById('login-user').value;
-            const pass = document.getElementById('login-senha').value;
-            if(login === 'admin' && pass === 'admin') {
-                localStorage.setItem('session_active', 'true');
-                localStorage.setItem('userName', 'Administrador');
-                localStorage.setItem('userRole', 'admin');
-                location.reload();
-            }
+        // Standby e Links Init
+        onValue(ref(db, 'standby'), snap => { const val=snap.val(); const el=document.getElementById('lista-standby'); if(!val){el.innerHTML='<p class="text-center opacity-50 py-10 text-sm">Vazio</p>';return;} let l=Object.keys(val).map(k=>({id:k,...val[k]})); renderizarCards(el, l); });
+        onValue(refLinks, snap => { 
+            const links=snap.val(); const pub=document.getElementById('lista-links-publica'); const adm=document.getElementById('admin-lista-links'); pub.innerHTML=''; adm.innerHTML='';
+            if(links) Object.keys(links).forEach(k => {
+                const l=links[k];
+                pub.innerHTML += `<div class="bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border hover:border-blue-300 transition flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><i class="fas fa-link"></i></div><h4 class="font-bold text-sm dark:text-white">${l.titulo}</h4></div><a href="${l.url}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600">Ir</a></div>`;
+                adm.innerHTML += `<div class="flex justify-between items-center bg-gray-50 dark:bg-dark-700 p-2 rounded text-xs mb-1"><span class="truncate mr-2 font-bold dark:text-white">${l.titulo}</span><button onclick="window.removerLink('${k}')" class="text-red-400"><i class="fas fa-trash"></i></button></div>`;
+            });
         });
 
-        document.getElementById('formUsuario').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('admin-user-id').value;
-            const dados = {
-                nome: document.getElementById('admin-nome').value,
-                login: document.getElementById('admin-login').value,
-                senha: document.getElementById('admin-senha').value,
-                role: document.getElementById('admin-role').value
-            };
-            if(id) update(ref(db, `users/${id}`), dados);
-            else push(refUsers, dados);
-            document.getElementById('formUsuario').reset();
-            window.cancelar();
-        });
+        // Admin Listeners
+        const carregarAdminData = () => {
+            if(localStorage.getItem('userRole') !== 'admin') return;
+            // Users
+            onValue(refUsers, snap => {
+                const u = snap.val(); const tb = document.getElementById('lista-usuarios'); tb.innerHTML='';
+                if(u) Object.keys(u).forEach(k => {
+                    const us=u[k]; const role = us.role==='admin'?'<span class="text-red-500 font-bold">Admin</span>':'User';
+                    tb.innerHTML+=`<tr class="border-b dark:border-gray-700"><td class="px-4 py-2 text-xs font-bold dark:text-white">${us.nome}</td><td class="px-4 py-2 text-xs text-gray-400">${us.login}</td><td class="px-4 py-2 text-xs">${role}</td><td class="px-4 py-2 text-right"><button onclick="window.editarUsuario('${k}','${us.nome}','${us.login}','${us.role}','${us.senha}')" class="text-blue-500 mr-2 text-xs">Edit</button><button onclick="window.removerUsuario('${k}')" class="text-red-500 text-xs">Del</button></td></tr>`;
+                });
+            });
+            // Banco Imagens
+            onValue(refBancoImagens, snap => {
+                const i = snap.val(); const c = document.getElementById('admin-banco-imagens'); const f = document.getElementById('upload-area-bank'); c.innerHTML=''; f.innerHTML='';
+                if(i) Object.keys(i).forEach(k => {
+                    c.innerHTML += `<div class="relative group aspect-square rounded overflow-hidden"><img src="${i[k]}" class="w-full h-full object-cover"><button onclick="window.removerImagemBanco('${k}')" class="absolute inset-0 bg-red-500/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center text-xs font-bold">Excluir</button></div>`;
+                    f.innerHTML += `<div onclick="window.selecionarImagemBanco('${i[k]}',this)" class="cursor-pointer rounded aspect-square overflow-hidden border img-bank-item"><img src="${i[k]}" class="w-full h-full object-cover"></div>`;
+                });
+            });
+            // Solicitações
+            onValue(refSolicitacoes, snap => {
+                const s = snap.val(); const l = document.getElementById('lista-solicitacoes'); const n = document.getElementById('notificacao-admin'); l.innerHTML='';
+                if(s) { n.classList.remove('hidden'); Object.keys(s).forEach(k => { const i=s[k]; l.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded text-xs flex justify-between gap-2"><div><p class="font-bold text-orange-500">${i.tipo}</p><p class="font-bold dark:text-white">${i.nome}</p><p class="text-gray-400">${i.contato}</p></div><div><button onclick="window.aprovarSolicitacao('${k}','${i.nome}','${i.contato}')" class="bg-green-100 text-green-600 px-2 py-1 rounded font-bold mb-1 block">Aceitar</button><button onclick="window.reprovarSolicitacao('${k}')" class="bg-red-100 text-red-600 px-2 py-1 rounded font-bold block">Recusar</button></div></div>`; }); } 
+                else { n.classList.add('hidden'); l.innerHTML='<p class="text-xs text-gray-400 italic">Nada pendente.</p>'; }
+            });
+            // Logs
+            onValue(refLogs, snap => { const l=snap.val(); const c=document.getElementById('lista-logs'); c.innerHTML=''; if(l) Object.values(l).reverse().slice(0,15).forEach(i=>c.innerHTML+=`<div class="text-[10px] border-l pl-2 mb-1 dark:text-gray-400"><b>${i.acao}</b>: ${i.detalhe}</div>`); });
+        };
 
+        // EXPORTS
+        window.abrirCriacao = () => { document.getElementById('formCadastro').reset(); document.getElementById('view-form').classList.remove('hidden'); };
+        window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
+        window.abrirEdicaoGlobal = (id) => { const p = window.dadosTemporarios[id]; document.getElementById('edit-id').value=p.id; document.getElementById('in-titulo').value=p.titulo; document.getElementById('in-sub').value=p.subtitulo; document.getElementById('in-versao').value=p.versao||''; if(p.capa) window.selecionarImagemBanco(p.capa, document.createElement('div')); document.getElementById('btn-delete').classList.remove('hidden'); document.getElementById('view-form').classList.remove('hidden'); };
+        window.deletar = () => { if(confirm('Apagar?')) { remove(ref(db, (window.contextoGlobal==='standby'?'standby/':'datas/'+dataSelecionada+'/programas/')+document.getElementById('edit-id').value)); window.cancelar(); } };
+        window.previewCapa = (i) => { if(i.files[0]){const r=new FileReader();r.onload=e=>{document.getElementById('cover-preview').src=e.target.result;document.getElementById('cover-preview').classList.remove('hidden');document.getElementById('in-cover-base64').value=e.target.result;};r.readAsDataURL(i.files[0]);} };
+        window.toggleTipoUpload = (t) => { if(t==='pc'){document.getElementById('upload-area-pc').classList.remove('hidden');document.getElementById('upload-area-bank').classList.add('hidden');}else{document.getElementById('upload-area-pc').classList.add('hidden');document.getElementById('upload-area-bank').classList.remove('hidden');} };
+        window.selecionarImagemBanco = (b64, el) => { document.getElementById('in-cover-base64').value=b64; document.getElementById('cover-preview').src=b64; document.getElementById('cover-preview').classList.remove('hidden'); document.querySelectorAll('.img-bank-item').forEach(e=>e.classList.remove('img-bank-selected')); el.classList.add('img-bank-selected'); };
+        window.adicionarImagemBanco = (i) => { if(i.files[0]){const r=new FileReader();r.onload=e=>push(refBancoImagens, e.target.result);r.readAsDataURL(i.files[0]);} };
+        window.removerImagemBanco = k => { if(confirm('Apagar img?')) remove(ref(db, `banco_imagens/${k}`)); };
+        
+        // ADMIN EXPORTS
+        window.editarUsuario = (id, n, l, r, s) => { document.getElementById('admin-user-id').value=id; document.getElementById('admin-nome').value=n; document.getElementById('admin-login').value=l; document.getElementById('admin-role').value=r; document.getElementById('admin-senha').value=s; document.getElementById('form-admin-user').classList.remove('hidden'); };
+        window.removerUsuario = id => { if(confirm('Remover?')) remove(ref(db, `users/${id}`)); };
+        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value=''; };
+        window.aprovarSolicitacao = (id, n, c) => { if(confirm('Aprovar?')) { push(refUsers, {nome:n, login:c, senha:'123', role:'user', forceReset:true}); remove(ref(db, `solicitacoes/${id}`)); } };
+        window.reprovarSolicitacao = id => { if(confirm('Recusar?')) remove(ref(db, `solicitacoes/${id}`)); };
+        window.executarLimpeza = async () => { const d = document.getElementById('limpeza-periodo').value; const dt = new Date(); dt.setDate(dt.getDate()-d); const s = await get(ref(db, 'datas')); if(s.exists()) { let c=0; s.forEach(x => { if(x.key < dt.toISOString().split('T')[0]) { remove(ref(db, `datas/${x.key}`)); c++; } }); alert(c+' dias limpos.'); } };
+        window.removerLink = k => { if(confirm('Apagar link?')) remove(refLinks, k); };
+
+        // INITIALIZE
+        carregarDadosData(dataSelecionada);
+        carregarAdminData();
+        const verSessao = () => { if(localStorage.getItem('session_active')==='true') { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('main-layout').classList.remove('hidden'); document.getElementById('display-nome').innerText=localStorage.getItem('userName'); if(localStorage.getItem('userRole')==='admin') document.getElementById('wrapper-admin').classList.remove('hidden'); } };
+        verSessao();
+
+        // FORMS LISTENERS
+        document.getElementById('formCadastro').addEventListener('submit', e => { e.preventDefault(); const id=document.getElementById('edit-id').value; const d={titulo:document.getElementById('in-titulo').value, subtitulo:document.getElementById('in-sub').value, versao:document.getElementById('in-versao').value, status:document.querySelector('input[name="status"]:checked').value, capa:document.getElementById('in-cover-base64').value, autor:localStorage.getItem('userName')}; const path = window.contextoGlobal==='standby' ? (id?`standby/${id}`:'standby') : (id?`datas/${dataSelecionada}/programas/${id}`:`datas/${dataSelecionada}/programas`); if(id) update(ref(db,path),d); else { d.ordem=999; push(ref(db,path),d); } window.cancelar(); });
+        document.getElementById('formUsuario').addEventListener('submit', e => { e.preventDefault(); const id=document.getElementById('admin-user-id').value; const d={nome:document.getElementById('admin-nome').value, login:document.getElementById('admin-login').value, senha:document.getElementById('admin-senha').value, role:document.getElementById('admin-role').value}; if(id) update(ref(db, `users/${id}`), d); else push(refUsers, d); window.limparFormAdmin(); });
+        document.getElementById('formLink').addEventListener('submit', e => { e.preventDefault(); push(refLinks, {titulo:document.getElementById('link-titulo').value, url:document.getElementById('link-url').value}); document.getElementById('formLink').reset(); });
+        
+        // Passagem
+        window.enviarNota = () => { const t = document.getElementById('texto-passagem').value; if(t) push(ref(db, `datas/${dataSelecionada}/relatorio`), {texto:t, autor:localStorage.getItem('userName'), timestamp:new Date().toISOString()}); document.getElementById('texto-passagem').value=''; };
+        window.excluirNota = k => { if(confirm('Apagar nota?')) remove(ref(db, `datas/${dataSelecionada}/relatorio/${k}`)); };
+        
+        // Login
+        document.getElementById('form-login').addEventListener('submit', e => { e.preventDefault(); if(document.getElementById('login-user').value==='admin' && document.getElementById('login-senha').value==='admin') { localStorage.setItem('session_active','true'); localStorage.setItem('userName','Admin'); localStorage.setItem('userRole','admin'); location.reload(); } });
+        
+        // Drag
+        new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, onEnd: evt => { document.querySelectorAll('#lista-programas [data-id]').forEach((el,i) => update(ref(db, `datas/${dataSelecionada}/programas/${el.dataset.id}`), {ordem:i})); } });
     </script>
 </body>
 </html>
