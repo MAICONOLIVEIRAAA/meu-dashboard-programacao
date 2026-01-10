@@ -15,7 +15,6 @@
             darkMode: 'class',
             theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
-        // Variável de controle visual global
         window.contextoGlobal = 'grade'; 
     </script>
     
@@ -123,9 +122,11 @@
                 <a href="#" onclick="window.navegar('standby')" id="nav-standby" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-bell w-6"></i> Stand-By
                 </a>
-                <a href="#" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
-                    <i class="fas fa-play-circle w-6"></i> Globoplay
+                
+                <a href="#" onclick="window.navegar('links')" id="nav-links" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-link w-6"></i> Links Úteis
                 </a>
+
                 <a href="#" onclick="window.navegar('passagem')" id="nav-passagem" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
                     <i class="fas fa-clipboard-list w-6"></i> Passagem de Serviço
                 </a>
@@ -176,6 +177,17 @@
                                 </button>
                             </div>
                             <div id="lista-standby" class="space-y-4"></div>
+                        </div>
+
+                        <div id="screen-links" class="hidden">
+                             <div class="flex items-center justify-between mb-8">
+                                <div class="relative flex-1 max-w-lg mr-4">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
+                                    <input type="text" oninput="window.filtrarLista('lista-links-publica', this.value)" placeholder="Pesquisar links..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
+                                </div>
+                            </div>
+                            <div id="lista-links-publica" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                </div>
                         </div>
 
                     </div>
@@ -279,6 +291,20 @@
                 <div id="screen-admin" class="hidden absolute top-0 left-0 right-0 bottom-0 bg-[#f8fafc] dark:bg-dark-900 p-8 z-20">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-6">
+                            
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-blue-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-link text-blue-500"></i> Gerenciar Links Úteis</h3>
+                                
+                                <form id="formLink" class="flex gap-2 mb-4">
+                                    <input id="link-titulo" placeholder="Título (Ex: Escala)" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    <input id="link-url" placeholder="URL (https://...)" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg font-bold text-xs uppercase hover:bg-blue-600">Adicionar</button>
+                                </form>
+
+                                <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links">
+                                    </div>
+                            </div>
+
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações de Acesso</h3>
                                 <div id="lista-solicitacoes" class="space-y-3"></div>
@@ -287,21 +313,24 @@
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-users text-orange-500"></i> Usuários do Sistema</h3>
                                 <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-dark-700 dark:text-gray-400"><tr><th class="px-4 py-3">Nome</th><th class="px-4 py-3">Login/Email</th><th class="px-4 py-3">Função</th><th class="px-4 py-3 text-right">Ações</th></tr></thead><tbody id="lista-usuarios"></tbody></table></div>
                             </div>
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Relatório de Atividades</h3>
+                        </div>
+                        
+                        <div class="space-y-6">
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700 h-fit">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm">Gerenciar Usuário</h3>
+                                <form id="formUsuario" class="space-y-4">
+                                    <input type="hidden" id="admin-user-id">
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome Completo</label><input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label><input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Reset/Nova)</label><input id="admin-senha" type="text" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Permissão</label><select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"><option value="user">Usuário (Visualizar)</option><option value="admin">Administrador (Total)</option></select></div>
+                                    <div class="pt-2 flex gap-2"><button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button><button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button></div>
+                                </form>
+                            </div>
+                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Logs</h3>
                                 <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                             </div>
-                        </div>
-                        <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700 h-fit sticky top-0">
-                            <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm">Gerenciar Usuário</h3>
-                            <form id="formUsuario" class="space-y-4">
-                                <input type="hidden" id="admin-user-id">
-                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome Completo</label><input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
-                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label><input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
-                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Reset/Nova)</label><input id="admin-senha" type="text" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
-                                <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Permissão</label><select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"><option value="user">Usuário (Visualizar)</option><option value="admin">Administrador (Total)</option></select></div>
-                                <div class="pt-2 flex gap-2"><button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar & Enviar Email</button><button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button></div>
-                            </form>
                         </div>
                     </div>
                 </div>
@@ -332,35 +361,26 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // FUNÇÃO PARA PEGAR DATA LOCAL (CORRIGIDO PARA SEMPRE SER "HOJE")
-        const getHojeLocal = () => {
-            const d = new Date();
-            const ano = d.getFullYear();
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const dia = String(d.getDate()).padStart(2, '0');
-            return `${ano}-${mes}-${dia}`;
-        };
+        // FUNÇÃO DATA
+        const getHojeLocal = () => { const d = new Date(); const ano = d.getFullYear(); const mes = String(d.getMonth() + 1).padStart(2, '0'); const dia = String(d.getDate()).padStart(2, '0'); return `${ano}-${mes}-${dia}`; };
 
         // VARIÁVEIS LOCAIS
         let dataSelecionada = getHojeLocal();
         let refProgramas = null;
         let refRelatorio = null;
         let refStandby = ref(db, 'standby');
+        let refLinks = ref(db, 'links'); // NOVA REFERÊNCIA
         let refDatas = ref(db, 'datas');
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
         const refSolicitacoes = ref(db, 'solicitacoes');
 
         const dateInput = document.getElementById('data-selector');
-        if(dateInput) {
-            dateInput.value = dataSelecionada;
-            dateInput.addEventListener('change', (e) => mudarData(e.target.value));
-        }
+        if(dateInput) { dateInput.value = dataSelecionada; dateInput.addEventListener('change', (e) => mudarData(e.target.value)); }
 
         // --- FUNÇÕES DE LÓGICA ---
         const logActivity = (acao, detalhe) => { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         
-        // --- FUNÇÃO DE FILTRO INSTANTÂNEO ---
         window.filtrarLista = (idLista, termo) => {
             const lista = document.getElementById(idLista);
             if (!lista) return;
@@ -369,13 +389,8 @@
             for (let i = 0; i < items.length; i++) {
                 const item = items[i];
                 const texto = item.innerText.toLowerCase();
-                if (texto.includes(t)) {
-                    item.classList.remove('hidden');
-                    item.classList.add('flex'); // Garante que volta a ser flexivel
-                } else {
-                    item.classList.add('hidden');
-                    item.classList.remove('flex');
-                }
+                if (texto.includes(t)) { item.classList.remove('hidden'); if(idLista !== 'lista-links-publica') item.classList.add('flex'); } 
+                else { item.classList.add('hidden'); item.classList.remove('flex'); }
             }
         };
 
@@ -394,13 +409,13 @@
             }).join('');
             window.dadosTemporarios = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
             
-            // Reaplicar filtro se houver texto na busca (para quando a lista recarregar do banco)
             const buscaGrade = document.getElementById('busca-grade').value;
             const buscaStandby = document.getElementById('busca-standby').value;
             if (buscaGrade && container.id === 'lista-programas') window.filtrarLista('lista-programas', buscaGrade);
             if (buscaStandby && container.id === 'lista-standby') window.filtrarLista('lista-standby', buscaStandby);
         }
 
+        // --- CARREGAR DADOS ---
         const carregarDadosData = (data) => {
             if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
@@ -415,18 +430,12 @@
             });
 
             onValue(refRelatorio, (snapshot) => {
-                const feedContainer = document.getElementById('feed-passagem');
-                feedContainer.innerHTML = '';
-                const val = snapshot.val();
-                const currentUser = localStorage.getItem('userName');
-                const isAdmin = localStorage.getItem('userRole') === 'admin';
+                const feedContainer = document.getElementById('feed-passagem'); feedContainer.innerHTML = '';
+                const val = snapshot.val(); const currentUser = localStorage.getItem('userName'); const isAdmin = localStorage.getItem('userRole') === 'admin';
                 if (!val) { feedContainer.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fas fa-comments text-4xl mb-2 text-gray-300"></i><p class="text-sm">Nenhuma ocorrência registrada.</p></div>`; return; }
                 Object.keys(val).forEach(key => {
-                    const nota = val[key];
-                    const isOwner = (nota.autor === currentUser) || isAdmin;
-                    const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                    const card = document.createElement('div');
-                    card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group";
+                    const nota = val[key]; const isOwner = (nota.autor === currentUser) || isAdmin; const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
+                    const card = document.createElement('div'); card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group";
                     card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold text-gray-800 dark:text-white">${nota.autor}</p><p class="text-[10px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}', '${encodeURIComponent(nota.texto)}')" class="text-blue-400 hover:text-blue-600 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${nota.texto}</p>`;
                     feedContainer.appendChild(card);
                 });
@@ -434,105 +443,76 @@
             });
         }
 
-        const carregarStandby = () => {
-            onValue(refStandby, (snapshot) => {
-                const val = snapshot.val(); const container = document.getElementById('lista-standby');
-                if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; }
-                let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
-                renderizarCards(container, lista);
+        const carregarStandby = () => { onValue(refStandby, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-standby'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); renderizarCards(container, lista); }); }
+
+        // --- CARREGAR LINKS ---
+        const carregarLinks = () => {
+            onValue(refLinks, (snapshot) => {
+                const links = snapshot.val();
+                const containerPublico = document.getElementById('lista-links-publica');
+                const containerAdmin = document.getElementById('admin-lista-links');
+                
+                containerPublico.innerHTML = '';
+                if(containerAdmin) containerAdmin.innerHTML = '';
+
+                if(links) {
+                    Object.keys(links).forEach(key => {
+                        const l = links[key];
+                        // Renderizar na tela pública
+                        containerPublico.innerHTML += `
+                        <div class="bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border hover:border-blue-300 dark:hover:border-blue-700 dark:border-gray-700 transition flex justify-between items-center group">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center"><i class="fas fa-link"></i></div>
+                                <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">${l.titulo}</h4>
+                            </div>
+                            <a href="${l.url}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition">Acessar</a>
+                        </div>`;
+
+                        // Renderizar na lista do admin
+                        if(containerAdmin) {
+                            containerAdmin.innerHTML += `
+                            <div class="flex justify-between items-center bg-gray-50 dark:bg-dark-700 p-2 rounded border dark:border-gray-600 text-xs">
+                                <div class="truncate mr-2"><span class="font-bold">${l.titulo}</span> <span class="text-gray-400">(${l.url})</span></div>
+                                <button onclick="window.removerLink('${key}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                            </div>`;
+                        }
+                    });
+                } else {
+                    containerPublico.innerHTML = '<p class="text-gray-400 text-sm col-span-2 text-center py-10">Nenhum link cadastrado.</p>';
+                    if(containerAdmin) containerAdmin.innerHTML = '<p class="text-gray-400 text-xs italic">Nenhum link.</p>';
+                }
             });
         }
 
+        // CRUD FORMULARIO
         const resetCapaUI = () => { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
         const mostrarForm = () => { document.getElementById('view-form').classList.remove('hidden'); }
         const cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
 
-        const abrirCriacao = () => { 
-            document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; 
-            document.getElementById('edit-id').value = ""; 
-            document.getElementById('formCadastro').reset(); 
-            resetCapaUI(); 
-            document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); 
-            document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); 
-            const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); 
-            if(radioPendente) radioPendente.checked = true; 
-            document.getElementById('btn-delete').classList.add('hidden'); 
-            mostrarForm(); 
-        };
-
-        const abrirEdicao = (p) => { 
-            if(!p) return;
-            document.getElementById('edit-id').value = p.id; 
-            document.getElementById('in-titulo').value = p.titulo; 
-            document.getElementById('in-sub').value = p.subtitulo; 
-            document.getElementById('in-versao').value = p.versao || ""; 
-            document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); 
-            if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } 
-            document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); 
-            if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } 
-            const statusVal = p.status || 'pendente'; 
-            const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); 
-            if(radio) radio.checked = true; 
-            if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } 
-            document.getElementById('btn-delete').classList.remove('hidden'); 
-            mostrarForm(); 
-        };
+        const abrirCriacao = () => { document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
+        const abrirEdicao = (p) => { if(!p) return; document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
 
         const previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
         const deletar = () => { if(confirm('Tem certeza?')) { const id = document.getElementById('edit-id').value; const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`; remove(ref(db, path)); logActivity('Excluiu', 'ID: ' + id); cancelar(); } };
         const mudarData = (novaData) => { dataSelecionada = novaData; document.getElementById('data-selector').value = dataSelecionada; carregarDadosData(dataSelecionada); carregarHistoricoPassagem(); };
 
-        const carregarHistoricoPassagem = () => {
-             onValue(refDatas, (snapshot) => {
-                const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return;
-                const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a));
-                datasComRelatorio.forEach(data => {
-                    const dataFormatada = data.split('-').reverse().join('/');
-                    const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600";
-                    const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0;
-                    container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`;
-                });
-            });
-        }
+        const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return; const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a)); datasComRelatorio.forEach(data => { const dataFormatada = data.split('-').reverse().join('/'); const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600"; const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0; container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`; }); }); }
+        const carregarAdminPanel = () => { if(localStorage.getItem('userRole') !== 'admin') return; onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } }); onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } }); onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); }
 
-        const carregarAdminPanel = () => {
-            if(localStorage.getItem('userRole') !== 'admin') return;
-            onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } });
-            onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } });
-            onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } });
-        }
+        // --- EXPORTAR ---
+        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; }; window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; }; window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
+        window.removerLink = (id) => { if(confirm('Remover link?')) remove(ref(db, `links/${id}`)); };
 
-        // --- EXPORTAR FUNÇÕES ---
-        window.abrirCriacao = abrirCriacao;
-        window.cancelar = cancelar;
-        window.previewCapa = previewCapa;
-        window.deletar = deletar;
-        window.mudarData = mudarData;
-        window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); };
-        window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } };
-        window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } };
-        window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); };
-        window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden');
-        window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; };
-        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } };
-        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; };
-        window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); };
-        window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); };
-        window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); };
-        window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); };
-        window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
-        window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
-        window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
         const salvarFotoLocal = (url) => { localStorage.setItem('userAvatar', url); carregarFotoLocal(); window.fecharModal(); }
         const carregarFotoLocal = () => { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         
-        // NAVEGAÇÃO
         window.navegar = (tela) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-standby').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
             document.getElementById('screen-admin').classList.add('hidden');
+            document.getElementById('screen-links').classList.add('hidden'); // Ocultar links
             document.getElementById('date-picker-wrapper').classList.add('hidden');
 
             if(tela === 'grade') {
@@ -554,126 +534,48 @@
                 document.getElementById('nav-admin').classList.add('active');
                 document.getElementById('screen-admin').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = 'Administração';
+            } else if (tela === 'links') {
+                document.getElementById('nav-links').classList.add('active');
+                document.getElementById('screen-links').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Links Úteis';
             }
         }
 
-        window.toggleTheme = () => {
-            document.documentElement.classList.toggle('dark');
-            localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-            document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon';
-        }
+        window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
 
         const aplicarPermissoes = () => {
-            const role = localStorage.getItem('userRole');
-            const isAdmin = (role === 'admin'); 
-            const navAdmin = document.getElementById('nav-admin');
-            const badge = document.getElementById('badge-cargo');
-            
-            if(isAdmin) {
-                if(navAdmin) navAdmin.classList.remove('hidden'); 
-                if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; }
-            } else {
-                if(navAdmin) navAdmin.classList.add('hidden'); 
-                if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-blue-100 text-blue-600"; badge.innerText = "Usuário"; }
-            }
+            const role = localStorage.getItem('userRole'); const isAdmin = (role === 'admin'); const navAdmin = document.getElementById('nav-admin'); const badge = document.getElementById('badge-cargo');
+            if(isAdmin) { if(navAdmin) navAdmin.classList.remove('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; } } 
+            else { if(navAdmin) navAdmin.classList.add('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-blue-100 text-blue-600"; badge.innerText = "Usuário"; } }
         }
 
-        const verificarSessao = () => {
-            if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; }
-            if (localStorage.getItem('session_active') === 'true') {
-                document.getElementById('tela-login').classList.add('hidden');
-                document.getElementById('main-layout').classList.remove('hidden');
-                if(document.getElementById('display-nome')) { document.getElementById('display-nome').innerText = localStorage.getItem('userName'); }
-                carregarFotoLocal();
-                aplicarPermissoes();
-            }
-        }
+        const verificarSessao = () => { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; } if (localStorage.getItem('session_active') === 'true') { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('main-layout').classList.remove('hidden'); if(document.getElementById('display-nome')) { document.getElementById('display-nome').innerText = localStorage.getItem('userName'); } carregarFotoLocal(); aplicarPermissoes(); } }
         window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); localStorage.removeItem('userName'); location.reload(); }
 
-        // --- ATRIBUIÇÃO DE EVENT LISTENERS (CRÍTICO PARA MODULOS) ---
-        // Isso garante que os formulários funcionem mesmo dentro do módulo
+        // LISTENERS
+        document.getElementById('form-login').addEventListener('submit', async (e) => { e.preventDefault(); const loginInput = document.getElementById('login-user').value; const senhaInput = document.getElementById('login-senha').value; const snapshotUsers = await get(refUsers); if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') { push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false }); localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); location.reload(); return; } let userFound = null; let userKey = null; if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); } if (userFound) { if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; } localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); location.reload(); } else { document.getElementById('login-erro').classList.remove('hidden'); } });
+        document.getElementById('form-force-reset').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Senha atualizada! Faça login."); location.reload(); });
+        document.getElementById('formCadastro').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; let dbRef; if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } cancelar(); });
+        document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
+        document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); });
         
-        document.getElementById('form-login').addEventListener('submit', async (e) => {
+        // NOVO LISTENER: ADICIONAR LINK
+        document.getElementById('formLink').addEventListener('submit', (e) => {
             e.preventDefault();
-            const loginInput = document.getElementById('login-user').value;
-            const senhaInput = document.getElementById('login-senha').value;
-            
-            const snapshotUsers = await get(refUsers);
-            if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') {
-                push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false });
-                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); 
-                location.reload(); return;
-            }
-
-            let userFound = null; let userKey = null;
-            if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); }
-
-            if (userFound) {
-                if(userFound.forceReset === true) { 
-                    document.getElementById('modal-force-reset').classList.remove('hidden'); 
-                    document.getElementById('reset-user-id').value = userKey; 
-                    return; 
-                }
-                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); 
-                location.reload();
-            } else { 
-                document.getElementById('login-erro').classList.remove('hidden'); 
-            }
+            const titulo = document.getElementById('link-titulo').value;
+            const url = document.getElementById('link-url').value;
+            push(refLinks, { titulo: titulo, url: url });
+            document.getElementById('link-titulo').value = '';
+            document.getElementById('link-url').value = '';
         });
 
-        document.getElementById('form-force-reset').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const id = document.getElementById('reset-user-id').value;
-            const s1 = document.getElementById('nova-senha-1').value;
-            const s2 = document.getElementById('nova-senha-2').value;
-            if(s1 !== s2) { alert("Senhas não coincidem!"); return; }
-            if(s1.length < 4) { alert("Senha curta!"); return; }
-            await update(ref(db, `users/${id}`), { senha: s1, forceReset: false });
-            alert("Senha atualizada! Faça login.");
-            location.reload();
-        });
-
-        document.getElementById('formCadastro').addEventListener('submit', (e) => { 
-            e.preventDefault(); 
-            const id = document.getElementById('edit-id').value; 
-            const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); 
-            const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); 
-            const statusChecked = document.querySelector('input[name="status"]:checked').value; 
-            const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; 
-            
-            let dbRef;
-            if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } 
-            else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); }
-
-            if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } 
-            else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); }
-            cancelar(); 
-        });
-
-        document.getElementById('form-solicitacao').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; 
-            push(refSolicitacoes, dados); 
-            alert("Solicitação enviada!"); 
-            window.fecharSolicitacao();
-        });
-
-        document.getElementById('formUsuario').addEventListener('submit', (e) => {
-            e.preventDefault(); 
-            const id = document.getElementById('admin-user-id').value; 
-            const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; 
-            if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } 
-            else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } 
-            if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } 
-            window.limparFormAdmin();
-        });
-
-        // INIT EXECUTION
+        // INIT
         verificarSessao();
         carregarDadosData(dataSelecionada);
         carregarStandby();
         carregarHistoricoPassagem();
         carregarAdminPanel();
+        carregarLinks(); // CARREGAR LINKS
         
         new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
