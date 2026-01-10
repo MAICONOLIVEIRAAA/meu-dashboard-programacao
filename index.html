@@ -186,8 +186,7 @@
                                     <input type="text" oninput="window.filtrarLista('lista-links-publica', this.value)" placeholder="Pesquisar links..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                                 </div>
                             </div>
-                            <div id="lista-links-publica" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                </div>
+                            <div id="lista-links-publica" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
                         </div>
 
                     </div>
@@ -292,17 +291,30 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-6">
                             
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-200 dark:border-red-900/50 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fas fa-trash-alt text-6xl text-red-500"></i></div>
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2 text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle"></i> Manutenção de Dados</h3>
+                                <p class="text-xs text-gray-500 mb-4">Remova registros antigos para liberar espaço no banco de dados. <br><b>Atenção:</b> A exclusão é permanente.</p>
+                                
+                                <div class="flex gap-2 items-center">
+                                    <select id="limpeza-periodo" class="bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none font-bold">
+                                        <option value="30">Mais de 30 Dias</option>
+                                        <option value="90">Mais de 3 Meses</option>
+                                        <option value="180">Mais de 6 Meses</option>
+                                        <option value="365">Mais de 1 Ano</option>
+                                    </select>
+                                    <button onclick="window.executarLimpeza()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase hover:bg-red-600 shadow-md">Limpar Agora</button>
+                                </div>
+                            </div>
+
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-blue-900/30">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-link text-blue-500"></i> Gerenciar Links Úteis</h3>
-                                
                                 <form id="formLink" class="flex gap-2 mb-4">
-                                    <input id="link-titulo" placeholder="Título (Ex: Escala)" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                    <input id="link-url" placeholder="URL (https://...)" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                    <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg font-bold text-xs uppercase hover:bg-blue-600">Adicionar</button>
+                                    <input id="link-titulo" placeholder="Título" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    <input id="link-url" placeholder="URL" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg font-bold text-xs uppercase hover:bg-blue-600">Add</button>
                                 </form>
-
-                                <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links">
-                                    </div>
+                                <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links"></div>
                             </div>
 
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
@@ -361,15 +373,15 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // FUNÇÃO DATA
+        // DATA
         const getHojeLocal = () => { const d = new Date(); const ano = d.getFullYear(); const mes = String(d.getMonth() + 1).padStart(2, '0'); const dia = String(d.getDate()).padStart(2, '0'); return `${ano}-${mes}-${dia}`; };
 
-        // VARIÁVEIS LOCAIS
+        // VARS
         let dataSelecionada = getHojeLocal();
         let refProgramas = null;
         let refRelatorio = null;
         let refStandby = ref(db, 'standby');
-        let refLinks = ref(db, 'links'); // NOVA REFERÊNCIA
+        let refLinks = ref(db, 'links'); 
         let refDatas = ref(db, 'datas');
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
@@ -378,7 +390,7 @@
         const dateInput = document.getElementById('data-selector');
         if(dateInput) { dateInput.value = dataSelecionada; dateInput.addEventListener('change', (e) => mudarData(e.target.value)); }
 
-        // --- FUNÇÕES DE LÓGICA ---
+        // LOGIC
         const logActivity = (acao, detalhe) => { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         
         window.filtrarLista = (idLista, termo) => {
@@ -408,81 +420,69 @@
                     ${p.status === 'completo' ? '<div class="absolute top-2 right-2 text-green-500"><i class="fas fa-check-circle"></i></div>' : ''}</div>`;
             }).join('');
             window.dadosTemporarios = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
-            
-            const buscaGrade = document.getElementById('busca-grade').value;
-            const buscaStandby = document.getElementById('busca-standby').value;
-            if (buscaGrade && container.id === 'lista-programas') window.filtrarLista('lista-programas', buscaGrade);
-            if (buscaStandby && container.id === 'lista-standby') window.filtrarLista('lista-standby', buscaStandby);
+            const buscaGrade = document.getElementById('busca-grade').value; const buscaStandby = document.getElementById('busca-standby').value; if (buscaGrade && container.id === 'lista-programas') window.filtrarLista('lista-programas', buscaGrade); if (buscaStandby && container.id === 'lista-standby') window.filtrarLista('lista-standby', buscaStandby);
         }
 
-        // --- CARREGAR DADOS ---
         const carregarDadosData = (data) => {
             if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
-            onValue(refProgramas, (snapshot) => {
-                const val = snapshot.val(); const container = document.getElementById('lista-programas');
-                if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; }
-                let lista = Object.keys(val).map(key => ({ id: key, ...val[key] }));
-                lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0));
-                renderizarCards(container, lista);
-            });
-
-            onValue(refRelatorio, (snapshot) => {
-                const feedContainer = document.getElementById('feed-passagem'); feedContainer.innerHTML = '';
-                const val = snapshot.val(); const currentUser = localStorage.getItem('userName'); const isAdmin = localStorage.getItem('userRole') === 'admin';
-                if (!val) { feedContainer.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fas fa-comments text-4xl mb-2 text-gray-300"></i><p class="text-sm">Nenhuma ocorrência registrada.</p></div>`; return; }
-                Object.keys(val).forEach(key => {
-                    const nota = val[key]; const isOwner = (nota.autor === currentUser) || isAdmin; const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : '';
-                    const card = document.createElement('div'); card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group";
-                    card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold text-gray-800 dark:text-white">${nota.autor}</p><p class="text-[10px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}', '${encodeURIComponent(nota.texto)}')" class="text-blue-400 hover:text-blue-600 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${nota.texto}</p>`;
-                    feedContainer.appendChild(card);
-                });
-                feedContainer.scrollTop = feedContainer.scrollHeight;
-            });
+            onValue(refProgramas, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-programas'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); renderizarCards(container, lista); });
+            onValue(refRelatorio, (snapshot) => { const feedContainer = document.getElementById('feed-passagem'); feedContainer.innerHTML = ''; const val = snapshot.val(); const currentUser = localStorage.getItem('userName'); const isAdmin = localStorage.getItem('userRole') === 'admin'; if (!val) { feedContainer.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fas fa-comments text-4xl mb-2 text-gray-300"></i><p class="text-sm">Nenhuma ocorrência registrada.</p></div>`; return; } Object.keys(val).forEach(key => { const nota = val[key]; const isOwner = (nota.autor === currentUser) || isAdmin; const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''; const card = document.createElement('div'); card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group"; card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold text-gray-800 dark:text-white">${nota.autor}</p><p class="text-[10px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}', '${encodeURIComponent(nota.texto)}')" class="text-blue-400 hover:text-blue-600 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${nota.texto}</p>`; feedContainer.appendChild(card); }); feedContainer.scrollTop = feedContainer.scrollHeight; });
         }
 
         const carregarStandby = () => { onValue(refStandby, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-standby'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); renderizarCards(container, lista); }); }
 
-        // --- CARREGAR LINKS ---
         const carregarLinks = () => {
             onValue(refLinks, (snapshot) => {
-                const links = snapshot.val();
-                const containerPublico = document.getElementById('lista-links-publica');
-                const containerAdmin = document.getElementById('admin-lista-links');
-                
-                containerPublico.innerHTML = '';
-                if(containerAdmin) containerAdmin.innerHTML = '';
-
+                const links = snapshot.val(); const containerPublico = document.getElementById('lista-links-publica'); const containerAdmin = document.getElementById('admin-lista-links');
+                containerPublico.innerHTML = ''; if(containerAdmin) containerAdmin.innerHTML = '';
                 if(links) {
                     Object.keys(links).forEach(key => {
                         const l = links[key];
-                        // Renderizar na tela pública
-                        containerPublico.innerHTML += `
-                        <div class="bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border hover:border-blue-300 dark:hover:border-blue-700 dark:border-gray-700 transition flex justify-between items-center group">
-                            <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center"><i class="fas fa-link"></i></div>
-                                <h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">${l.titulo}</h4>
-                            </div>
-                            <a href="${l.url}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition">Acessar</a>
-                        </div>`;
-
-                        // Renderizar na lista do admin
-                        if(containerAdmin) {
-                            containerAdmin.innerHTML += `
-                            <div class="flex justify-between items-center bg-gray-50 dark:bg-dark-700 p-2 rounded border dark:border-gray-600 text-xs">
-                                <div class="truncate mr-2"><span class="font-bold">${l.titulo}</span> <span class="text-gray-400">(${l.url})</span></div>
-                                <button onclick="window.removerLink('${key}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
-                            </div>`;
-                        }
+                        containerPublico.innerHTML += `<div class="bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border hover:border-blue-300 dark:hover:border-blue-700 dark:border-gray-700 transition flex justify-between items-center group"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/20 text-blue-500 flex items-center justify-center"><i class="fas fa-link"></i></div><h4 class="font-bold text-sm text-gray-800 dark:text-gray-200">${l.titulo}</h4></div><a href="${l.url}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600 transition">Acessar</a></div>`;
+                        if(containerAdmin) { containerAdmin.innerHTML += `<div class="flex justify-between items-center bg-gray-50 dark:bg-dark-700 p-2 rounded border dark:border-gray-600 text-xs"><div class="truncate mr-2"><span class="font-bold">${l.titulo}</span> <span class="text-gray-400">(${l.url})</span></div><button onclick="window.removerLink('${key}')" class="text-red-400 hover:text-red-600"><i class="fas fa-trash"></i></button></div>`; }
                     });
-                } else {
-                    containerPublico.innerHTML = '<p class="text-gray-400 text-sm col-span-2 text-center py-10">Nenhum link cadastrado.</p>';
-                    if(containerAdmin) containerAdmin.innerHTML = '<p class="text-gray-400 text-xs italic">Nenhum link.</p>';
-                }
+                } else { containerPublico.innerHTML = '<p class="text-gray-400 text-sm col-span-2 text-center py-10">Nenhum link cadastrado.</p>'; if(containerAdmin) containerAdmin.innerHTML = '<p class="text-gray-400 text-xs italic">Nenhum link.</p>'; }
             });
         }
+
+        // --- FUNÇÃO DE LIMPEZA INTELIGENTE ---
+        window.executarLimpeza = async () => {
+            const dias = parseInt(document.getElementById('limpeza-periodo').value);
+            if(!confirm(`ATENÇÃO: Você está prestes a apagar permanentemente todos os registros com mais de ${dias} dias.\n\nEsta ação não pode ser desfeita. Deseja continuar?`)) return;
+
+            const dataCorte = new Date();
+            dataCorte.setDate(dataCorte.getDate() - dias);
+            // Formatar para YYYY-MM-DD para comparação de string direta (mais seguro para chaves)
+            const ano = dataCorte.getFullYear();
+            const mes = String(dataCorte.getMonth() + 1).padStart(2, '0');
+            const dia = String(dataCorte.getDate()).padStart(2, '0');
+            const dataCorteString = `${ano}-${mes}-${dia}`;
+
+            try {
+                const snapshot = await get(refDatas);
+                if (snapshot.exists()) {
+                    let contagem = 0;
+                    snapshot.forEach((child) => {
+                        const chaveData = child.key; // Ex: 2024-01-01
+                        // Comparação direta de strings YYYY-MM-DD funciona perfeitamente
+                        if (chaveData < dataCorteString) {
+                            remove(ref(db, `datas/${chaveData}`));
+                            contagem++;
+                        }
+                    });
+                    alert(`Limpeza concluída com sucesso!\n\nForam removidos registros de ${contagem} dias antigos.`);
+                    logActivity('Limpeza de Dados', `Removeu registros anteriores a ${dataCorteString}`);
+                } else {
+                    alert("O banco de dados já está limpo.");
+                }
+            } catch (error) {
+                console.error(error);
+                alert("Erro ao executar limpeza: " + error.message);
+            }
+        };
 
         // CRUD FORMULARIO
         const resetCapaUI = () => { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
@@ -512,7 +512,7 @@
             document.getElementById('screen-standby').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
             document.getElementById('screen-admin').classList.add('hidden');
-            document.getElementById('screen-links').classList.add('hidden'); // Ocultar links
+            document.getElementById('screen-links').classList.add('hidden'); 
             document.getElementById('date-picker-wrapper').classList.add('hidden');
 
             if(tela === 'grade') {
@@ -558,16 +558,7 @@
         document.getElementById('formCadastro').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; let dbRef; if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } cancelar(); });
         document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
         document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); });
-        
-        // NOVO LISTENER: ADICIONAR LINK
-        document.getElementById('formLink').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const titulo = document.getElementById('link-titulo').value;
-            const url = document.getElementById('link-url').value;
-            push(refLinks, { titulo: titulo, url: url });
-            document.getElementById('link-titulo').value = '';
-            document.getElementById('link-url').value = '';
-        });
+        document.getElementById('formLink').addEventListener('submit', (e) => { e.preventDefault(); const titulo = document.getElementById('link-titulo').value; const url = document.getElementById('link-url').value; push(refLinks, { titulo: titulo, url: url }); document.getElementById('link-titulo').value = ''; document.getElementById('link-url').value = ''; });
 
         // INIT
         verificarSessao();
@@ -575,7 +566,7 @@
         carregarStandby();
         carregarHistoricoPassagem();
         carregarAdminPanel();
-        carregarLinks(); // CARREGAR LINKS
+        carregarLinks();
         
         new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
@@ -583,4 +574,3 @@
     </script>
 </body>
 </html>
-
