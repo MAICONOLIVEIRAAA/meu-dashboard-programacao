@@ -35,7 +35,6 @@
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
         .img-bank-selected { ring: 4px solid #f97316; transform: scale(0.95); }
         
-        /* Transição do submenu */
         #submenu-admin { transition: all 0.3s ease-in-out; }
     </style>
 </head>
@@ -145,6 +144,9 @@
                         <a href="#" onclick="window.navegar('admin-users')" id="nav-admin-users" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition">
                             <i class="fas fa-users mr-2"></i> Usuários
                         </a>
+                        <a href="#" onclick="window.navegar('admin-links')" id="nav-admin-links" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition">
+                            <i class="fas fa-link mr-2"></i> Gerenciar Links
+                        </a>
                         <a href="#" onclick="window.navegar('admin-solic')" id="nav-admin-solic" class="sub-nav-item block pl-14 pr-4 py-2 text-xs text-gray-500 dark:text-gray-400 hover:text-orange-500 transition relative">
                             <i class="fas fa-bell mr-2"></i> Solicitações
                         </a>
@@ -232,15 +234,20 @@
                                         <tbody id="lista-usuarios"></tbody>
                                     </table>
                                 </div>
-                                <div class="mt-8 pt-6 border-t dark:border-gray-700">
-                                    <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2 text-sm"><i class="fas fa-link text-blue-500"></i> Gerenciar Links</h3>
-                                    <form id="formLink" class="flex gap-2 mb-4">
-                                        <input id="link-titulo" placeholder="Título" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                        <input id="link-url" placeholder="URL" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                        <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg font-bold text-xs uppercase hover:bg-blue-600">Add</button>
-                                    </form>
-                                    <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links"></div>
-                                </div>
+                            </div>
+
+                            <div id="view-admin-links" class="hidden bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-blue-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-link text-blue-500"></i> Gerenciar Links Úteis</h3>
+                                <p class="text-xs text-gray-500 mb-6">Adicione atalhos que aparecerão na tela "Links Úteis" para todos os usuários.</p>
+                                
+                                <form id="formLink" class="flex flex-col md:flex-row gap-2 mb-6 bg-gray-50 dark:bg-dark-700 p-4 rounded-xl border dark:border-gray-600">
+                                    <input id="link-titulo" placeholder="Título do Link (Ex: WhatsApp Web)" required class="flex-1 bg-white dark:bg-dark-800 border dark:border-gray-500 rounded-lg px-3 py-2 text-sm dark:text-white outline-none focus:ring-1 focus:ring-blue-500">
+                                    <input id="link-url" placeholder="URL (https://...)" required class="flex-[2] bg-white dark:bg-dark-800 border dark:border-gray-500 rounded-lg px-3 py-2 text-sm dark:text-white outline-none focus:ring-1 focus:ring-blue-500">
+                                    <button type="submit" class="bg-blue-500 text-white px-6 rounded-lg font-bold text-xs uppercase hover:bg-blue-600 shadow-md">Adicionar</button>
+                                </form>
+
+                                <h4 class="text-xs font-bold uppercase text-gray-400 mb-2">Links Cadastrados</h4>
+                                <div class="grid grid-cols-1 gap-2 max-h-96 overflow-y-auto pr-2" id="admin-lista-links"></div>
                             </div>
 
                             <div id="view-admin-solic" class="hidden bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
@@ -393,14 +400,12 @@
         };
 
         window.navegar = (tela) => {
-            window.cancelar(); // Fecha form cadastro
-            document.getElementById('form-admin-user').classList.add('hidden'); // Fecha form user
+            window.cancelar(); 
+            document.getElementById('form-admin-user').classList.add('hidden'); 
 
-            // Reseta classes ativas
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.sub-nav-item').forEach(el => el.classList.remove('active'));
 
-            // Esconde todas as telas maiores
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-standby').classList.add('hidden');
             document.getElementById('screen-links').classList.add('hidden');
@@ -411,24 +416,25 @@
             // Lógica de Sub-menus Admin
             if(tela.startsWith('admin-')) {
                 document.getElementById('screen-admin').classList.remove('hidden');
-                document.getElementById('wrapper-admin').querySelector('button').classList.add('text-orange-500'); // Destaque pai
+                document.getElementById('wrapper-admin').querySelector('button').classList.add('text-orange-500'); 
                 
                 // Esconde todas sub-seções admin
                 document.getElementById('view-admin-banco').classList.add('hidden');
                 document.getElementById('view-admin-users').classList.add('hidden');
                 document.getElementById('view-admin-solic').classList.add('hidden');
                 document.getElementById('view-admin-clean').classList.add('hidden');
+                document.getElementById('view-admin-links').classList.add('hidden');
 
-                // Mostra específica
                 if(tela === 'admin-banco') { document.getElementById('view-admin-banco').classList.remove('hidden'); document.getElementById('nav-admin-banco').classList.add('active'); document.getElementById('header-title').innerText = "Banco de Imagens"; }
                 if(tela === 'admin-users') { 
                     document.getElementById('view-admin-users').classList.remove('hidden'); 
                     document.getElementById('nav-admin-users').classList.add('active'); 
                     document.getElementById('header-title').innerText = "Gerenciar Usuários";
-                    document.getElementById('form-admin-user').classList.remove('hidden'); // Mostra form usuario
+                    document.getElementById('form-admin-user').classList.remove('hidden'); 
                 }
                 if(tela === 'admin-solic') { document.getElementById('view-admin-solic').classList.remove('hidden'); document.getElementById('nav-admin-solic').classList.add('active'); document.getElementById('header-title').innerText = "Solicitações"; }
                 if(tela === 'admin-clean') { document.getElementById('view-admin-clean').classList.remove('hidden'); document.getElementById('nav-admin-clean').classList.add('active'); document.getElementById('header-title').innerText = "Limpeza de Dados"; }
+                if(tela === 'admin-links') { document.getElementById('view-admin-links').classList.remove('hidden'); document.getElementById('nav-admin-links').classList.add('active'); document.getElementById('header-title').innerText = "Gerenciar Links"; }
 
                 window.contextoGlobal = 'admin';
                 return;
@@ -499,13 +505,18 @@
         
         // Standby e Links Init
         onValue(ref(db, 'standby'), snap => { const val=snap.val(); const el=document.getElementById('lista-standby'); if(!val){el.innerHTML='<p class="text-center opacity-50 py-10 text-sm">Vazio</p>';return;} let l=Object.keys(val).map(k=>({id:k,...val[k]})); renderizarCards(el, l); });
+        
+        // Listener de Links (Serve para a tela publica e para a tela admin)
         onValue(refLinks, snap => { 
             const links=snap.val(); const pub=document.getElementById('lista-links-publica'); const adm=document.getElementById('admin-lista-links'); pub.innerHTML=''; adm.innerHTML='';
             if(links) Object.keys(links).forEach(k => {
                 const l=links[k];
+                // Render Publico
                 pub.innerHTML += `<div class="bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border hover:border-blue-300 transition flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center"><i class="fas fa-link"></i></div><h4 class="font-bold text-sm dark:text-white">${l.titulo}</h4></div><a href="${l.url}" target="_blank" class="bg-blue-500 text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-blue-600">Ir</a></div>`;
-                adm.innerHTML += `<div class="flex justify-between items-center bg-gray-50 dark:bg-dark-700 p-2 rounded text-xs mb-1"><span class="truncate mr-2 font-bold dark:text-white">${l.titulo}</span><button onclick="window.removerLink('${k}')" class="text-red-400"><i class="fas fa-trash"></i></button></div>`;
+                // Render Admin
+                adm.innerHTML += `<div class="flex justify-between items-center bg-gray-100 dark:bg-dark-700 p-3 rounded-lg border dark:border-gray-600"><div class="flex items-center gap-3"><i class="fas fa-globe text-gray-400"></i><div><p class="text-xs font-bold dark:text-white">${l.titulo}</p><p class="text-[10px] text-gray-400 truncate w-48">${l.url}</p></div></div><button onclick="window.removerLink('${k}')" class="text-red-400 hover:text-red-500 bg-red-50 dark:bg-red-900/20 p-2 rounded"><i class="fas fa-trash"></i></button></div>`;
             });
+            else { pub.innerHTML='<p class="col-span-2 text-center text-gray-400">Sem links.</p>'; adm.innerHTML='<p class="text-gray-400 text-xs">Sem links.</p>'; }
         });
 
         // Admin Listeners
