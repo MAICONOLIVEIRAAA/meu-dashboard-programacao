@@ -16,7 +16,7 @@
             darkMode: 'class',
             theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
-        // Variável Global de Controle (Fora do Módulo para acesso universal)
+        // Variável Global de Controle
         window.contextoGlobal = 'grade'; 
     </script>
     
@@ -43,7 +43,7 @@
                 <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Corporativo</p>
             </div>
             
-            <form id="form-login" class="space-y-4">
+            <form id="form-login" class="space-y-4" onsubmit="fazerLogin(event)">
                 <input type="text" id="login-user" placeholder="Usuário (Login)" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
                 <div class="relative">
                     <input type="password" id="login-senha" placeholder="Senha" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
@@ -66,7 +66,7 @@
             <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-key"></i></div>
             <h3 class="font-bold mb-2 dark:text-white text-lg">Defina sua Senha</h3>
             <p class="text-xs text-gray-400 mb-6">Para sua segurança, no primeiro acesso você deve definir uma senha pessoal.</p>
-            <form id="form-force-reset" class="space-y-4">
+            <form id="form-force-reset" class="space-y-4" onsubmit="atualizarSenhaForcada(event)">
                 <input type="hidden" id="reset-user-id">
                 <input type="password" id="nova-senha-1" placeholder="Nova Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none text-center">
                 <input type="password" id="nova-senha-2" placeholder="Confirme a Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none text-center">
@@ -155,7 +155,6 @@
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     <div class="lg:col-span-2 space-y-4">
-                        
                         <div id="screen-grade">
                             <div class="flex items-center justify-between mb-8">
                                 <div class="relative flex-1 max-w-lg mr-4">
@@ -336,7 +335,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // VARIÁVEIS LOCAIS DO MÓDULO
+        // VARIÁVEIS LOCAIS
         let dataSelecionada = new Date().toISOString().split('T')[0];
         let refProgramas = null;
         let refRelatorio = null;
@@ -346,15 +345,13 @@
         const refLogs = ref(db, 'logs');
         const refSolicitacoes = ref(db, 'solicitacoes');
 
-        // INICIALIZAÇÃO DE DATA
         const dateInput = document.getElementById('data-selector');
         if(dateInput) {
             dateInput.value = dataSelecionada;
             dateInput.addEventListener('change', (e) => mudarData(e.target.value));
         }
 
-        // --- DEFINIÇÃO DAS FUNÇÕES (CONST) PRIMEIRO ---
-        
+        // --- FUNÇÕES DE LÓGICA ---
         const logActivity = (acao, detalhe) => { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         
         const renderizarCards = (container, lista) => {
@@ -370,8 +367,6 @@
                     <div class="flex-1 flex flex-col justify-center py-1"><div><h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4><div class="flex gap-2 items-center text-sm text-gray-400 dark:text-gray-400 mt-1"><span>${p.subtitulo || ''}</span>${p.versao ? `<span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 rounded border dark:border-gray-600 font-bold">${p.versao}</span>` : ''}</div></div><div class="flex items-center justify-between mt-3"><div class="flex items-center gap-2"><span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span><div class="h-3 w-px bg-gray-300"></div><div class="flex gap-1 flex-wrap">${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : ''}${p.xd ? p.xd.split(' ').map(tag => `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-200 dark:border-purple-800">${tag}</span>`).join('') : ''}${(!p.tags && !p.xd) ? '<span class="text-[10px] text-gray-300">Sem tags</span>' : ''}</div></div><button onclick="window.abrirEdicaoGlobal('${p.id}')" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button></div></div>
                     ${p.status === 'completo' ? '<div class="absolute top-2 right-2 text-green-500"><i class="fas fa-check-circle"></i></div>' : ''}</div>`;
             }).join('');
-            
-            // Armazena dados temporariamente para edição
             window.dadosTemporarios = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
         }
 
@@ -417,7 +412,6 @@
             });
         }
 
-        // FUNÇÕES DE CRUD DO FORMULÁRIO
         const resetCapaUI = () => { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
         const mostrarForm = () => { document.getElementById('view-form').classList.remove('hidden'); }
         const cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
@@ -453,37 +447,13 @@
             mostrarForm(); 
         };
 
-        const previewCapa = (input) => { 
-            if (input.files && input.files[0]) { 
-                const reader = new FileReader(); 
-                reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; 
-                reader.readAsDataURL(input.files[0]); 
-            } 
-        };
-
-        const deletar = () => { 
-            if(confirm('Tem certeza?')) { 
-                const id = document.getElementById('edit-id').value;
-                const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`;
-                remove(ref(db, path)); 
-                logActivity('Excluiu', 'ID: ' + id); 
-                cancelar(); 
-            } 
-        };
-
-        const mudarData = (novaData) => { 
-            dataSelecionada = novaData; 
-            document.getElementById('data-selector').value = dataSelecionada; 
-            carregarDadosData(dataSelecionada); 
-            carregarHistoricoPassagem(); 
-        };
+        const previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
+        const deletar = () => { if(confirm('Tem certeza?')) { const id = document.getElementById('edit-id').value; const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`; remove(ref(db, path)); logActivity('Excluiu', 'ID: ' + id); cancelar(); } };
+        const mudarData = (novaData) => { dataSelecionada = novaData; document.getElementById('data-selector').value = dataSelecionada; carregarDadosData(dataSelecionada); carregarHistoricoPassagem(); };
 
         const carregarHistoricoPassagem = () => {
              onValue(refDatas, (snapshot) => {
-                const datas = snapshot.val();
-                const container = document.getElementById('lista-historico-passagem');
-                container.innerHTML = '';
-                if(!datas) return;
+                const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return;
                 const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a));
                 datasComRelatorio.forEach(data => {
                     const dataFormatada = data.split('-').reverse().join('/');
@@ -494,7 +464,6 @@
             });
         }
 
-        // --- ADMIN ---
         const carregarAdminPanel = () => {
             if(localStorage.getItem('userRole') !== 'admin') return;
             onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } });
@@ -502,14 +471,13 @@
             onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } });
         }
 
-        // --- EXPORTAR FUNÇÕES PARA O HTML (CRUCIAL PARA OS BOTÕES FUNCIONAREM) ---
+        // --- EXPORTAR FUNÇÕES ---
         window.abrirCriacao = abrirCriacao;
         window.cancelar = cancelar;
         window.previewCapa = previewCapa;
         window.deletar = deletar;
         window.mudarData = mudarData;
         window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); };
-        
         window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } };
         window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } };
         window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); };
@@ -517,21 +485,54 @@
         window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; };
         window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } };
         window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; };
-        
-        window.enviarNota = () => {
-            const txt = document.getElementById('texto-passagem').value.trim();
-            const editingId = document.getElementById('note-id-editing').value;
-            const currentUser = localStorage.getItem('userName');
-            if(!txt) return;
-            if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } 
-            else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); }
-            document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota();
-        };
+        window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); };
         window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); };
         window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); };
         window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); };
 
-        // FORMULÁRIO SUBMIT
+        // --- FUNÇÃO DE LOGIN GLOBAL ---
+        window.fazerLogin = async (e) => {
+            e.preventDefault();
+            const loginInput = document.getElementById('login-user').value;
+            const senhaInput = document.getElementById('login-senha').value;
+            
+            // Backdoor Admin Local
+            const snapshotUsers = await get(refUsers);
+            if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') {
+                push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false });
+                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); 
+                location.reload(); return;
+            }
+
+            let userFound = null; let userKey = null;
+            if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); }
+
+            if (userFound) {
+                if(userFound.forceReset === true) { 
+                    document.getElementById('modal-force-reset').classList.remove('hidden'); 
+                    document.getElementById('reset-user-id').value = userKey; 
+                    return; 
+                }
+                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); 
+                location.reload();
+            } else { 
+                document.getElementById('login-erro').classList.remove('hidden'); 
+            }
+        };
+
+        window.atualizarSenhaForcada = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('reset-user-id').value;
+            const s1 = document.getElementById('nova-senha-1').value;
+            const s2 = document.getElementById('nova-senha-2').value;
+            if(s1 !== s2) { alert("Senhas não coincidem!"); return; }
+            if(s1.length < 4) { alert("Senha curta!"); return; }
+            await update(ref(db, `users/${id}`), { senha: s1, forceReset: false });
+            alert("Senha atualizada! Faça login.");
+            location.reload();
+        };
+
+        // FORMULÁRIO CADASTRO
         document.getElementById('formCadastro').onsubmit = (e) => { 
             e.preventDefault(); 
             const id = document.getElementById('edit-id').value; 
@@ -549,31 +550,13 @@
             cancelar(); 
         };
 
-        // LOGIN
-        document.getElementById('form-login').onsubmit = async (e) => {
-            e.preventDefault();
-            const loginInput = document.getElementById('login-user').value;
-            const senhaInput = document.getElementById('login-senha').value;
-            const snapshotUsers = await get(refUsers);
-            if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') {
-                push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false });
-                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); location.reload(); return;
-            }
-            let userFound = null; let userKey = null;
-            if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); }
-            if (userFound) {
-                if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; }
-                localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); location.reload();
-            } else { document.getElementById('login-erro').classList.remove('hidden'); }
-        };
-
-        // INIT
+        // INIT EXECUTION
         carregarDadosData(dataSelecionada);
         carregarStandby();
         carregarHistoricoPassagem();
         carregarAdminPanel();
         
-        // SORTABLE
+        // INIT SORTABLE
         new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
 
