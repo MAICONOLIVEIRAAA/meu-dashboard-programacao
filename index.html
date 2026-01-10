@@ -16,6 +16,8 @@
             darkMode: 'class',
             theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
+        // Variável Global de Controle
+        window.contextoGlobal = 'grade'; 
     </script>
     
     <style>
@@ -337,7 +339,7 @@
         const db = getDatabase(app);
 
         let dataSelecionada = new Date().toISOString().split('T')[0];
-        let contextoAtual = 'grade'; // 'grade' ou 'standby'
+        // NÃO DECLARAMOS contextoAtual AQUI, USAMOS O GLOBAL window.contextoGlobal
         
         let refProgramas = null;
         let refRelatorio = null;
@@ -513,13 +515,13 @@
                 document.getElementById('screen-grade').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
                 document.getElementById('date-picker-wrapper').classList.remove('hidden');
-                contextoAtual = 'grade'; // ATUALIZA A VARIÁVEL INTERNA
+                window.contextoGlobal = 'grade'; // ATUALIZA A VARIÁVEL GLOBAL
             } 
             else if (tela === 'standby') {
                 document.getElementById('nav-standby').classList.add('active');
                 document.getElementById('screen-standby').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = 'Stand-By';
-                contextoAtual = 'standby'; // ATUALIZA A VARIÁVEL INTERNA
+                window.contextoGlobal = 'standby'; // ATUALIZA A VARIÁVEL GLOBAL
             }
             else if (tela === 'passagem') {
                 document.getElementById('nav-passagem').classList.add('active');
@@ -533,7 +535,7 @@
             }
         }
 
-        window.abrirCriacao = () => { document.getElementById('form-title').innerText = contextoAtual === 'standby' ? "Novo em Stand-by" : "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
+        window.abrirCriacao = () => { document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
         
         window.abrirEdicao = (p) => { document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
         
@@ -545,9 +547,9 @@
             const statusChecked = document.querySelector('input[name="status"]:checked').value; 
             const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; 
             
-            // LÓGICA DE SALVAMENTO CORRIGIDA
+            // LÓGICA DE SALVAMENTO CORRIGIDA USANDO GLOBAL
             let dbRef;
-            if (contextoAtual === 'grade') {
+            if (window.contextoGlobal === 'grade') {
                 dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`);
             } else {
                 dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`);
@@ -555,11 +557,11 @@
 
             if (id) {
                 update(dbRef, dados);
-                logActivity('Editou', dados.titulo + (contextoAtual === 'standby' ? ' (SB)' : ''));
+                logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : ''));
             } else {
                 dados.ordem = 999;
                 push(dbRef, dados);
-                logActivity('Criou', dados.titulo + (contextoAtual === 'standby' ? ' (SB)' : ''));
+                logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : ''));
             }
             window.cancelar(); 
         };
@@ -567,7 +569,7 @@
         window.deletar = () => { 
             if(confirm('Tem certeza?')) { 
                 const id = document.getElementById('edit-id').value;
-                const path = contextoAtual === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`;
+                const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`;
                 remove(ref(db, path)); 
                 logActivity('Excluiu', 'ID: ' + id); 
                 window.cancelar(); 
