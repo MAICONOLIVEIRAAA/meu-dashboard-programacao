@@ -149,7 +149,7 @@
                 </div>
             </header>
 
-            <div class="flex-1 overflow-y-auto p-8 bg-[#f8fafc] dark:bg-dark-900 no-scrollbar transition-colors">
+            <div class="flex-1 overflow-y-auto p-8 bg-[#f8fafc] dark:bg-dark-900 no-scrollbar transition-colors relative">
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     <div class="lg:col-span-2 space-y-4">
@@ -591,27 +591,6 @@
         window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; };
         document.getElementById('formUsuario').onsubmit = (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); };
         
-        window.mudarData = (novaData) => { 
-            dataSelecionada = novaData; 
-            document.getElementById('data-selector').value = dataSelecionada; 
-            carregarDadosData(dataSelecionada); 
-            carregarHistoricoPassagem(); 
-        };
-        
-        new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('[data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
-        new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { }});
-
-        function resetCapaUI() { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
-        window.cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
-        function mostrarForm() { document.getElementById('view-form').classList.remove('hidden'); }
-        window.previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
-        window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden');
-        window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden');
-        window.gerarAvatar = () => salvarFotoLocal(`https://api.dicebear.com/7.x/avataaars/svg?seed=${Math.random()}`);
-        window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
-        function salvarFotoLocal(url) { localStorage.setItem('userAvatar', url); carregarFotoLocal(); fecharModal(); }
-        function carregarFotoLocal() { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
-        
         // --- FUNÇÕES GERAIS ---
         function toggleTheme() {
             document.documentElement.classList.toggle('dark');
@@ -645,7 +624,7 @@
             }
         }
         
-        // Expor funções para o HTML que estavam perdidas
+        // Expor funções para o HTML
         window.toggleTheme = toggleTheme;
         window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); localStorage.removeItem('userName'); location.reload(); }
         window.onload = verificarSessao;
