@@ -15,21 +15,28 @@
             darkMode: 'class',
             theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
-        window.contextoGlobal = 'grade'; 
+        window.contextoGlobal = 'grade'; // Variável para saber em qual tela estamos
     </script>
     
     <style>
+        /* Estilo do item de menu ativo */
         .nav-item.active { background-color: #fff5f2; color: #e15b31; border-right: 4px solid #e15b31; font-weight: bold; }
         .dark .nav-item.active { background-color: #334155; color: #fb923c; border-right: 4px solid #fb923c; }
+        
+        /* Utilitários */
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .modal-overlay { background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); }
         .drag-handle { cursor: grab; }
         .drag-handle:active { cursor: grabbing; }
+        
+        /* Ajuste do ícone de calendário */
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
+        
+        /* Animação do Radio Button de Status */
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
         
-        /* Estilo para imagem selecionada no banco */
+        /* Destaque para imagem selecionada no banco */
         .img-bank-selected { ring: 4px solid #f97316; transform: scale(0.95); }
     </style>
 </head>
@@ -101,6 +108,7 @@
     </div>
 
     <div id="main-layout" class="flex h-screen hidden">
+        
         <aside class="w-64 bg-white dark:bg-dark-800 border-r dark:border-gray-700 flex flex-col py-8 items-center shrink-0">
             <div class="flex flex-col items-center mb-10 text-center px-4">
                 <div class="w-20 h-20 relative group cursor-pointer mb-3" onclick="window.abrirModal()">
@@ -137,6 +145,7 @@
         </aside>
 
         <main class="flex-1 flex flex-col min-w-0">
+            
             <header class="h-16 bg-white dark:bg-dark-800 border-b dark:border-gray-700 flex items-center justify-between px-8 transition-colors">
                 <div class="flex items-center gap-4">
                     <h1 id="header-title" class="text-xl font-bold dark:text-white flex items-center"><i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade</h1>
@@ -156,6 +165,7 @@
                 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     <div class="lg:col-span-2 space-y-4">
+                        
                         <div id="screen-grade">
                             <div class="flex items-center justify-between mb-8">
                                 <div class="relative flex-1 max-w-lg mr-4">
@@ -347,7 +357,7 @@
                         </div>
                         
                         <div class="space-y-6">
-                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações</h3>
                                 <div id="lista-solicitacoes" class="space-y-3"></div>
                             </div>
@@ -363,7 +373,8 @@
                                     <div class="pt-2 flex gap-2"><button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button><button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button></div>
                                 </form>
                             </div>
-                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Logs</h3>
                                 <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                             </div>
@@ -375,17 +386,20 @@
     </div>
 
     <script type="module">
+        // Importações do Firebase
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getDatabase, ref, set, push, onValue, remove, update, off, get, child, query, orderByChild, equalTo } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        // CONFIGURAÇÕES
-        const EMAILJS_PUBLIC_KEY = "SUA_PUBLIC_KEY"; 
-        const EMAILJS_SERVICE_ID = "SEU_SERVICE_ID"; 
-        const EMAILJS_TEMPLATE_ID = "SEU_TEMPLATE_ID"; 
+        // ==========================================
+        // 1. CONFIGURAÇÕES (CHAVES DE API)
+        // ==========================================
+        const EMAILJS_PUBLIC_KEY = "SUA_PUBLIC_KEY"; // Altere aqui
+        const EMAILJS_SERVICE_ID = "SEU_SERVICE_ID"; // Altere aqui
+        const EMAILJS_TEMPLATE_ID = "SEU_TEMPLATE_ID"; // Altere aqui
         (function() { try { emailjs.init(EMAILJS_PUBLIC_KEY); } catch(e){ console.log("EmailJS não configurado"); } })();
 
         const firebaseConfig = {
-            apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ",
+            apiKey: "AIzaSyALorKx-3IRMl1DYXM8-r5_tPb4JwfeSbQ", // Cuidado ao expor isso
             authDomain: "midias-sp.firebaseapp.com",
             databaseURL: "https://midias-sp-default-rtdb.firebaseio.com",
             projectId: "midias-sp",
@@ -397,16 +411,17 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
 
-        // DATA
+        // ==========================================
+        // 2. VARIÁVEIS DE ESTADO E REFERÊNCIAS
+        // ==========================================
         const getHojeLocal = () => { const d = new Date(); const ano = d.getFullYear(); const mes = String(d.getMonth() + 1).padStart(2, '0'); const dia = String(d.getDate()).padStart(2, '0'); return `${ano}-${mes}-${dia}`; };
 
-        // VARS
         let dataSelecionada = getHojeLocal();
         let refProgramas = null;
         let refRelatorio = null;
         let refStandby = ref(db, 'standby');
         let refLinks = ref(db, 'links'); 
-        let refBancoImagens = ref(db, 'banco_imagens'); // NOVA REF
+        let refBancoImagens = ref(db, 'banco_imagens');
         let refDatas = ref(db, 'datas');
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
@@ -415,9 +430,14 @@
         const dateInput = document.getElementById('data-selector');
         if(dateInput) { dateInput.value = dataSelecionada; dateInput.addEventListener('change', (e) => mudarData(e.target.value)); }
 
-        // LOGIC
+        // ==========================================
+        // 3. FUNÇÕES AUXILIARES E DE RENDERIZAÇÃO
+        // ==========================================
+        
+        // Registrar Logs
         const logActivity = (acao, detalhe) => { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         
+        // Filtro de Busca na Tela
         window.filtrarLista = (idLista, termo) => {
             const lista = document.getElementById(idLista);
             if (!lista) return;
@@ -431,6 +451,7 @@
             }
         };
 
+        // Renderiza os cards de programas (Grade e Standby)
         const renderizarCards = (container, lista) => {
             container.innerHTML = lista.map(p => {
                 let borderClass = 'border-transparent hover:border-orange-200 dark:hover:border-gray-600';
@@ -448,17 +469,27 @@
             const buscaGrade = document.getElementById('busca-grade').value; const buscaStandby = document.getElementById('busca-standby').value; if (buscaGrade && container.id === 'lista-programas') window.filtrarLista('lista-programas', buscaGrade); if (buscaStandby && container.id === 'lista-standby') window.filtrarLista('lista-standby', buscaStandby);
         }
 
+        // ==========================================
+        // 4. LÓGICA DE DADOS (READ - FIREBASE)
+        // ==========================================
+        
+        // Carrega Grade e Passagem de Serviço da data selecionada
         const carregarDadosData = (data) => {
             if(refProgramas) off(refProgramas); if(refRelatorio) off(refRelatorio);
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
+            // Listener Programas
             onValue(refProgramas, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-programas'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); renderizarCards(container, lista); });
+            
+            // Listener Relatório/Passagem
             onValue(refRelatorio, (snapshot) => { const feedContainer = document.getElementById('feed-passagem'); feedContainer.innerHTML = ''; const val = snapshot.val(); const currentUser = localStorage.getItem('userName'); const isAdmin = localStorage.getItem('userRole') === 'admin'; if (!val) { feedContainer.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fas fa-comments text-4xl mb-2 text-gray-300"></i><p class="text-sm">Nenhuma ocorrência registrada.</p></div>`; return; } Object.keys(val).forEach(key => { const nota = val[key]; const isOwner = (nota.autor === currentUser) || isAdmin; const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''; const card = document.createElement('div'); card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group"; card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold text-gray-800 dark:text-white">${nota.autor}</p><p class="text-[10px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}', '${encodeURIComponent(nota.texto)}')" class="text-blue-400 hover:text-blue-600 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${nota.texto}</p>`; feedContainer.appendChild(card); }); feedContainer.scrollTop = feedContainer.scrollHeight; });
         }
 
+        // Carrega Standby
         const carregarStandby = () => { onValue(refStandby, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-standby'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); renderizarCards(container, lista); }); }
 
+        // Carrega Links
         const carregarLinks = () => {
             onValue(refLinks, (snapshot) => {
                 const links = snapshot.val(); const containerPublico = document.getElementById('lista-links-publica'); const containerAdmin = document.getElementById('admin-lista-links');
@@ -473,7 +504,7 @@
             });
         }
 
-        // --- BANCO DE IMAGENS ---
+        // Carrega Banco de Imagens (Admin e Seleção)
         const carregarBancoImagensAdmin = () => {
             onValue(refBancoImagens, (snapshot) => {
                 const imgs = snapshot.val();
@@ -486,7 +517,7 @@
                 if(imgs) {
                     Object.keys(imgs).forEach(key => {
                         const base64 = imgs[key];
-                        // Admin
+                        // Admin Panel
                         if(containerAdmin) {
                             containerAdmin.innerHTML += `
                             <div class="relative group bg-gray-100 dark:bg-dark-700 rounded-lg aspect-square overflow-hidden border dark:border-gray-600">
@@ -494,7 +525,7 @@
                                 <button onclick="window.removerImagemBanco('${key}')" class="absolute inset-0 bg-red-500/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition font-bold text-xs">Excluir</button>
                             </div>`;
                         }
-                        // Form
+                        // Form Selection
                         if(containerForm) {
                              containerForm.innerHTML += `
                             <div onclick="window.selecionarImagemBanco('${base64}', this)" class="cursor-pointer bg-gray-100 dark:bg-dark-600 rounded-lg aspect-square overflow-hidden border dark:border-gray-500 hover:opacity-80 transition relative img-bank-item">
@@ -509,6 +540,9 @@
             });
         }
 
+        // ==========================================
+        // 5. MANIPULAÇÃO DE BANCO DE IMAGENS
+        // ==========================================
         window.adicionarImagemBanco = (input) => {
              if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -535,21 +569,18 @@
         }
 
         window.selecionarImagemBanco = (base64, elemento) => {
-            // Visual feedback
             document.querySelectorAll('.img-bank-item').forEach(el => el.classList.remove('img-bank-selected'));
             elemento.classList.add('img-bank-selected');
-
-            // Set Data
             document.getElementById('in-cover-base64').value = base64;
-            
-            // Update Preview (mesmo se estiver na aba do banco, é bom atualizar o preview oculto ou visivel)
             document.getElementById('cover-preview').src = base64;
             document.getElementById('cover-preview').classList.remove('hidden');
             document.getElementById('cover-placeholder').classList.add('hidden');
         }
 
 
-        // LIMPEZA
+        // ==========================================
+        // 6. FUNÇÃO DE LIMPEZA (Manutenção)
+        // ==========================================
         window.executarLimpeza = async () => {
             const dias = parseInt(document.getElementById('limpeza-periodo').value);
             if(!confirm(`ATENÇÃO: Você está prestes a apagar permanentemente todos os registros com mais de ${dias} dias.\n\nEsta ação não pode ser desfeita. Deseja continuar?`)) return;
@@ -567,7 +598,9 @@
             } catch (error) { console.error(error); alert("Erro ao executar limpeza: " + error.message); }
         };
 
-        // CRUD FORMULARIO
+        // ==========================================
+        // 7. CRUD e INTERFACE DE FORMULÁRIO
+        // ==========================================
         const resetCapaUI = () => { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); document.querySelectorAll('.img-bank-item').forEach(el => el.classList.remove('img-bank-selected')); }
         const mostrarForm = () => { document.getElementById('view-form').classList.remove('hidden'); }
         const cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
@@ -580,17 +613,47 @@
         const mudarData = (novaData) => { dataSelecionada = novaData; document.getElementById('data-selector').value = dataSelecionada; carregarDadosData(dataSelecionada); carregarHistoricoPassagem(); };
 
         const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return; const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a)); datasComRelatorio.forEach(data => { const dataFormatada = data.split('-').reverse().join('/'); const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600"; const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0; container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`; }); }); }
-        const carregarAdminPanel = () => { if(localStorage.getItem('userRole') !== 'admin') return; onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } }); onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } }); onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); }
+        
+        // ==========================================
+        // 8. PAINEL DE ADMINISTRAÇÃO
+        // ==========================================
+        const carregarAdminPanel = () => { 
+            if(localStorage.getItem('userRole') !== 'admin') return; 
+            onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } }); 
+            onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); if(!tbody) return; tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } }); 
+            onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); 
+        }
 
-        // --- EXPORTAR ---
-        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; }; window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; }; window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
+        // ==========================================
+        // 9. EXPORTAR FUNÇÕES PARA O ESCOPO WINDOW
+        // ==========================================
+        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; 
+        window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; 
+        window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; 
+        window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; 
+        window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; 
+        window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); 
+        window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; }; 
+        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; 
+        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; }; 
+        window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; 
+        window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; 
+        window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; 
+        window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; 
+        window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); 
+        window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); 
+        window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
         window.removerLink = (id) => { if(confirm('Remover link?')) remove(ref(db, `links/${id}`)); };
 
         const salvarFotoLocal = (url) => { localStorage.setItem('userAvatar', url); carregarFotoLocal(); window.fecharModal(); }
         const carregarFotoLocal = () => { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         
+        // ==========================================
+        // 10. NAVEGAÇÃO ENTRE TELAS
+        // ==========================================
         window.navegar = (tela) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            // Esconde todas as telas
             document.getElementById('screen-grade').classList.add('hidden');
             document.getElementById('screen-standby').classList.add('hidden');
             document.getElementById('screen-passagem').classList.add('hidden');
@@ -598,6 +661,7 @@
             document.getElementById('screen-links').classList.add('hidden'); 
             document.getElementById('date-picker-wrapper').classList.add('hidden');
 
+            // Mostra apenas a selecionada
             if(tela === 'grade') {
                 document.getElementById('nav-grade').classList.add('active');
                 document.getElementById('screen-grade').classList.remove('hidden');
@@ -626,6 +690,9 @@
 
         window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
 
+        // ==========================================
+        // 11. AUTENTICAÇÃO E INICIALIZAÇÃO
+        // ==========================================
         const aplicarPermissoes = () => {
             const role = localStorage.getItem('userRole'); const isAdmin = (role === 'admin'); const navAdmin = document.getElementById('nav-admin'); const badge = document.getElementById('badge-cargo');
             if(isAdmin) { if(navAdmin) navAdmin.classList.remove('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; } } 
@@ -635,7 +702,7 @@
         const verificarSessao = () => { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; } if (localStorage.getItem('session_active') === 'true') { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('main-layout').classList.remove('hidden'); if(document.getElementById('display-nome')) { document.getElementById('display-nome').innerText = localStorage.getItem('userName'); } carregarFotoLocal(); aplicarPermissoes(); } }
         window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); localStorage.removeItem('userName'); location.reload(); }
 
-        // LISTENERS
+        // LISTENERS DE FORMULÁRIOS
         document.getElementById('form-login').addEventListener('submit', async (e) => { e.preventDefault(); const loginInput = document.getElementById('login-user').value; const senhaInput = document.getElementById('login-senha').value; const snapshotUsers = await get(refUsers); if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') { push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false }); localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); location.reload(); return; } let userFound = null; let userKey = null; if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); } if (userFound) { if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; } localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); location.reload(); } else { document.getElementById('login-erro').classList.remove('hidden'); } });
         document.getElementById('form-force-reset').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Senha atualizada! Faça login."); location.reload(); });
         document.getElementById('formCadastro').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; let dbRef; if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } cancelar(); });
@@ -643,15 +710,16 @@
         document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); });
         document.getElementById('formLink').addEventListener('submit', (e) => { e.preventDefault(); const titulo = document.getElementById('link-titulo').value; const url = document.getElementById('link-url').value; push(refLinks, { titulo: titulo, url: url }); document.getElementById('link-titulo').value = ''; document.getElementById('link-url').value = ''; });
 
-        // INIT
+        // INICIALIZAÇÃO
         verificarSessao();
         carregarDadosData(dataSelecionada);
         carregarStandby();
         carregarHistoricoPassagem();
         carregarAdminPanel();
         carregarLinks();
-        carregarBancoImagensAdmin(); // NOVO
+        carregarBancoImagensAdmin(); 
         
+        // Ativa o Drag and Drop (Arrastar)
         new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
 
