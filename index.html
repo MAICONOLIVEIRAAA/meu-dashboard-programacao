@@ -57,8 +57,7 @@
                 <button type="button" onclick="window.abrirSolicitacao('reset')" class="text-gray-400 hover:text-orange-500 underline">Esqueci a Senha</button>
                 <button type="button" onclick="window.abrirSolicitacao('novo')" class="text-gray-400 hover:text-orange-500 underline">Solicitar Acesso</button>
             </div>
-            <p class="text-[10px] text-gray-400 mt-6 border-t dark:border-gray-700 pt-4">Primeiro Acesso? Use <b>admin</b> / <b>admin</b></p>
-        </div>
+            </div>
     </div>
 
     <div id="modal-force-reset" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 hidden">
@@ -585,73 +584,8 @@
         // --- EXPORTAR ---
         window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; }; window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; }; window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
         window.removerLink = (id) => { if(confirm('Remover link?')) remove(ref(db, `links/${id}`)); };
-
-        const salvarFotoLocal = (url) => { localStorage.setItem('userAvatar', url); carregarFotoLocal(); window.fecharModal(); }
-        const carregarFotoLocal = () => { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
-        
-        window.navegar = (tela) => {
-            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
-            document.getElementById('screen-grade').classList.add('hidden');
-            document.getElementById('screen-standby').classList.add('hidden');
-            document.getElementById('screen-passagem').classList.add('hidden');
-            document.getElementById('screen-admin').classList.add('hidden');
-            document.getElementById('screen-links').classList.add('hidden'); 
-            document.getElementById('date-picker-wrapper').classList.add('hidden');
-
-            if(tela === 'grade') {
-                document.getElementById('nav-grade').classList.add('active');
-                document.getElementById('screen-grade').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
-                document.getElementById('date-picker-wrapper').classList.remove('hidden');
-                window.contextoGlobal = 'grade'; 
-            } else if (tela === 'standby') {
-                document.getElementById('nav-standby').classList.add('active');
-                document.getElementById('screen-standby').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = 'Stand-By';
-                window.contextoGlobal = 'standby'; 
-            } else if (tela === 'passagem') {
-                document.getElementById('nav-passagem').classList.add('active');
-                document.getElementById('screen-passagem').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
-            } else if (tela === 'admin') {
-                document.getElementById('nav-admin').classList.add('active');
-                document.getElementById('screen-admin').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = 'Administração';
-            } else if (tela === 'links') {
-                document.getElementById('nav-links').classList.add('active');
-                document.getElementById('screen-links').classList.remove('hidden');
-                document.getElementById('header-title').innerHTML = 'Links Úteis';
-            }
-        }
-
-        window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
-
-        const aplicarPermissoes = () => {
-            const role = localStorage.getItem('userRole'); const isAdmin = (role === 'admin'); const navAdmin = document.getElementById('nav-admin'); const badge = document.getElementById('badge-cargo');
-            if(isAdmin) { if(navAdmin) navAdmin.classList.remove('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; } } 
-            else { if(navAdmin) navAdmin.classList.add('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-blue-100 text-blue-600"; badge.innerText = "Usuário"; } }
-        }
-
-        const verificarSessao = () => { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; } if (localStorage.getItem('session_active') === 'true') { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('main-layout').classList.remove('hidden'); if(document.getElementById('display-nome')) { document.getElementById('display-nome').innerText = localStorage.getItem('userName'); } carregarFotoLocal(); aplicarPermissoes(); } }
-        window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); localStorage.removeItem('userName'); location.reload(); }
-
-        // LISTENERS
-        document.getElementById('form-login').addEventListener('submit', async (e) => { e.preventDefault(); const loginInput = document.getElementById('login-user').value; const senhaInput = document.getElementById('login-senha').value; const snapshotUsers = await get(refUsers); if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') { push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false }); localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); location.reload(); return; } let userFound = null; let userKey = null; if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); } if (userFound) { if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; } localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); location.reload(); } else { document.getElementById('login-erro').classList.remove('hidden'); } });
-        document.getElementById('form-force-reset').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Senha atualizada! Faça login."); location.reload(); });
-        document.getElementById('formCadastro').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; let dbRef; if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } cancelar(); });
-        document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
-        document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); });
         document.getElementById('formLink').addEventListener('submit', (e) => { e.preventDefault(); const titulo = document.getElementById('link-titulo').value; const url = document.getElementById('link-url').value; push(refLinks, { titulo: titulo, url: url }); document.getElementById('link-titulo').value = ''; document.getElementById('link-url').value = ''; });
 
-        // INIT
-        verificarSessao();
-        carregarDadosData(dataSelecionada);
-        carregarStandby();
-        carregarHistoricoPassagem();
-        carregarAdminPanel();
-        carregarLinks();
-        carregarBancoImagensAdmin(); // NOVO
-        
         new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
 
