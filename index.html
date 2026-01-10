@@ -28,6 +28,9 @@
         input[type="date"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(0.5); }
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
+        
+        /* Estilo para imagem selecionada no banco */
+        .img-bank-selected { ring: 4px solid #f97316; transform: scale(0.95); }
     </style>
 </head>
 <body class="bg-[#f4f7f9] text-gray-700 font-sans overflow-hidden dark:bg-dark-900 dark:text-gray-300">
@@ -200,11 +203,21 @@
                             <form id="formCadastro" class="space-y-4">
                                 <input type="hidden" id="edit-id">
                                 
-                                <div class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
+                                <div class="flex gap-2 mb-2">
+                                    <button type="button" onclick="window.toggleTipoUpload('pc')" id="btn-tipo-pc" class="flex-1 bg-orange-100 text-orange-600 text-[10px] font-bold py-1 rounded border border-orange-200 uppercase">Do Computador</button>
+                                    <button type="button" onclick="window.toggleTipoUpload('bank')" id="btn-tipo-bank" class="flex-1 bg-gray-100 text-gray-500 text-[10px] font-bold py-1 rounded border dark:border-gray-600 dark:bg-dark-700 dark:text-gray-400 uppercase">Banco de Imagens</button>
+                                </div>
+
+                                <div id="upload-area-pc" class="relative w-full h-32 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group">
                                     <input type="file" id="in-cover" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer" accept="image/*" onchange="window.previewCapa(this)">
                                     <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover rounded-lg hidden">
-                                    <div id="cover-placeholder" class="text-center"><i class="fas fa-image text-gray-400 text-2xl mb-1"></i><p class="text-[10px] text-gray-400 uppercase font-bold">Capa</p></div>
+                                    <div id="cover-placeholder" class="text-center"><i class="fas fa-image text-gray-400 text-2xl mb-1"></i><p class="text-[10px] text-gray-400 uppercase font-bold">Arrastar ou Clicar</p></div>
                                 </div>
+
+                                <div id="upload-area-bank" class="hidden w-full h-48 bg-gray-50 dark:bg-dark-700 rounded-lg border dark:border-gray-600 p-2 overflow-y-auto grid grid-cols-3 gap-2">
+                                    <p class="col-span-3 text-center text-xs text-gray-400 py-10">Carregando banco...</p>
+                                </div>
+
                                 <input type="hidden" id="in-cover-base64">
 
                                 <input id="in-titulo" placeholder="Nome do Programa" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
@@ -291,6 +304,21 @@
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-6">
                             
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-purple-100 dark:border-purple-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-images text-purple-500"></i> Banco de Imagens</h3>
+                                <p class="text-xs text-gray-400 mb-4">Adicione imagens padrão para facilitar o cadastro dos usuários.</p>
+                                
+                                <div class="flex gap-2 items-center mb-4">
+                                    <label class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 px-4 py-2 rounded-lg font-bold text-xs cursor-pointer hover:bg-purple-200 dark:hover:bg-purple-800">
+                                        <i class="fas fa-upload mr-2"></i> Escolher Imagem
+                                        <input type="file" class="hidden" accept="image/*" onchange="window.adicionarImagemBanco(this)">
+                                    </label>
+                                </div>
+
+                                <div id="admin-banco-imagens" class="grid grid-cols-4 sm:grid-cols-6 gap-3">
+                                    </div>
+                            </div>
+
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-200 dark:border-red-900/50 relative overflow-hidden">
                                 <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fas fa-trash-alt text-6xl text-red-500"></i></div>
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2 text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle"></i> Manutenção de Dados</h3>
@@ -316,18 +344,14 @@
                                 </form>
                                 <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links"></div>
                             </div>
-
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações de Acesso</h3>
-                                <div id="lista-solicitacoes" class="space-y-3"></div>
-                            </div>
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-users text-orange-500"></i> Usuários do Sistema</h3>
-                                <div class="overflow-x-auto"><table class="w-full text-sm text-left text-gray-500 dark:text-gray-400"><thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-dark-700 dark:text-gray-400"><tr><th class="px-4 py-3">Nome</th><th class="px-4 py-3">Login/Email</th><th class="px-4 py-3">Função</th><th class="px-4 py-3 text-right">Ações</th></tr></thead><tbody id="lista-usuarios"></tbody></table></div>
-                            </div>
                         </div>
                         
                         <div class="space-y-6">
+                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações</h3>
+                                <div id="lista-solicitacoes" class="space-y-3"></div>
+                            </div>
+
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700 h-fit">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm">Gerenciar Usuário</h3>
                                 <form id="formUsuario" class="space-y-4">
@@ -382,6 +406,7 @@
         let refRelatorio = null;
         let refStandby = ref(db, 'standby');
         let refLinks = ref(db, 'links'); 
+        let refBancoImagens = ref(db, 'banco_imagens'); // NOVA REF
         let refDatas = ref(db, 'datas');
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
@@ -448,49 +473,107 @@
             });
         }
 
-        // --- FUNÇÃO DE LIMPEZA INTELIGENTE ---
+        // --- BANCO DE IMAGENS ---
+        const carregarBancoImagensAdmin = () => {
+            onValue(refBancoImagens, (snapshot) => {
+                const imgs = snapshot.val();
+                const containerAdmin = document.getElementById('admin-banco-imagens');
+                const containerForm = document.getElementById('upload-area-bank');
+                
+                if(containerAdmin) containerAdmin.innerHTML = '';
+                if(containerForm) containerForm.innerHTML = '';
+
+                if(imgs) {
+                    Object.keys(imgs).forEach(key => {
+                        const base64 = imgs[key];
+                        // Admin
+                        if(containerAdmin) {
+                            containerAdmin.innerHTML += `
+                            <div class="relative group bg-gray-100 dark:bg-dark-700 rounded-lg aspect-square overflow-hidden border dark:border-gray-600">
+                                <img src="${base64}" class="w-full h-full object-cover">
+                                <button onclick="window.removerImagemBanco('${key}')" class="absolute inset-0 bg-red-500/80 text-white opacity-0 group-hover:opacity-100 flex items-center justify-center transition font-bold text-xs">Excluir</button>
+                            </div>`;
+                        }
+                        // Form
+                        if(containerForm) {
+                             containerForm.innerHTML += `
+                            <div onclick="window.selecionarImagemBanco('${base64}', this)" class="cursor-pointer bg-gray-100 dark:bg-dark-600 rounded-lg aspect-square overflow-hidden border dark:border-gray-500 hover:opacity-80 transition relative img-bank-item">
+                                <img src="${base64}" class="w-full h-full object-cover">
+                            </div>`;
+                        }
+                    });
+                } else {
+                    if(containerAdmin) containerAdmin.innerHTML = '<p class="col-span-4 text-xs text-gray-400">Vazio.</p>';
+                    if(containerForm) containerForm.innerHTML = '<p class="col-span-3 text-center text-xs text-gray-400 py-10">Banco vazio.</p>';
+                }
+            });
+        }
+
+        window.adicionarImagemBanco = (input) => {
+             if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    push(refBancoImagens, e.target.result);
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        window.removerImagemBanco = (key) => { if(confirm('Apagar imagem do banco?')) remove(ref(db, `banco_imagens/${key}`)); }
+        
+        window.toggleTipoUpload = (tipo) => {
+            if (tipo === 'pc') {
+                document.getElementById('upload-area-pc').classList.remove('hidden');
+                document.getElementById('upload-area-bank').classList.add('hidden');
+                document.getElementById('btn-tipo-pc').className = "flex-1 bg-orange-100 text-orange-600 text-[10px] font-bold py-1 rounded border border-orange-200 uppercase";
+                document.getElementById('btn-tipo-bank').className = "flex-1 bg-gray-100 text-gray-500 text-[10px] font-bold py-1 rounded border dark:border-gray-600 dark:bg-dark-700 dark:text-gray-400 uppercase";
+            } else {
+                document.getElementById('upload-area-pc').classList.add('hidden');
+                document.getElementById('upload-area-bank').classList.remove('hidden');
+                document.getElementById('btn-tipo-pc').className = "flex-1 bg-gray-100 text-gray-500 text-[10px] font-bold py-1 rounded border dark:border-gray-600 dark:bg-dark-700 dark:text-gray-400 uppercase";
+                document.getElementById('btn-tipo-bank').className = "flex-1 bg-purple-100 text-purple-600 text-[10px] font-bold py-1 rounded border border-purple-200 uppercase";
+            }
+        }
+
+        window.selecionarImagemBanco = (base64, elemento) => {
+            // Visual feedback
+            document.querySelectorAll('.img-bank-item').forEach(el => el.classList.remove('img-bank-selected'));
+            elemento.classList.add('img-bank-selected');
+
+            // Set Data
+            document.getElementById('in-cover-base64').value = base64;
+            
+            // Update Preview (mesmo se estiver na aba do banco, é bom atualizar o preview oculto ou visivel)
+            document.getElementById('cover-preview').src = base64;
+            document.getElementById('cover-preview').classList.remove('hidden');
+            document.getElementById('cover-placeholder').classList.add('hidden');
+        }
+
+
+        // LIMPEZA
         window.executarLimpeza = async () => {
             const dias = parseInt(document.getElementById('limpeza-periodo').value);
             if(!confirm(`ATENÇÃO: Você está prestes a apagar permanentemente todos os registros com mais de ${dias} dias.\n\nEsta ação não pode ser desfeita. Deseja continuar?`)) return;
 
-            const dataCorte = new Date();
-            dataCorte.setDate(dataCorte.getDate() - dias);
-            // Formatar para YYYY-MM-DD para comparação de string direta (mais seguro para chaves)
-            const ano = dataCorte.getFullYear();
-            const mes = String(dataCorte.getMonth() + 1).padStart(2, '0');
-            const dia = String(dataCorte.getDate()).padStart(2, '0');
-            const dataCorteString = `${ano}-${mes}-${dia}`;
+            const dataCorte = new Date(); dataCorte.setDate(dataCorte.getDate() - dias);
+            const ano = dataCorte.getFullYear(); const mes = String(dataCorte.getMonth() + 1).padStart(2, '0'); const dia = String(dataCorte.getDate()).padStart(2, '0'); const dataCorteString = `${ano}-${mes}-${dia}`;
 
             try {
                 const snapshot = await get(refDatas);
                 if (snapshot.exists()) {
                     let contagem = 0;
-                    snapshot.forEach((child) => {
-                        const chaveData = child.key; // Ex: 2024-01-01
-                        // Comparação direta de strings YYYY-MM-DD funciona perfeitamente
-                        if (chaveData < dataCorteString) {
-                            remove(ref(db, `datas/${chaveData}`));
-                            contagem++;
-                        }
-                    });
-                    alert(`Limpeza concluída com sucesso!\n\nForam removidos registros de ${contagem} dias antigos.`);
-                    logActivity('Limpeza de Dados', `Removeu registros anteriores a ${dataCorteString}`);
-                } else {
-                    alert("O banco de dados já está limpo.");
-                }
-            } catch (error) {
-                console.error(error);
-                alert("Erro ao executar limpeza: " + error.message);
-            }
+                    snapshot.forEach((child) => { const chaveData = child.key; if (chaveData < dataCorteString) { remove(ref(db, `datas/${chaveData}`)); contagem++; } });
+                    alert(`Limpeza concluída com sucesso!\n\nForam removidos registros de ${contagem} dias antigos.`); logActivity('Limpeza de Dados', `Removeu registros anteriores a ${dataCorteString}`);
+                } else { alert("O banco de dados já está limpo."); }
+            } catch (error) { console.error(error); alert("Erro ao executar limpeza: " + error.message); }
         };
 
         // CRUD FORMULARIO
-        const resetCapaUI = () => { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); }
+        const resetCapaUI = () => { document.getElementById('in-cover-base64').value = ""; document.getElementById('cover-preview').src = ""; document.getElementById('cover-preview').classList.add('hidden'); document.getElementById('cover-placeholder').classList.remove('hidden'); document.querySelectorAll('.img-bank-item').forEach(el => el.classList.remove('img-bank-selected')); }
         const mostrarForm = () => { document.getElementById('view-form').classList.remove('hidden'); }
         const cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
 
-        const abrirCriacao = () => { document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
-        const abrirEdicao = (p) => { if(!p) return; document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); } else { resetCapaUI(); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
+        const abrirCriacao = () => { document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); window.toggleTipoUpload('pc'); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
+        const abrirEdicao = (p) => { if(!p) return; document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); window.toggleTipoUpload('pc'); } else { resetCapaUI(); window.toggleTipoUpload('pc'); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
 
         const previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
         const deletar = () => { if(confirm('Tem certeza?')) { const id = document.getElementById('edit-id').value; const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`; remove(ref(db, path)); logActivity('Excluiu', 'ID: ' + id); cancelar(); } };
@@ -567,6 +650,7 @@
         carregarHistoricoPassagem();
         carregarAdminPanel();
         carregarLinks();
+        carregarBancoImagensAdmin(); // NOVO
         
         new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
         new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
