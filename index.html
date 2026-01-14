@@ -300,31 +300,10 @@
                     </div>
                 </div>
 
-                <div id="screen-admin" class="hidden absolute top-0 left-0 right-0 bottom-0 bg-[#f8fafc] dark:bg-dark-900 p-8 z-20 overflow-y-auto">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 pb-20">
-                        
+                <div id="screen-admin" class="hidden absolute top-0 left-0 right-0 bottom-0 bg-[#f8fafc] dark:bg-dark-900 p-8 z-20">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-6">
                             
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm flex items-center gap-2">
-                                    <i class="fas fa-users text-orange-500"></i> Gerenciar Acessos
-                                </h3>
-                                <div class="overflow-x-auto">
-                                    <table class="w-full text-left border-collapse">
-                                        <thead>
-                                            <tr class="text-[10px] uppercase text-gray-400 border-b dark:border-gray-700">
-                                                <th class="py-3 px-2">Nome Completo</th>
-                                                <th class="py-3 px-2">Login (E-mail)</th>
-                                                <th class="py-3 px-2">Permissão</th>
-                                                <th class="py-3 px-2 text-right">Ações</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="lista-usuarios" class="divide-y dark:divide-gray-700 text-xs">
-                                            </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-purple-100 dark:border-purple-900/30">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-images text-purple-500"></i> Banco de Imagens</h3>
                                 <p class="text-xs text-gray-400 mb-4">Adicione imagens padrão para facilitar o cadastro dos usuários.</p>
@@ -336,77 +315,61 @@
                                     </label>
                                 </div>
 
-                                <div id="admin-banco-imagens" class="grid grid-cols-4 sm:grid-cols-6 gap-3"></div>
-                            </div>
-                        </div>
-
-                        <div class="space-y-6">
-                            
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border-2 border-orange-500">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 uppercase text-xs">Cadastrar / Editar Usuário</h3>
-                                <form id="formUsuario" class="space-y-3">
-                                    <input type="hidden" id="admin-user-id">
-                                    <div>
-                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome</label>
-                                        <input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                <div id="admin-banco-imagens" class="grid grid-cols-4 sm:grid-cols-6 gap-3">
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label>
-                                        <input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha</label>
-                                        <input id="admin-senha" type="text" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                    </div>
-                                    <div>
-                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nível de Acesso</label>
-                                        <select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                            <option value="user">Usuário Comum</option>
-                                            <option value="admin">Administrador</option>
-                                        </select>
-                                    </div>
-                                    <div class="pt-2 flex gap-2">
-                                        <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button>
-                                        <button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button>
-                                    </div>
-                                </form>
                             </div>
 
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações</h3>
-                                <div id="lista-solicitacoes" class="space-y-3"></div>
-                            </div>
-
-                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-200 dark:border-red-900/50">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2 text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle"></i> Manutenção</h3>
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-200 dark:border-red-900/50 relative overflow-hidden">
+                                <div class="absolute top-0 right-0 p-2 opacity-10"><i class="fas fa-trash-alt text-6xl text-red-500"></i></div>
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2 text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle"></i> Manutenção de Dados</h3>
+                                <p class="text-xs text-gray-500 mb-4">Remova registros antigos para liberar espaço no banco de dados. <br><b>Atenção:</b> A exclusão é permanente.</p>
+                                
                                 <div class="flex gap-2 items-center">
-                                    <select id="limpeza-periodo" class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-2 py-2 text-xs dark:text-white outline-none font-bold">
-                                        <option value="30">30 Dias</option>
-                                        <option value="90">90 Dias</option>
+                                    <select id="limpeza-periodo" class="bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none font-bold">
+                                        <option value="30">Mais de 30 Dias</option>
+                                        <option value="90">Mais de 3 Meses</option>
+                                        <option value="180">Mais de 6 Meses</option>
+                                        <option value="365">Mais de 1 Ano</option>
                                     </select>
-                                    <button onclick="window.executarLimpeza()" class="bg-red-500 text-white px-3 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-red-600">Limpar</button>
+                                    <button onclick="window.executarLimpeza()" class="bg-red-500 text-white px-4 py-2 rounded-lg font-bold text-xs uppercase hover:bg-red-600 shadow-md">Limpar Agora</button>
                                 </div>
                             </div>
 
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-blue-100 dark:border-blue-900/30">
-                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-link text-blue-500"></i> Links</h3>
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-link text-blue-500"></i> Gerenciar Links Úteis</h3>
                                 <form id="formLink" class="flex gap-2 mb-4">
-                                    <input id="link-titulo" placeholder="Título" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:text-white outline-none">
-                                    <input id="link-url" placeholder="URL" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-2 py-1 text-xs dark:text-white outline-none">
-                                    <button type="submit" class="bg-blue-500 text-white px-3 rounded-lg font-bold text-[10px] uppercase hover:bg-blue-600">Add</button>
+                                    <input id="link-titulo" placeholder="Título" required class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    <input id="link-url" placeholder="URL" required class="flex-[2] bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg font-bold text-xs uppercase hover:bg-blue-600">Add</button>
                                 </form>
-                                <div class="max-h-32 overflow-y-auto space-y-1 pr-2" id="admin-lista-links"></div>
+                                <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="admin-lista-links"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="space-y-6">
+                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-100 dark:border-red-900/30">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações</h3>
+                                <div id="lista-solicitacoes" class="space-y-3"></div>
                             </div>
 
-                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
+                            <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700 h-fit">
+                                <h3 class="font-bold text-gray-800 dark:text-white mb-6 uppercase text-sm">Gerenciar Usuário</h3>
+                                <form id="formUsuario" class="space-y-4">
+                                    <input type="hidden" id="admin-user-id">
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome Completo</label><input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label><input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Reset/Nova)</label><input id="admin-senha" type="text" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
+                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Permissão</label><select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"><option value="user">Usuário (Visualizar)</option><option value="admin">Administrador (Total)</option></select></div>
+                                    <div class="pt-2 flex gap-2"><button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button><button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button></div>
+                                </form>
+                            </div>
+                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Logs</h3>
-                                <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
+                                <div class="max-h-60 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                             </div>
-
                         </div>
                     </div>
                 </div>
-
             </div>
         </main>
     </div>
@@ -617,57 +580,7 @@
         const mudarData = (novaData) => { dataSelecionada = novaData; document.getElementById('data-selector').value = dataSelecionada; carregarDadosData(dataSelecionada); carregarHistoricoPassagem(); };
 
         const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return; const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a)); datasComRelatorio.forEach(data => { const dataFormatada = data.split('-').reverse().join('/'); const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600"; const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0; container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`; }); }); }
-        
-        // --- FUNÇÃO ADMIN REFEITA ---
-        const carregarAdminPanel = () => { 
-            if(localStorage.getItem('userRole') !== 'admin') return; 
-            
-            // Solicitações
-            onValue(refSolicitacoes, (snapshot) => { 
-                const s = snapshot.val(); 
-                const container = document.getElementById('lista-solicitacoes'); 
-                const notif = document.getElementById('notificacao-admin'); 
-                container.innerHTML = ''; 
-                if(s) { 
-                    notif.classList.remove('hidden'); 
-                    Object.keys(s).forEach(key => { 
-                        const item = s[key]; 
-                        const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; 
-                        container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; 
-                    }); 
-                } else { 
-                    notif.classList.add('hidden'); 
-                    container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; 
-                } 
-            }); 
-            
-            // --- TABELA DE USUÁRIOS ATUALIZADA ---
-            onValue(refUsers, (snapshot) => { 
-                const users = snapshot.val(); 
-                const tbody = document.getElementById('lista-usuarios'); 
-                tbody.innerHTML = ''; 
-                if(users) { 
-                    Object.keys(users).forEach(key => { 
-                        const u = users[key]; 
-                        const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; 
-                        
-                        tbody.innerHTML += `
-                        <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td class="px-2 py-3 font-bold">${u.nome}</td>
-                            <td class="px-2 py-3">${u.login}</td>
-                            <td class="px-2 py-3">${roleLabel}</td>
-                            <td class="px-2 py-3 text-right">
-                                <button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2 font-bold uppercase">Editar</button>
-                                <button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs font-bold uppercase">Excluir</button>
-                            </td>
-                        </tr>`; 
-                    }); 
-                } 
-            }); 
-            
-            // Logs
-            onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); 
-        }
+        const carregarAdminPanel = () => { if(localStorage.getItem('userRole') !== 'admin') return; onValue(refSolicitacoes, (snapshot) => { const s = snapshot.val(); const container = document.getElementById('lista-solicitacoes'); const notif = document.getElementById('notificacao-admin'); container.innerHTML = ''; if(s) { notif.classList.remove('hidden'); Object.keys(s).forEach(key => { const item = s[key]; const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; }); } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } }); onValue(refUsers, (snapshot) => { const users = snapshot.val(); const tbody = document.getElementById('lista-usuarios'); tbody.innerHTML = ''; if(users) { Object.keys(users).forEach(key => { const u = users[key]; const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; tbody.innerHTML += `<tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50"><td class="px-4 py-2 font-bold">${u.nome}</td><td class="px-4 py-2 text-xs">${u.login}</td><td class="px-4 py-2">${roleLabel}</td><td class="px-4 py-2 text-right"><button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2">Editar</button><button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs">Excluir</button></td></tr>`; }); } }); onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); }
 
         // --- EXPORTAR ---
         window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; }; window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; }; window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
@@ -727,25 +640,7 @@
         document.getElementById('form-force-reset').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Senha atualizada! Faça login."); location.reload(); });
         document.getElementById('formCadastro').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; let dbRef; if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } cancelar(); });
         document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
-        
-        // --- FORM USUARIO SEM EMAIL ---
-        document.getElementById('formUsuario').addEventListener('submit', (e) => { 
-            e.preventDefault(); 
-            const id = document.getElementById('admin-user-id').value; 
-            const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; 
-            
-            if(id) { 
-                update(ref(db, `users/${id}`), dados); 
-                logActivity('Editar Usuário', dados.login); 
-            } else { 
-                push(refUsers, dados); 
-                logActivity('Criar Usuário', dados.login); 
-            } 
-            
-            // REMOVIDO BLOCO DE ENVIO DE EMAIL
-            window.limparFormAdmin(); 
-        });
-        
+        document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; if(id) { update(ref(db, `users/${id}`), dados); logActivity('Editar Usuário', dados.login); } else { push(refUsers, dados); logActivity('Criar Usuário', dados.login); } if(confirm("Enviar e-mail?")) { window.enviarEmailNotificacao(dados.nome, dados.login, dados.senha); } window.limparFormAdmin(); });
         document.getElementById('formLink').addEventListener('submit', (e) => { e.preventDefault(); const titulo = document.getElementById('link-titulo').value; const url = document.getElementById('link-url').value; push(refLinks, { titulo: titulo, url: url }); document.getElementById('link-titulo').value = ''; document.getElementById('link-url').value = ''; });
 
         // INIT
