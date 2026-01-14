@@ -16,6 +16,8 @@
             theme: { extend: { colors: { dark: { 900: '#0f172a', 800: '#1e293b', 700: '#334155' } } } }
         }
         window.contextoGlobal = 'grade'; 
+        window.dadosGrade = {};   // Armazena dados da Grade separadamente
+        window.dadosStandby = {}; // Armazena dados do Standby separadamente
     </script>
     
     <style>
@@ -466,7 +468,14 @@
             }
         };
 
-        const renderizarCards = (container, lista) => {
+        const renderizarCards = (container, lista, tipo) => {
+            // Salva os dados no objeto correto para o "abrirEdicaoGlobal" encontrar depois
+            if (tipo === 'grade') {
+                window.dadosGrade = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
+            } else if (tipo === 'standby') {
+                window.dadosStandby = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
+            }
+
             container.innerHTML = lista.map(p => {
                 let borderClass = 'border-transparent hover:border-orange-200 dark:hover:border-gray-600';
                 let bgClass = 'bg-white dark:bg-dark-800';
@@ -479,7 +488,7 @@
                     <div class="flex-1 flex flex-col justify-center py-1"><div><h4 class="font-bold text-lg text-gray-800 dark:text-gray-100 leading-tight">${p.titulo}</h4><div class="flex gap-2 items-center text-sm text-gray-400 dark:text-gray-400 mt-1"><span>${p.subtitulo || ''}</span>${p.versao ? `<span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 rounded border dark:border-gray-600 font-bold">${p.versao}</span>` : ''}</div></div><div class="flex items-center justify-between mt-3"><div class="flex items-center gap-2"><span class="text-xs text-gray-400 uppercase font-bold">${p.autor || 'Sistema'}</span><div class="h-3 w-px bg-gray-300"></div><div class="flex gap-1 flex-wrap">${p.tags ? p.tags.split(' ').map(tag => `<span class="bg-gray-100 dark:bg-dark-700 text-gray-600 dark:text-gray-300 text-[10px] font-bold px-1.5 py-0.5 rounded border dark:border-gray-600">${tag}</span>`).join('') : ''}${p.xd ? p.xd.split(' ').map(tag => `<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-purple-200 dark:border-purple-800">${tag}</span>`).join('') : ''}${(!p.tags && !p.xd) ? '<span class="text-[10px] text-gray-300">Sem tags</span>' : ''}</div></div><button onclick="window.abrirEdicaoGlobal('${p.id}')" class="w-8 h-8 rounded-full hover:bg-orange-50 dark:hover:bg-dark-700 text-gray-300 hover:text-orange-500 transition flex items-center justify-center"><i class="fas fa-pencil-alt text-sm"></i></button></div></div>
                     ${p.status === 'completo' ? '<div class="absolute top-2 right-2 text-green-500"><i class="fas fa-check-circle"></i></div>' : ''}</div>`;
             }).join('');
-            window.dadosTemporarios = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
+            
             const buscaGrade = document.getElementById('busca-grade').value; const buscaStandby = document.getElementById('busca-standby').value; if (buscaGrade && container.id === 'lista-programas') window.filtrarLista('lista-programas', buscaGrade); if (buscaStandby && container.id === 'lista-standby') window.filtrarLista('lista-standby', buscaStandby);
         }
 
@@ -488,11 +497,16 @@
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
-            onValue(refProgramas, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-programas'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); renderizarCards(container, lista); });
+            // Passa 'grade' para identificar o contexto
+            onValue(refProgramas, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-programas'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); renderizarCards(container, lista, 'grade'); });
+            
             onValue(refRelatorio, (snapshot) => { const feedContainer = document.getElementById('feed-passagem'); feedContainer.innerHTML = ''; const val = snapshot.val(); const currentUser = localStorage.getItem('userName'); const isAdmin = localStorage.getItem('userRole') === 'admin'; if (!val) { feedContainer.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fas fa-comments text-4xl mb-2 text-gray-300"></i><p class="text-sm">Nenhuma ocorrência registrada.</p></div>`; return; } Object.keys(val).forEach(key => { const nota = val[key]; const isOwner = (nota.autor === currentUser) || isAdmin; const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''; const card = document.createElement('div'); card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group"; card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold text-gray-800 dark:text-white">${nota.autor}</p><p class="text-[10px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}', '${encodeURIComponent(nota.texto)}')" class="text-blue-400 hover:text-blue-600 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${nota.texto}</p>`; feedContainer.appendChild(card); }); feedContainer.scrollTop = feedContainer.scrollHeight; });
         }
 
-        const carregarStandby = () => { onValue(refStandby, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-standby'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); renderizarCards(container, lista); }); }
+        const carregarStandby = () => { 
+            // Passa 'standby' para identificar o contexto
+            onValue(refStandby, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-standby'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); renderizarCards(container, lista, 'standby'); }); 
+        }
 
         const carregarLinks = () => {
             onValue(refLinks, (snapshot) => {
@@ -596,7 +610,20 @@
         const cancelar = () => { document.getElementById('view-form').classList.add('hidden'); };
 
         const abrirCriacao = () => { document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; document.getElementById('edit-id').value = ""; document.getElementById('formCadastro').reset(); resetCapaUI(); window.toggleTipoUpload('pc'); document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); if(radioPendente) radioPendente.checked = true; document.getElementById('btn-delete').classList.add('hidden'); mostrarForm(); };
+        
+        // --- ABRIR EDIÇÃO CORRIGIDO ---
         const abrirEdicao = (p) => { if(!p) return; document.getElementById('edit-id').value = p.id; document.getElementById('in-titulo').value = p.titulo; document.getElementById('in-sub').value = p.subtitulo; document.getElementById('in-versao').value = p.versao || ""; document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); if(p.xd) { p.xd.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="xd"][value="${tag}"]`); if(cb) cb.checked = true; }); } const statusVal = p.status || 'pendente'; const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); if(radio) radio.checked = true; if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); window.toggleTipoUpload('pc'); } else { resetCapaUI(); window.toggleTipoUpload('pc'); } document.getElementById('btn-delete').classList.remove('hidden'); mostrarForm(); };
+        
+        // Agora busca no local correto dependendo da aba
+        window.abrirEdicaoGlobal = (id) => { 
+            let item;
+            if (window.contextoGlobal === 'grade') {
+                item = window.dadosGrade[id];
+            } else if (window.contextoGlobal === 'standby') {
+                item = window.dadosStandby[id];
+            }
+            if (item) abrirEdicao(item);
+        };
 
         const previewCapa = (input) => { if (input.files && input.files[0]) { const reader = new FileReader(); reader.onload = (e) => { document.getElementById('cover-preview').src = e.target.result; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); document.getElementById('in-cover-base64').value = e.target.result; }; reader.readAsDataURL(input.files[0]); } };
         const deletar = () => { if(confirm('Tem certeza?')) { const id = document.getElementById('edit-id').value; const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`; remove(ref(db, path)); logActivity('Excluiu', 'ID: ' + id); cancelar(); } };
@@ -657,7 +684,7 @@
         }
 
         // --- CRUD E GESTÃO GLOBAL ---
-        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); 
+        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); 
         
         window.editarUsuario = (id, nome, login, role) => { 
             document.getElementById('container-senha').classList.add('hidden');
