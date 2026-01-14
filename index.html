@@ -362,10 +362,12 @@
                                         <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label>
                                         <input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
                                     </div>
-                                    <div>
-                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha</label>
-                                        <input id="admin-senha" type="text" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    
+                                    <div id="container-senha">
+                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Inicial)</label>
+                                        <input id="admin-senha" type="text" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
                                     </div>
+
                                     <div>
                                         <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nível de Acesso</label>
                                         <select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
@@ -616,7 +618,7 @@
 
         const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return; const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a)); datasComRelatorio.forEach(data => { const dataFormatada = data.split('-').reverse().join('/'); const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600"; const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0; container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`; }); }); }
         
-        // --- FUNÇÃO ADMIN REFEITA ---
+        // --- FUNÇÃO ADMIN ATUALIZADA (SEM SENHA VISÍVEL E COM RESET) ---
         const carregarAdminPanel = () => { 
             if(localStorage.getItem('userRole') !== 'admin') return; 
             
@@ -654,9 +656,10 @@
                             <td class="px-2 py-3 font-bold">${u.nome}</td>
                             <td class="px-2 py-3">${u.login}</td>
                             <td class="px-2 py-3">${roleLabel}</td>
-                            <td class="px-2 py-3 text-right">
-                                <button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}', '${u.senha}')" class="text-blue-500 hover:underline text-xs mr-2 font-bold uppercase">Editar</button>
-                                <button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:underline text-xs font-bold uppercase">Excluir</button>
+                            <td class="px-2 py-3 text-right flex justify-end gap-2">
+                                <button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}')" class="text-blue-500 hover:text-blue-600 p-1" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                                <button onclick="window.resetarSenhaUsuario('${key}', '${u.nome}')" class="text-yellow-500 hover:text-yellow-600 p-1" title="Resetar Senha"><i class="fas fa-key"></i></button>
+                                <button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:text-red-600 p-1" title="Excluir"><i class="fas fa-trash"></i></button>
                             </td>
                         </tr>`; 
                     }); 
@@ -668,7 +671,39 @@
         }
 
         // --- EXPORTAR ---
-        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); window.editarUsuario = (id, nome, login, role, senha) => { document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; document.getElementById('admin-senha').value = senha; }; window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; }; window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
+        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.abrirEdicaoGlobal = (id) => { const item = window.dadosTemporarios[id]; abrirEdicao(item); }; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); 
+        
+        // --- FUNÇÕES DE USUARIO MODIFICADAS ---
+        window.editarUsuario = (id, nome, login, role) => { 
+            // Oculta container de senha pois estamos editando
+            document.getElementById('container-senha').classList.add('hidden');
+            
+            document.getElementById('admin-user-id').value = id; 
+            document.getElementById('admin-nome').value = nome; 
+            document.getElementById('admin-login').value = login; 
+            document.getElementById('admin-role').value = role; 
+            // Senha não é preenchida
+        }; 
+
+        window.limparFormAdmin = () => { 
+            document.getElementById('formUsuario').reset(); 
+            document.getElementById('admin-user-id').value = ""; 
+            // Mostra container de senha para novos usuarios
+            document.getElementById('container-senha').classList.remove('hidden');
+        };
+
+        // --- NOVA FUNÇÃO DE RESETAR SENHA ---
+        window.resetarSenhaUsuario = (id, nome) => {
+            const senhaPadrao = "mudar123";
+            if(confirm(`Tem certeza que deseja resetar a senha de ${nome}?\n\nA nova senha será: ${senhaPadrao}\nO usuário será obrigado a trocá-la no próximo login.`)) {
+                update(ref(db, `users/${id}`), { senha: senhaPadrao, forceReset: true });
+                logActivity('Resetar Senha', `Usuário: ${nome}`);
+                alert('Senha resetada com sucesso!');
+            }
+        };
+
+        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; 
+        window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
         window.removerLink = (id) => { if(confirm('Remover link?')) remove(ref(db, `links/${id}`)); };
 
         const salvarFotoLocal = (url) => { localStorage.setItem('userAvatar', url); carregarFotoLocal(); window.fecharModal(); }
@@ -726,21 +761,29 @@
         document.getElementById('formCadastro').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('edit-id').value; const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); const statusChecked = document.querySelector('input[name="status"]:checked').value; const dados = { titulo: document.getElementById('in-titulo').value, subtitulo: document.getElementById('in-sub').value, versao: document.getElementById('in-versao').value, tags: blocosChecked, xd: xdChecked, status: statusChecked, capa: document.getElementById('in-cover-base64').value, autor: localStorage.getItem('userName') }; let dbRef; if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } cancelar(); });
         document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
         
-        // --- FORM USUARIO SEM EMAIL ---
+        // --- FORM USUARIO ATUALIZADO ---
         document.getElementById('formUsuario').addEventListener('submit', (e) => { 
             e.preventDefault(); 
             const id = document.getElementById('admin-user-id').value; 
-            const dados = { nome: document.getElementById('admin-nome').value, login: document.getElementById('admin-login').value, senha: document.getElementById('admin-senha').value, role: document.getElementById('admin-role').value, forceReset: true }; 
+            const nome = document.getElementById('admin-nome').value;
+            const login = document.getElementById('admin-login').value;
+            const role = document.getElementById('admin-role').value;
+            const senhaInicial = document.getElementById('admin-senha').value;
+            
+            const dados = { nome: nome, login: login, role: role };
             
             if(id) { 
+                // Edição: Não toca na senha aqui
                 update(ref(db, `users/${id}`), dados); 
-                logActivity('Editar Usuário', dados.login); 
+                logActivity('Editar Usuário', login); 
             } else { 
+                // Novo: Precisa da senha
+                dados.senha = senhaInicial || "1234"; // Default se vazio
+                dados.forceReset = true;
                 push(refUsers, dados); 
-                logActivity('Criar Usuário', dados.login); 
+                logActivity('Criar Usuário', login); 
             } 
             
-            // REMOVIDO BLOCO DE ENVIO DE EMAIL
             window.limparFormAdmin(); 
         });
         
