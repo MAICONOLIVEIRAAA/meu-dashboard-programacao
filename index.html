@@ -18,7 +18,7 @@
         window.contextoGlobal = 'grade'; 
         window.dadosGrade = {};    
         window.dadosStandby = {}; 
-        window.dadosCatalogoCache = {}; 
+        window.dadosCatalogoCache = {}; // Cache para o catálogo dinâmico
     </script>
     
     <style>
@@ -32,21 +32,18 @@
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
 
-        /* --- ESTILOS PARA O UPLOAD COM HOVER (MODAL PRINCIPAL) --- */
+        /* --- NOVOS ESTILOS PARA O UPLOAD COM HOVER --- */
         .actions-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(15, 23, 42, 0.85);
+            background: rgba(15, 23, 42, 0.85); /* Fundo escuro */
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease; border-radius: 0.5rem;
             z-index: 10;
         }
+        /* Regra mágica: Mostra overlay quando container tem classe .has-image e mouse passa em cima */
         #upload-area-pc.has-image:hover .actions-overlay { opacity: 1; pointer-events: all; }
         #upload-area-pc.has-image { border-style: solid; border-color: transparent; }
 
-        /* --- ESTILOS PARA O UPLOAD NO ADMIN --- */
-        #admin-cat-area.has-image .admin-overlay { opacity: 0; transition: opacity 0.2s; }
-        #admin-cat-area.has-image:hover .admin-overlay { opacity: 1; pointer-events: all; background: rgba(0,0,0,0.7); }
-        
         .btn-action {
             border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;
             font-weight: 600; font-size: 0.75rem; width: 100px; display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -68,6 +65,7 @@
                 <h2 class="text-2xl font-bold text-gray-800 dark:text-white">Midias SP</h2>
                 <p class="text-gray-400 text-xs mt-1 uppercase tracking-widest">Acesso Corporativo</p>
             </div>
+            
             <form id="form-login" class="space-y-4">
                 <input type="text" id="login-user" placeholder="Usuário (Login)" required class="w-full p-3 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-xl outline-none focus:ring-2 focus:ring-orange-500 dark:text-white text-center">
                 <div class="relative">
@@ -77,6 +75,7 @@
                 <p id="login-erro" class="text-red-500 text-[10px] font-bold hidden">Usuário ou senha inválidos.</p>
                 <button type="submit" class="w-full bg-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:bg-orange-700 transition transform active:scale-95">Entrar</button>
             </form>
+
             <div class="mt-6 flex justify-between text-xs px-2">
                 <button type="button" onclick="window.abrirSolicitacao('reset')" class="text-gray-400 hover:text-orange-500 underline">Esqueci a Senha</button>
                 <button type="button" onclick="window.abrirSolicitacao('novo')" class="text-gray-400 hover:text-orange-500 underline">Solicitar Acesso</button>
@@ -86,12 +85,14 @@
 
     <div id="modal-force-reset" class="fixed inset-0 z-[150] flex items-center justify-center bg-black/90 hidden">
         <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl border-2 border-orange-500 relative text-center">
+            <div class="w-16 h-16 bg-orange-100 text-orange-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl"><i class="fas fa-key"></i></div>
             <h3 class="font-bold mb-2 dark:text-white text-lg">Defina sua Senha</h3>
+            <p class="text-xs text-gray-400 mb-6">Para sua segurança, no primeiro acesso você deve definir uma senha pessoal.</p>
             <form id="form-force-reset" class="space-y-4">
                 <input type="hidden" id="reset-user-id">
                 <input type="password" id="nova-senha-1" placeholder="Nova Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none text-center">
                 <input type="password" id="nova-senha-2" placeholder="Confirme a Senha" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none text-center">
-                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-orange-600">Atualizar</button>
+                <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-orange-600">Atualizar e Entrar</button>
             </form>
         </div>
     </div>
@@ -100,12 +101,13 @@
         <div class="bg-white dark:bg-dark-800 rounded-2xl p-8 w-96 shadow-2xl border dark:border-gray-600 relative">
             <button type="button" onclick="window.fecharSolicitacao()" class="absolute top-4 right-4 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
             <h3 id="titulo-solicitacao" class="font-bold mb-2 dark:text-white text-lg">Solicitação</h3>
+            <p class="text-xs text-gray-400 mb-6">Envie seus dados. O administrador analisará seu pedido.</p>
             <form id="form-solicitacao" class="space-y-4">
                 <input type="hidden" id="tipo-solicitacao">
                 <input id="solic-nome" placeholder="Seu Nome Completo" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                <input id="solic-contato" type="email" placeholder="Seu E-mail" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                <textarea id="solic-obs" placeholder="Motivo" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none h-20 resize-none"></textarea>
-                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-blue-700">Enviar</button>
+                <input id="solic-contato" type="email" placeholder="Seu E-mail (Obrigatório)" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                <textarea id="solic-obs" placeholder="Motivo / Observação" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none h-20 resize-none"></textarea>
+                <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-bold text-sm uppercase shadow-md hover:bg-blue-700">Enviar Pedido</button>
             </form>
         </div>
     </div>
@@ -134,14 +136,26 @@
             </div>
             
             <nav class="w-full space-y-1">
-                <a href="#" onclick="window.navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-calendar-day w-6"></i> Programação Diária</a>
+                <a href="#" onclick="window.navegar('grade')" id="nav-grade" class="nav-item active flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-calendar-day w-6"></i> Programação Diária
+                </a>
+                
                 <a href="#" onclick="window.navegar('admin')" id="nav-admin" class="nav-item hidden flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition relative">
                     <i class="fas fa-user-shield w-6"></i> Administração
                     <span id="notificacao-admin" class="absolute right-4 w-2 h-2 bg-red-500 rounded-full hidden"></span>
                 </a>
-                <a href="#" onclick="window.navegar('standby')" id="nav-standby" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-bell w-6"></i> Stand-By</a>
-                <a href="#" onclick="window.navegar('links')" id="nav-links" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-link w-6"></i> Links Úteis</a>
-                <a href="#" onclick="window.navegar('passagem')" id="nav-passagem" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition"><i class="fas fa-clipboard-list w-6"></i> Passagem de Serviço</a>
+
+                <a href="#" onclick="window.navegar('standby')" id="nav-standby" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-bell w-6"></i> Stand-By
+                </a>
+                
+                <a href="#" onclick="window.navegar('links')" id="nav-links" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-link w-6"></i> Links Úteis
+                </a>
+
+                <a href="#" onclick="window.navegar('passagem')" id="nav-passagem" class="nav-item flex items-center px-8 py-3 text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 transition">
+                    <i class="fas fa-clipboard-list w-6"></i> Passagem de Serviço
+                </a>
             </nav>
         </aside>
 
@@ -165,13 +179,16 @@
                 
                 <div id="layout-programacao" class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-full">
                     <div class="lg:col-span-2 space-y-4">
+                        
                         <div id="screen-grade">
                             <div class="flex items-center justify-between mb-8">
                                 <div class="relative flex-1 max-w-lg mr-4">
                                     <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                                    <input type="text" id="busca-grade" oninput="window.filtrarLista('lista-programas', this.value)" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none bg-white dark:bg-dark-800 dark:text-white shadow-sm">
+                                    <input type="text" id="busca-grade" oninput="window.filtrarLista('lista-programas', this.value)" placeholder="Pesquisar na grade..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                                 </div>
-                                <button onclick="window.abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2"><i class="fas fa-plus"></i> Novo Programa</button>
+                                <button onclick="window.abrirCriacao()" class="bg-orange-500 text-white px-4 h-10 rounded-lg shadow-md hover:bg-orange-600 transition flex items-center text-sm font-bold gap-2">
+                                    <i class="fas fa-plus"></i> Novo Programa
+                                </button>
                             </div>
                             <div id="lista-programas" class="space-y-4"></div>
                         </div>
@@ -180,12 +197,15 @@
                             <div class="flex items-center justify-between mb-8">
                                 <div class="relative flex-1 max-w-lg mr-4">
                                     <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                                    <input type="text" id="busca-standby" oninput="window.filtrarLista('lista-standby', this.value)" placeholder="Pesquisar..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none bg-white dark:bg-dark-800 dark:text-white shadow-sm">
+                                    <input type="text" id="busca-standby" oninput="window.filtrarLista('lista-standby', this.value)" placeholder="Pesquisar stand-by..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                                 </div>
-                                <button onclick="window.abrirCriacao()" class="bg-purple-600 text-white px-4 h-10 rounded-lg shadow-md hover:bg-purple-700 transition flex items-center text-sm font-bold gap-2"><i class="fas fa-plus"></i> Novo Item</button>
+                                <button onclick="window.abrirCriacao()" class="bg-purple-600 text-white px-4 h-10 rounded-lg shadow-md hover:bg-purple-700 transition flex items-center text-sm font-bold gap-2">
+                                    <i class="fas fa-plus"></i> Novo Item
+                                </button>
                             </div>
                             <div id="lista-standby" class="space-y-4"></div>
                         </div>
+
                     </div>
 
                     <aside id="right-panel" class="sticky top-0 h-fit z-10">
@@ -206,12 +226,16 @@
                                 </div>
 
                                 <div id="upload-area-pc" class="relative w-full h-40 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-600 transition group overflow-hidden" onclick="if(!this.classList.contains('has-image')) document.getElementById('in-cover').click()">
+                                    
                                     <input type="file" id="in-cover" class="hidden" accept="image/*" onchange="window.previewCapa(this)">
+                                    
                                     <img id="cover-preview" src="" class="absolute inset-0 w-full h-full object-cover hidden">
+                                    
                                     <div id="cover-placeholder" class="text-center pointer-events-none">
                                         <i class="fas fa-image text-gray-400 text-2xl mb-1"></i>
                                         <p class="text-[10px] text-gray-400 uppercase font-bold">Imagem da Capa</p>
                                     </div>
+
                                     <div class="actions-overlay">
                                         <button type="button" class="btn-action btn-replace" onclick="window.triggerInputFile(event)">🔄 Substituir</button>
                                         <button type="button" class="btn-action btn-delete" onclick="window.removerCapa(event)">🗑️ Excluir</button>
@@ -219,9 +243,11 @@
                                 </div>
 
                                 <input type="hidden" id="in-cover-base64">
+
                                 <input id="in-titulo" placeholder="Nome do Programa" required class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white font-bold">
                                 <input id="in-sub" placeholder="Subtítulo / Edição" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
-                                <input id="in-versao" placeholder="Versão / Capítulo" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                <input id="in-versao" placeholder="Versão / Capítulo (Ex: Cap 05)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white">
+                                
                                 <textarea id="in-obs" placeholder="Observações (Opcional)" class="w-full bg-transparent border-b dark:border-gray-600 py-2 outline-none text-sm dark:text-white resize-none h-20"></textarea>
 
                                 <div>
@@ -237,7 +263,7 @@
                                         <label class="cursor-pointer"><input type="checkbox" name="blocos" value="BL8" class="hidden peer"><span class="bg-gray-100 dark:bg-dark-700 text-xs px-2 py-1 rounded peer-checked:bg-orange-500 peer-checked:text-white border dark:border-gray-600">BL8</span></label>
                                     </div>
                                 </div>
-                                
+
                                 <div>
                                     <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Canais XD</label>
                                     <div class="flex flex-wrap gap-2">
@@ -249,13 +275,24 @@
                                 <div>
                                     <label class="text-[10px] font-bold uppercase text-gray-400 block mb-2">Status do Programa</label>
                                     <div class="flex gap-2">
-                                        <label class="cursor-pointer flex-1"><input type="radio" name="status" value="pendente" class="hidden peer status-radio" checked><div class="bg-gray-100 dark:bg-dark-700 text-gray-500 dark:text-gray-400 text-xs font-bold py-2 rounded-lg text-center border dark:border-gray-600 peer-checked:bg-gray-200 peer-checked:text-gray-700 dark:peer-checked:bg-gray-600 dark:peer-checked:text-white transition">Pendente</div></label>
-                                        <label class="cursor-pointer flex-1"><input type="radio" name="status" value="andamento" class="hidden peer status-radio"><div class="bg-orange-50 dark:bg-dark-700 text-orange-400 text-xs font-bold py-2 rounded-lg text-center border border-orange-200 dark:border-gray-600 peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 transition">Andamento</div></label>
-                                        <label class="cursor-pointer flex-1"><input type="radio" name="status" value="completo" class="hidden peer status-radio"><div class="bg-green-50 dark:bg-dark-700 text-green-500 text-xs font-bold py-2 rounded-lg text-center border border-green-200 dark:border-gray-600 peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 transition">Completo</div></label>
+                                        <label class="cursor-pointer flex-1">
+                                            <input type="radio" name="status" value="pendente" class="hidden peer status-radio" checked>
+                                            <div class="bg-gray-100 dark:bg-dark-700 text-gray-500 dark:text-gray-400 text-xs font-bold py-2 rounded-lg text-center border dark:border-gray-600 peer-checked:bg-gray-200 peer-checked:text-gray-700 dark:peer-checked:bg-gray-600 dark:peer-checked:text-white transition">Pendente</div>
+                                        </label>
+                                        <label class="cursor-pointer flex-1">
+                                            <input type="radio" name="status" value="andamento" class="hidden peer status-radio">
+                                            <div class="bg-orange-50 dark:bg-dark-700 text-orange-400 text-xs font-bold py-2 rounded-lg text-center border border-orange-200 dark:border-gray-600 peer-checked:bg-orange-500 peer-checked:text-white peer-checked:border-orange-500 transition">Andamento</div>
+                                        </label>
+                                        <label class="cursor-pointer flex-1">
+                                            <input type="radio" name="status" value="completo" class="hidden peer status-radio">
+                                            <div class="bg-green-50 dark:bg-dark-700 text-green-500 text-xs font-bold py-2 rounded-lg text-center border border-green-200 dark:border-gray-600 peer-checked:bg-green-500 peer-checked:text-white peer-checked:border-green-500 transition">Completo</div>
+                                        </label>
                                     </div>
                                 </div>
 
-                                <div class="flex space-x-2 pt-4"><button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button></div>
+                                <div class="flex space-x-2 pt-4">
+                                    <button type="submit" class="w-full bg-orange-500 text-white py-3 rounded-lg font-bold text-xs uppercase shadow-md hover:bg-orange-600">Salvar</button>
+                                </div>
                                 <button type="button" id="btn-delete" onclick="window.deletar()" class="w-full mt-2 text-[9px] text-red-400 hover:text-red-500 font-bold uppercase underline hidden">Excluir</button>
                             </form>
                         </div>
@@ -266,7 +303,7 @@
                      <div class="flex items-center justify-between mb-8">
                         <div class="relative flex-1 max-w-lg mr-4">
                             <i class="fas fa-search absolute left-3 top-3 text-gray-300 dark:text-gray-500 text-sm"></i>
-                            <input type="text" oninput="window.filtrarLista('lista-links-publica', this.value)" placeholder="Pesquisar links..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none bg-white dark:bg-dark-800 dark:text-white shadow-sm">
+                            <input type="text" oninput="window.filtrarLista('lista-links-publica', this.value)" placeholder="Pesquisar links..." class="w-full pl-10 pr-4 py-2 border dark:border-gray-600 rounded-lg text-sm outline-none focus:ring-1 focus:ring-orange-400 bg-white dark:bg-dark-800 dark:text-white shadow-sm transition">
                         </div>
                     </div>
                     <div id="lista-links-publica" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
@@ -306,37 +343,22 @@
                             
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-orange-100 dark:border-orange-900/30">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bolt text-orange-500"></i> Gerenciar Catálogo Rápido</h3>
-                                
-                                <div class="flex gap-4 items-end mb-6">
-                                    <div id="admin-cat-area" class="w-24 h-24 shrink-0 bg-gray-100 dark:bg-dark-700 rounded-lg border-2 border-dashed border-gray-300 dark:border-gray-600 relative cursor-pointer group flex items-center justify-center overflow-hidden" onclick="if(!this.classList.contains('has-image')) document.getElementById('admin-cat-file').click()">
-                                        
-                                        <input type="file" id="admin-cat-file" class="hidden" accept="image/*" onchange="window.previewCatalogo(this)">
-                                        <input type="hidden" id="admin-cat-current-img">
-                                        <input type="hidden" id="admin-cat-id"> <img id="admin-cat-img" class="absolute inset-0 w-full h-full object-cover hidden">
-                                        
-                                        <div id="admin-cat-placeholder" class="text-center pointer-events-none">
-                                            <i class="fas fa-image text-gray-400"></i>
-                                            <p class="text-[8px] text-gray-400 font-bold uppercase mt-1">Capa</p>
-                                        </div>
-
-                                        <div class="admin-overlay absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1 opacity-0 pointer-events-none transition-opacity">
-                                            <button onclick="event.stopPropagation(); document.getElementById('admin-cat-file').click()" class="text-[8px] bg-blue-500 text-white px-2 py-1 rounded font-bold uppercase">Substituir</button>
-                                        </div>
+                                <div class="flex flex-col md:flex-row gap-3 mb-4 items-end">
+                                    <div class="flex-1 w-full">
+                                        <label class="text-[10px] font-bold text-gray-400 uppercase">Nome do Programa</label>
+                                        <input id="admin-cat-nome" placeholder="Ex: Jornal Nacional" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
                                     </div>
-
-                                    <div class="flex-1 flex flex-col gap-2">
-                                        <div>
-                                            <label class="text-[10px] font-bold text-gray-400 uppercase">Nome do Programa</label>
-                                            <input id="admin-cat-nome" placeholder="Ex: Jornal Nacional" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
-                                        </div>
-                                        <div class="flex gap-2">
-                                            <button id="btn-save-cat" onclick="window.salvarItemCatalogo()" class="flex-1 bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-orange-600 uppercase">Adicionar</button>
-                                            <button id="btn-cancel-cat" onclick="window.limparFormCatalogo()" class="hidden px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-sm hover:bg-gray-300">Cancelar</button>
-                                        </div>
+                                    <div class="w-full md:w-auto">
+                                        <label class="text-[10px] font-bold text-gray-400 uppercase">Capa Padrão</label>
+                                        <label class="block w-full md:w-40 bg-orange-100 dark:bg-orange-900/30 text-orange-600 px-3 py-2 rounded-lg font-bold text-xs cursor-pointer hover:bg-orange-200 text-center truncate">
+                                            <i class="fas fa-upload mr-1"></i> Upload
+                                            <input type="file" id="admin-cat-file" class="hidden" accept="image/*">
+                                        </label>
                                     </div>
+                                    <button onclick="window.salvarItemCatalogo()" class="w-full md:w-auto bg-orange-500 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-orange-600 uppercase">Adicionar</button>
                                 </div>
-
-                                <div id="lista-catalogo-admin" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-64 overflow-y-auto p-1"></div>
+                                <div id="lista-catalogo-admin" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 max-h-64 overflow-y-auto p-1">
+                                    </div>
                             </div>
 
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
@@ -370,15 +392,36 @@
                         </div>
 
                         <div class="lg:col-span-4 space-y-6">
+                            
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border-2 border-orange-500">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 uppercase text-xs">Novo / Editar Usuário</h3>
                                 <form id="formUsuario" class="space-y-3">
                                     <input type="hidden" id="admin-user-id">
-                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome</label><input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
-                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label><input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
-                                    <div id="container-senha"><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Inicial)</label><input id="admin-senha" type="text" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"></div>
-                                    <div><label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nível de Acesso</label><select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none"><option value="user">Usuário Comum</option><option value="admin">Administrador</option></select></div>
-                                    <div class="pt-2 flex gap-2"><button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button><button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button></div>
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nome</label>
+                                        <input id="admin-nome" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Login (Email)</label>
+                                        <input id="admin-login" type="email" required class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    </div>
+                                    
+                                    <div id="container-senha">
+                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Senha (Inicial)</label>
+                                        <input id="admin-senha" type="text" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                    </div>
+
+                                    <div>
+                                        <label class="block text-[10px] uppercase font-bold text-gray-400 mb-1">Nível de Acesso</label>
+                                        <select id="admin-role" class="w-full bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-3 py-2 text-sm dark:text-white outline-none">
+                                            <option value="user">Usuário Comum</option>
+                                            <option value="admin">Administrador</option>
+                                        </select>
+                                    </div>
+                                    <div class="pt-2 flex gap-2">
+                                        <button type="submit" class="flex-1 bg-orange-500 text-white py-2 rounded-lg font-bold text-xs uppercase hover:bg-orange-600">Salvar</button>
+                                        <button type="button" onclick="window.limparFormAdmin()" class="px-3 bg-gray-200 dark:bg-gray-700 text-gray-500 rounded-lg font-bold text-xs uppercase hover:bg-gray-300">Limpar</button>
+                                    </div>
                                 </form>
                             </div>
 
@@ -386,17 +429,23 @@
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-bell text-red-500 animate-pulse"></i> Solicitações</h3>
                                 <div id="lista-solicitacoes" class="space-y-3"></div>
                             </div>
+
                              <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border border-red-200 dark:border-red-900/50">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2 text-red-600 dark:text-red-400"><i class="fas fa-exclamation-triangle"></i> Manutenção</h3>
                                 <div class="flex gap-2 items-center">
-                                    <select id="limpeza-periodo" class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-2 py-2 text-xs dark:text-white outline-none font-bold"><option value="30">30 Dias</option><option value="90">90 Dias</option></select>
+                                    <select id="limpeza-periodo" class="flex-1 bg-gray-50 dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-2 py-2 text-xs dark:text-white outline-none font-bold">
+                                        <option value="30">30 Dias</option>
+                                        <option value="90">90 Dias</option>
+                                    </select>
                                     <button onclick="window.executarLimpeza()" class="bg-red-500 text-white px-3 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-red-600">Limpar</button>
                                 </div>
                             </div>
+
                             <div class="bg-white dark:bg-dark-800 rounded-2xl p-6 shadow-sm border dark:border-gray-700">
                                 <h3 class="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2"><i class="fas fa-history text-blue-500"></i> Logs</h3>
                                 <div class="max-h-40 overflow-y-auto space-y-2 pr-2" id="lista-logs"></div>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -437,7 +486,7 @@
         let refRelatorio = null;
         let refStandby = ref(db, 'standby');
         let refLinks = ref(db, 'links'); 
-        let refCatalogo = ref(db, 'catalogo_rapido'); 
+        let refCatalogo = ref(db, 'catalogo_rapido'); // NOVA REF
         let refDatas = ref(db, 'datas');
         const refUsers = ref(db, 'users');
         const refLogs = ref(db, 'logs');
@@ -448,7 +497,7 @@
 
         // --- LÓGICA DO CATÁLOGO RÁPIDO (FIREBASE) ---
         
-        // 1. Carrega o catálogo (Com botão Editar)
+        // 1. Carrega o catálogo no Menu do Admin
         const carregarCatalogoAdmin = () => {
             onValue(refCatalogo, (snapshot) => {
                 const itens = snapshot.val();
@@ -459,21 +508,11 @@
                 if(itens) {
                     Object.keys(itens).forEach(key => {
                         const item = itens[key];
-                        // Usando escape para evitar erro com aspas no HTML
-                        const tituloSafe = item.titulo.replace(/'/g, "\\'");
-                        const capaSafe = item.capa; // Base64 geralmente é seguro, mas cuidado com tamanho
-
                         container.innerHTML += `
                         <div class="relative group bg-gray-50 dark:bg-dark-700 rounded-lg overflow-hidden border dark:border-gray-600">
                             <img src="${item.capa}" class="w-full h-20 object-cover opacity-70 group-hover:opacity-100 transition">
                             <div class="p-2 text-xs font-bold truncate">${item.titulo}</div>
-                            
-                            <div class="absolute top-1 right-1 flex gap-1 opacity-0 group-hover:opacity-100 transition">
-                                <button onclick="window.editarItemCatalogo('${key}', '${tituloSafe}')" class="bg-blue-500 text-white w-5 h-5 rounded flex items-center justify-center shadow-sm hover:bg-blue-600" title="Editar"><i class="fas fa-pencil-alt text-[10px]"></i></button>
-                                <button onclick="window.removerItemCatalogo('${key}')" class="bg-red-500 text-white w-5 h-5 rounded flex items-center justify-center shadow-sm hover:bg-red-600" title="Excluir"><i class="fas fa-times text-[10px]"></i></button>
-                            </div>
-                            
-                            <input type="hidden" id="cat-img-${key}" value="${capaSafe}">
+                            <button onclick="window.removerItemCatalogo('${key}')" class="absolute top-1 right-1 bg-red-500 text-white w-5 h-5 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><i class="fas fa-times text-[10px]"></i></button>
                         </div>`;
                     });
                 } else {
@@ -482,81 +521,28 @@
             });
         };
 
-        // 2. Preview na área de Admin (Com hover)
-        window.previewCatalogo = (input) => {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    document.getElementById('admin-cat-img').src = e.target.result;
-                    document.getElementById('admin-cat-img').classList.remove('hidden');
-                    document.getElementById('admin-cat-placeholder').classList.add('hidden');
-                    document.getElementById('admin-cat-area').classList.add('has-image');
-                    document.getElementById('admin-cat-current-img').value = e.target.result; // Armazena a nova
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        };
-
-        // 3. Preparar Edição
-        window.editarItemCatalogo = (key, titulo) => {
-            // Recupera a imagem do input hidden criado no card (para não passar string gigante na função)
-            const imgData = document.getElementById(`cat-img-${key}`).value;
-
-            document.getElementById('admin-cat-id').value = key;
-            document.getElementById('admin-cat-nome').value = titulo;
-            document.getElementById('admin-cat-current-img').value = imgData;
-
-            // Atualiza visual
-            document.getElementById('admin-cat-img').src = imgData;
-            document.getElementById('admin-cat-img').classList.remove('hidden');
-            document.getElementById('admin-cat-placeholder').classList.add('hidden');
-            document.getElementById('admin-cat-area').classList.add('has-image');
-
-            // Muda botões
-            document.getElementById('btn-save-cat').innerText = "ATUALIZAR";
-            document.getElementById('btn-cancel-cat').classList.remove('hidden');
-        };
-
-        // 4. Salvar (Criar ou Atualizar)
+        // 2. Salva novo item no Catálogo (Admin)
         window.salvarItemCatalogo = () => {
-            const id = document.getElementById('admin-cat-id').value;
             const nome = document.getElementById('admin-cat-nome').value;
-            const imgAtual = document.getElementById('admin-cat-current-img').value;
+            const inputImg = document.getElementById('admin-cat-file');
             
             if(!nome) return alert("Digite o nome do programa.");
-            if(!imgAtual) return alert("Selecione uma imagem de capa.");
+            if(!inputImg.files[0]) return alert("Selecione uma imagem de capa.");
 
-            if (id) {
-                // Atualizar
-                update(ref(db, `catalogo_rapido/${id}`), { titulo: nome, capa: imgAtual });
-                alert("Catálogo atualizado!");
-            } else {
-                // Criar Novo
-                push(refCatalogo, { titulo: nome, capa: imgAtual });
-                alert("Programa adicionado!");
-            }
-            window.limparFormCatalogo();
-        };
-
-        // 5. Limpar / Cancelar
-        window.limparFormCatalogo = () => {
-            document.getElementById('admin-cat-id').value = '';
-            document.getElementById('admin-cat-nome').value = '';
-            document.getElementById('admin-cat-current-img').value = '';
-            document.getElementById('admin-cat-file').value = '';
-            
-            document.getElementById('admin-cat-img').src = '';
-            document.getElementById('admin-cat-img').classList.add('hidden');
-            document.getElementById('admin-cat-placeholder').classList.remove('hidden');
-            document.getElementById('admin-cat-area').classList.remove('has-image');
-
-            document.getElementById('btn-save-cat').innerText = "ADICIONAR";
-            document.getElementById('btn-cancel-cat').classList.add('hidden');
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const base64 = e.target.result;
+                push(refCatalogo, { titulo: nome, capa: base64 });
+                document.getElementById('admin-cat-nome').value = '';
+                inputImg.value = ''; // Limpa input file
+                alert("Programa adicionado ao catálogo!");
+            };
+            reader.readAsDataURL(inputImg.files[0]);
         };
 
         window.removerItemCatalogo = (key) => { if(confirm("Remover este programa do catálogo?")) remove(ref(db, `catalogo_rapido/${key}`)); };
 
-        // --- MODAL DROP DOWN ---
+        // 3. Carrega o Dropdown no Modal (Global)
         const carregarCatalogoDropdown = () => {
             onValue(refCatalogo, (snapshot) => {
                 const itens = snapshot.val();
@@ -564,14 +550,14 @@
                 if(!select) return;
                 
                 select.innerHTML = '<option value="">-- Selecione para preencher --</option>';
-                window.dadosCatalogoCache = {};
+                window.dadosCatalogoCache = {}; // Limpa cache
                 
                 if(itens) {
                     Object.keys(itens).forEach(key => {
                         const item = itens[key];
-                        window.dadosCatalogoCache[key] = item;
+                        window.dadosCatalogoCache[key] = item; // Guarda para usar no aplicar
                         const option = document.createElement('option');
-                        option.value = key;
+                        option.value = key; // O valor agora é a KEY do firebase
                         option.innerText = item.titulo;
                         select.appendChild(option);
                     });
@@ -579,15 +565,18 @@
             });
         };
 
+        // 4. Aplica a escolha do Dropdown
         window.aplicarCatalogo = (key) => {
             if (!key) return; 
             const item = window.dadosCatalogoCache[key];
             if(item) {
                 document.getElementById('in-titulo').value = item.titulo;
+                // Simula o carregamento da imagem
                 document.getElementById('in-cover-base64').value = item.capa;
                 document.getElementById('cover-preview').src = item.capa;
                 document.getElementById('cover-preview').classList.remove('hidden');
                 document.getElementById('cover-placeholder').classList.add('hidden');
+                // IMPORTANTE: Adiciona a classe has-image para ativar o hover
                 document.getElementById('upload-area-pc').classList.add('has-image');
             }
         };
@@ -662,7 +651,9 @@
             });
         }
 
-        // --- FUNÇÕES DE UPLOAD DA CAPA (MODAL PRINCIPAL) ---
+        // --- FUNÇÕES DE UPLOAD DA CAPA ATUALIZADAS ---
+        
+        // 1. Ao selecionar arquivo
         window.previewCapa = (input) => { 
             if (input.files && input.files[0]) { 
                 const reader = new FileReader(); 
@@ -671,19 +662,35 @@
                     document.getElementById('cover-preview').classList.remove('hidden'); 
                     document.getElementById('cover-placeholder').classList.add('hidden'); 
                     document.getElementById('in-cover-base64').value = e.target.result;
+                    // Ativa o hover dos botões
                     document.getElementById('upload-area-pc').classList.add('has-image');
                 }; 
                 reader.readAsDataURL(input.files[0]); 
             } 
         };
-        window.triggerInputFile = (e) => { e.stopPropagation(); document.getElementById('in-cover').click(); }
-        window.removerCapa = (e) => { e.stopPropagation(); if(confirm('Remover a imagem de capa?')) { window.resetCapaUI(); } }
+        
+        // 2. Trigger para o botão substituir
+        window.triggerInputFile = (e) => {
+            e.stopPropagation(); // Impede clique duplicado
+            document.getElementById('in-cover').click();
+        }
+
+        // 3. Trigger para o botão excluir
+        window.removerCapa = (e) => {
+            e.stopPropagation();
+            if(confirm('Remover a imagem de capa?')) {
+                window.resetCapaUI();
+            }
+        }
+        
+        // 4. Resetar UI (remove imagem e classe do hover)
         window.resetCapaUI = () => { 
             document.getElementById('in-cover-base64').value = ""; 
-            document.getElementById('in-cover').value = "";
+            document.getElementById('in-cover').value = ""; // Limpa input file
             document.getElementById('cover-preview').src = ""; 
             document.getElementById('cover-preview').classList.add('hidden'); 
             document.getElementById('cover-placeholder').classList.remove('hidden'); 
+            // Remove a classe para desativar o hover
             document.getElementById('upload-area-pc').classList.remove('has-image');
         }
 
@@ -695,12 +702,14 @@
             document.getElementById('edit-id').value = ""; 
             document.getElementById('formCadastro').reset(); 
             document.getElementById('in-obs').value = ""; 
-            window.resetCapaUI(); 
+            window.resetCapaUI(); // Usa a nova função global
+            
             document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); 
             document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); 
             const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); 
             if(radioPendente) radioPendente.checked = true; 
             document.getElementById('btn-delete').classList.add('hidden'); 
+            
             mostrarForm(); 
         };
         
@@ -711,6 +720,7 @@
             document.getElementById('in-sub').value = p.subtitulo; 
             document.getElementById('in-versao').value = p.versao || ""; 
             document.getElementById('in-obs').value = p.obs || "";
+
             document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); 
             if(p.tags) { p.tags.split(' ').forEach(tag => { const cb = document.querySelector(`input[name="blocos"][value="${tag}"]`); if(cb) cb.checked = true; }); } 
             document.querySelectorAll('input[name="xd"]').forEach(cb => cb.checked = false); 
@@ -718,22 +728,30 @@
             const statusVal = p.status || 'pendente'; 
             const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); 
             if(radio) radio.checked = true; 
+            
+            // Lógica de capa na edição
             if(p.capa) { 
                 document.getElementById('in-cover-base64').value = p.capa; 
                 document.getElementById('cover-preview').src = p.capa; 
                 document.getElementById('cover-preview').classList.remove('hidden'); 
                 document.getElementById('cover-placeholder').classList.add('hidden'); 
-                document.getElementById('upload-area-pc').classList.add('has-image'); 
+                document.getElementById('upload-area-pc').classList.add('has-image'); // Ativa Hover
             } else { 
                 window.resetCapaUI(); 
             } 
+            
             document.getElementById('btn-delete').classList.remove('hidden'); 
             mostrarForm(); 
         };
         
+        // Agora busca no local correto dependendo da aba
         window.abrirEdicaoGlobal = (id) => { 
             let item;
-            if (window.contextoGlobal === 'grade') { item = window.dadosGrade[id]; } else if (window.contextoGlobal === 'standby') { item = window.dadosStandby[id]; }
+            if (window.contextoGlobal === 'grade') {
+                item = window.dadosGrade[id];
+            } else if (window.contextoGlobal === 'standby') {
+                item = window.dadosStandby[id];
+            }
             if (item) abrirEdicao(item);
         };
 
@@ -742,11 +760,14 @@
 
         const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return; const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a)); datasComRelatorio.forEach(data => { const dataFormatada = data.split('-').reverse().join('/'); const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600"; const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0; container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`; }); }); }
         
-        // --- FUNÇÃO ADMIN ---
+        // --- FUNÇÃO ADMIN ATUALIZADA ---
         const carregarAdminPanel = () => { 
             if(localStorage.getItem('userRole') !== 'admin') return; 
+            
+            // Carrega o Catálogo no Admin
             carregarCatalogoAdmin();
 
+            // Solicitações
             onValue(refSolicitacoes, (snapshot) => { 
                 const s = snapshot.val(); 
                 const container = document.getElementById('lista-solicitacoes'); 
@@ -759,9 +780,13 @@
                         const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; 
                         container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; 
                     }); 
-                } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } 
+                } else { 
+                    notif.classList.add('hidden'); 
+                    container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; 
+                } 
             }); 
             
+            // Tabela Users
             onValue(refUsers, (snapshot) => { 
                 const users = snapshot.val(); 
                 const tbody = document.getElementById('lista-usuarios'); 
@@ -770,9 +795,12 @@
                     Object.keys(users).forEach(key => { 
                         const u = users[key]; 
                         const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; 
+                        
                         tbody.innerHTML += `
                         <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                            <td class="px-2 py-3 font-bold">${u.nome}</td><td class="px-2 py-3">${u.login}</td><td class="px-2 py-3">${roleLabel}</td>
+                            <td class="px-2 py-3 font-bold">${u.nome}</td>
+                            <td class="px-2 py-3">${u.login}</td>
+                            <td class="px-2 py-3">${roleLabel}</td>
                             <td class="px-2 py-3 text-right flex justify-end gap-2">
                                 <button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}')" class="text-blue-500 hover:text-blue-600 p-1" title="Editar"><i class="fas fa-pencil-alt"></i></button>
                                 <button onclick="window.resetarSenhaUsuario('${key}', '${u.nome}')" class="text-yellow-500 hover:text-yellow-600 p-1" title="Resetar Senha"><i class="fas fa-key"></i></button>
@@ -783,15 +811,36 @@
                 } 
             }); 
             
+            // Logs
             onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); 
         }
 
         // --- CRUD E GESTÃO GLOBAL ---
         window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); 
         
-        window.editarUsuario = (id, nome, login, role) => { document.getElementById('container-senha').classList.add('hidden'); document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; }; 
-        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; document.getElementById('container-senha').classList.remove('hidden'); };
-        window.resetarSenhaUsuario = (id, nome) => { const senhaPadrao = "mudar123"; if(confirm(`Tem certeza que deseja resetar a senha de ${nome}?\n\nA nova senha será: ${senhaPadrao}\nO usuário será obrigado a trocá-la no próximo login.`)) { update(ref(db, `users/${id}`), { senha: senhaPadrao, forceReset: true }); logActivity('Resetar Senha', `Usuário: ${nome}`); alert('Senha resetada com sucesso!'); } };
+        window.editarUsuario = (id, nome, login, role) => { 
+            document.getElementById('container-senha').classList.add('hidden');
+            document.getElementById('admin-user-id').value = id; 
+            document.getElementById('admin-nome').value = nome; 
+            document.getElementById('admin-login').value = login; 
+            document.getElementById('admin-role').value = role; 
+        }; 
+
+        window.limparFormAdmin = () => { 
+            document.getElementById('formUsuario').reset(); 
+            document.getElementById('admin-user-id').value = ""; 
+            document.getElementById('container-senha').classList.remove('hidden');
+        };
+
+        window.resetarSenhaUsuario = (id, nome) => {
+            const senhaPadrao = "mudar123";
+            if(confirm(`Tem certeza que deseja resetar a senha de ${nome}?\n\nA nova senha será: ${senhaPadrao}\nO usuário será obrigado a trocá-la no próximo login.`)) {
+                update(ref(db, `users/${id}`), { senha: senhaPadrao, forceReset: true });
+                logActivity('Resetar Senha', `Usuário: ${nome}`);
+                alert('Senha resetada com sucesso!');
+            }
+        };
+
         window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; 
         window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
         window.removerLink = (id) => { if(confirm('Remover link?')) remove(ref(db, `links/${id}`)); };
@@ -799,6 +848,7 @@
         const salvarFotoLocal = (url) => { localStorage.setItem('userAvatar', url); carregarFotoLocal(); window.fecharModal(); }
         const carregarFotoLocal = () => { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
         
+        // --- NAVEGAÇÃO CORRIGIDA ---
         window.navegar = (tela) => {
             document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
             document.getElementById('screen-grade').classList.add('hidden');
@@ -808,6 +858,8 @@
             document.getElementById('screen-links').classList.add('hidden'); 
             document.getElementById('layout-programacao').classList.add('hidden');
             document.getElementById('date-picker-wrapper').classList.add('hidden');
+            
+            // FECHA O FORMULÁRIO AO NAVEGAR
             window.cancelar(); 
 
             if(tela === 'grade') {
@@ -823,9 +875,19 @@
                 document.getElementById('screen-standby').classList.remove('hidden');
                 document.getElementById('header-title').innerHTML = 'Stand-By';
                 window.contextoGlobal = 'standby'; 
-            } else if (tela === 'passagem') { document.getElementById('nav-passagem').classList.add('active'); document.getElementById('screen-passagem').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
-            } else if (tela === 'admin') { document.getElementById('nav-admin').classList.add('active'); document.getElementById('screen-admin').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Administração';
-            } else if (tela === 'links') { document.getElementById('nav-links').classList.add('active'); document.getElementById('screen-links').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Links Úteis'; }
+            } else if (tela === 'passagem') {
+                document.getElementById('nav-passagem').classList.add('active');
+                document.getElementById('screen-passagem').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
+            } else if (tela === 'admin') {
+                document.getElementById('nav-admin').classList.add('active');
+                document.getElementById('screen-admin').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Administração';
+            } else if (tela === 'links') {
+                document.getElementById('nav-links').classList.add('active');
+                document.getElementById('screen-links').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Links Úteis';
+            }
         }
 
         window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
@@ -843,6 +905,7 @@
         document.getElementById('form-login').addEventListener('submit', async (e) => { e.preventDefault(); const loginInput = document.getElementById('login-user').value; const senhaInput = document.getElementById('login-senha').value; const snapshotUsers = await get(refUsers); if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') { push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false }); localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); location.reload(); return; } let userFound = null; let userKey = null; if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); } if (userFound) { if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; } localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); location.reload(); } else { document.getElementById('login-erro').classList.remove('hidden'); } });
         document.getElementById('form-force-reset').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Senha atualizada! Faça login."); location.reload(); });
         
+        // --- FORMULARIO CADASTRO (ATUALIZADO SEM ABAS DE BANCO) ---
         document.getElementById('formCadastro').addEventListener('submit', (e) => { 
             e.preventDefault(); 
             const id = document.getElementById('edit-id').value; 
@@ -863,11 +926,59 @@
             }; 
             
             let dbRef; 
-            if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } 
+            if (window.contextoGlobal === 'grade') { 
+                dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); 
+            } else { 
+                dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); 
+            } 
             
-            if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } 
+            if (id) { 
+                update(dbRef, dados); 
+                logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); 
+            } else { 
+                dados.ordem = 999; 
+                push(dbRef, dados); 
+                logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); 
+            } 
             cancelar(); 
         });
 
         document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
-        document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const nome = document.getElementById('admin-nome').value; const login = document.getElementById('admin-login').value; const role = document.getElementById('admin-role').value; const senhaInicial = document.getElementById('admin-senha').value; const
+        
+        document.getElementById('formUsuario').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            const id = document.getElementById('admin-user-id').value; 
+            const nome = document.getElementById('admin-nome').value;
+            const login = document.getElementById('admin-login').value;
+            const role = document.getElementById('admin-role').value;
+            const senhaInicial = document.getElementById('admin-senha').value;
+            const dados = { nome: nome, login: login, role: role };
+            if(id) { 
+                update(ref(db, `users/${id}`), dados); 
+                logActivity('Editar Usuário', login); 
+            } else { 
+                dados.senha = senhaInicial || "1234";
+                dados.forceReset = true;
+                push(refUsers, dados); 
+                logActivity('Criar Usuário', login); 
+            } 
+            window.limparFormAdmin(); 
+        });
+        
+        document.getElementById('formLink').addEventListener('submit', (e) => { e.preventDefault(); const titulo = document.getElementById('link-titulo').value; const url = document.getElementById('link-url').value; push(refLinks, { titulo: titulo, url: url }); document.getElementById('link-titulo').value = ''; document.getElementById('link-url').value = ''; });
+
+        // INIT
+        verificarSessao();
+        carregarDadosData(dataSelecionada);
+        carregarStandby();
+        carregarHistoricoPassagem();
+        carregarAdminPanel();
+        carregarLinks();
+        carregarCatalogoDropdown(); // Carrega o Dropdown no modal
+        
+        new Sortable(document.getElementById('lista-programas'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card', onEnd: function (evt) { const items = document.querySelectorAll('#lista-programas [data-id]'); items.forEach((item, index) => { const id = item.getAttribute('data-id'); update(ref(db, `datas/${dataSelecionada}/programas/${id}`), { ordem: index }); }); } });
+        new Sortable(document.getElementById('lista-standby'), { handle: '.drag-handle', animation: 150, ghostClass: 'ghost-card' });
+
+    </script>
+</body>
+</html>
