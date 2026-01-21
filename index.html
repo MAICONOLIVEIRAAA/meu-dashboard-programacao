@@ -192,9 +192,17 @@
                                 <span id="form-title">Cadastrar</span>
                                 <i class="fas fa-times cursor-pointer text-gray-400" onclick="window.cancelar()"></i>
                             </h3>
+                            
                             <form id="formCadastro" class="space-y-4">
                                 <input type="hidden" id="edit-id">
-                                
+
+                                <div class="bg-blue-50 dark:bg-blue-900/20 p-3 rounded-lg border border-blue-100 dark:border-blue-800 mb-4">
+                                    <label class="text-[10px] font-bold uppercase text-blue-500 block mb-1"><i class="fas fa-bolt mr-1"></i> Catálogo Rápido</label>
+                                    <select id="select-catalogo" onchange="window.aplicarCatalogo(this.value)" class="w-full bg-white dark:bg-dark-700 border dark:border-gray-600 rounded-lg px-2 py-2 text-xs dark:text-white outline-none font-bold cursor-pointer">
+                                        <option value="">-- Selecione para preencher --</option>
+                                    </select>
+                                </div>
+
                                 <div class="flex gap-2 mb-2">
                                     <button type="button" onclick="window.toggleTipoUpload('pc')" id="btn-tipo-pc" class="flex-1 bg-orange-100 text-orange-600 text-[10px] font-bold py-1 rounded border border-orange-200 uppercase">Do Computador</button>
                                     <button type="button" onclick="window.toggleTipoUpload('bank')" id="btn-tipo-bank" class="flex-1 bg-gray-100 text-gray-500 text-[10px] font-bold py-1 rounded border dark:border-gray-600 dark:bg-dark-700 dark:text-gray-400 uppercase">Banco de Imagens</button>
@@ -454,6 +462,48 @@
         const dateInput = document.getElementById('data-selector');
         if(dateInput) { dateInput.value = dataSelecionada; dateInput.addEventListener('change', (e) => mudarData(e.target.value)); }
 
+        // --- CONFIGURAÇÃO DO CATÁLOGO RÁPIDO ---
+        // EDITE AQUI OS PROGRAMAS PADRÃO E SUAS IMAGENS
+        const catalogoProgramas = {
+            "Jornal Nacional": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/Jornal_Nacional_2024_logo.svg/2560px-Jornal_Nacional_2024_logo.svg.png", 
+            "Fantástico": "https://upload.wikimedia.org/wikipedia/commons/e/e0/Fant%C3%A1stico_logo.png",
+            "Globo Esporte": "https://upload.wikimedia.org/wikipedia/commons/6/6b/Globo_Esporte_logo.png",
+            "Jornal Hoje": "https://upload.wikimedia.org/wikipedia/commons/2/26/Logotipo_do_Jornal_Hoje.png",
+            "Sessão da Tarde": "https://upload.wikimedia.org/wikipedia/pt/f/f6/Sess%C3%A3o_da_Tarde_logo_2021.png"
+        };
+
+        // Função para preencher o Select quando abrir a janela
+        window.carregarOpcoesCatalogo = () => {
+            const select = document.getElementById('select-catalogo');
+            select.innerHTML = '<option value="">-- Selecione para preencher --</option>';
+            
+            Object.keys(catalogoProgramas).forEach(nome => {
+                const option = document.createElement('option');
+                option.value = nome;
+                option.innerText = nome;
+                select.appendChild(option);
+            });
+        };
+
+        // Função mágica que preenche tudo ao selecionar
+        window.aplicarCatalogo = (nomeSelecionado) => {
+            if (!nomeSelecionado) return; 
+
+            const imagemUrl = catalogoProgramas[nomeSelecionado];
+
+            // 1. Preenche o Nome
+            document.getElementById('in-titulo').value = nomeSelecionado;
+
+            // 2. Preenche a Imagem (Simulando upload)
+            if (imagemUrl) {
+                document.getElementById('in-cover-base64').value = imagemUrl;
+                document.getElementById('cover-preview').src = imagemUrl;
+                document.getElementById('cover-preview').classList.remove('hidden');
+                document.getElementById('cover-placeholder').classList.add('hidden');
+                window.toggleTipoUpload('pc');
+            }
+        };
+
         // LOGIC
         const logActivity = (acao, detalhe) => { push(refLogs, { data: new Date().toISOString(), usuario: localStorage.getItem('userName') || 'Sistema', acao: acao, detalhe: detalhe }); }
         
@@ -471,7 +521,6 @@
         };
 
         const renderizarCards = (container, lista, tipo) => {
-            // Salva os dados no objeto correto para o "abrirEdicaoGlobal" encontrar depois
             if (tipo === 'grade') {
                 window.dadosGrade = lista.reduce((acc, item) => { acc[item.id] = item; return acc; }, {});
             } else if (tipo === 'standby') {
@@ -503,14 +552,12 @@
             refProgramas = ref(db, `datas/${data}/programas`); refRelatorio = ref(db, `datas/${data}/relatorio`);
             document.getElementById('data-passagem-label').innerText = data.split('-').reverse().join('/');
             
-            // Passa 'grade' para identificar o contexto
             onValue(refProgramas, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-programas'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-calendar-times text-4xl mb-2"></i><p class="text-sm">Nada agendado.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); lista.sort((a, b) => (a.ordem || 0) - (b.ordem || 0)); renderizarCards(container, lista, 'grade'); });
             
             onValue(refRelatorio, (snapshot) => { const feedContainer = document.getElementById('feed-passagem'); feedContainer.innerHTML = ''; const val = snapshot.val(); const currentUser = localStorage.getItem('userName'); const isAdmin = localStorage.getItem('userRole') === 'admin'; if (!val) { feedContainer.innerHTML = `<div class="text-center py-10 opacity-50"><i class="fas fa-comments text-4xl mb-2 text-gray-300"></i><p class="text-sm">Nenhuma ocorrência registrada.</p></div>`; return; } Object.keys(val).forEach(key => { const nota = val[key]; const isOwner = (nota.autor === currentUser) || isAdmin; const hora = nota.timestamp ? new Date(nota.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) : ''; const card = document.createElement('div'); card.className = "bg-white dark:bg-dark-800 p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-2 relative group"; card.innerHTML = `<div class="flex justify-between items-start"><div class="flex items-center gap-2"><div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold uppercase">${nota.autor.substring(0,2)}</div><div><p class="text-xs font-bold text-gray-800 dark:text-white">${nota.autor}</p><p class="text-[10px] text-gray-400">${hora}</p></div></div>${isOwner ? `<div class="flex gap-2 opacity-0 group-hover:opacity-100 transition"><button onclick="window.prepararEdicaoNota('${key}', '${encodeURIComponent(nota.texto)}')" class="text-blue-400 hover:text-blue-600 text-xs"><i class="fas fa-pencil-alt"></i></button><button onclick="window.excluirNota('${key}')" class="text-red-400 hover:text-red-600 text-xs"><i class="fas fa-trash"></i></button></div>` : ''}</div><p class="text-sm text-gray-600 dark:text-gray-300 whitespace-pre-wrap leading-relaxed">${nota.texto}</p>`; feedContainer.appendChild(card); }); feedContainer.scrollTop = feedContainer.scrollHeight; });
         }
 
         const carregarStandby = () => { 
-            // Passa 'standby' para identificar o contexto
             onValue(refStandby, (snapshot) => { const val = snapshot.val(); const container = document.getElementById('lista-standby'); if (!val) { container.innerHTML = '<div class="text-center py-10 opacity-50"><i class="fas fa-box-open text-4xl mb-2"></i><p class="text-sm">Nenhum item em Stand-By.</p></div>'; return; } let lista = Object.keys(val).map(key => ({ id: key, ...val[key] })); renderizarCards(container, lista, 'standby'); }); 
         }
 
@@ -619,10 +666,7 @@
             document.getElementById('form-title').innerText = window.contextoGlobal === 'standby' ? "Novo em Stand-by" : "Novo Programa"; 
             document.getElementById('edit-id').value = ""; 
             document.getElementById('formCadastro').reset(); 
-            
-            // LIMPA O CAMPO DE OBS
             document.getElementById('in-obs').value = ""; 
-
             resetCapaUI(); 
             window.toggleTipoUpload('pc'); 
             document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); 
@@ -630,6 +674,10 @@
             const radioPendente = document.querySelector('input[name="status"][value="pendente"]'); 
             if(radioPendente) radioPendente.checked = true; 
             document.getElementById('btn-delete').classList.add('hidden'); 
+            
+            // CARREGA CATÁLOGO
+            window.carregarOpcoesCatalogo();
+            
             mostrarForm(); 
         };
         
@@ -639,8 +687,8 @@
             document.getElementById('in-titulo').value = p.titulo; 
             document.getElementById('in-sub').value = p.subtitulo; 
             document.getElementById('in-versao').value = p.versao || ""; 
-
-            // CARREGA A OBSERVAÇÃO
+            
+            // CARREGA OBS
             document.getElementById('in-obs').value = p.obs || "";
 
             document.querySelectorAll('input[name="blocos"]').forEach(cb => cb.checked = false); 
@@ -651,6 +699,10 @@
             const radio = document.querySelector(`input[name="status"][value="${statusVal}"]`); 
             if(radio) radio.checked = true; 
             if(p.capa) { document.getElementById('in-cover-base64').value = p.capa; document.getElementById('cover-preview').src = p.capa; document.getElementById('cover-preview').classList.remove('hidden'); document.getElementById('cover-placeholder').classList.add('hidden'); window.toggleTipoUpload('pc'); } else { resetCapaUI(); window.toggleTipoUpload('pc'); } 
+            
+            // CARREGA CATÁLOGO
+            window.carregarOpcoesCatalogo();
+
             document.getElementById('btn-delete').classList.remove('hidden'); 
             mostrarForm(); 
         };
