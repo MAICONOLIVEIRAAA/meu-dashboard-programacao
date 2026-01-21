@@ -3,193 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload de Capa - Estilo Modal</title>
+    <title>Novo Programa - Modal Completo</title>
     <style>
         /* =========================================
-           ESTILOS GERAIS (Para simular o modal)
+           RESET E ESTILOS GERAIS
            ========================================= */
+        * {
+            box-sizing: border-box;
+            outline: none;
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #1a202c; /* Fundo bem escuro */
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0f131a; /* Fundo da página (preto quase total) */
+            color: #fff;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
             margin: 0;
         }
 
-        .modal-simulation {
-            background-color: #2d3748; /* Cor de fundo do modal */
-            padding: 30px;
+        /* =========================================
+           ESTILO DO MODAL
+           ========================================= */
+        .modal-container {
+            background-color: #1e2532; /* Cor de fundo do modal (cinza azulado escuro) */
+            width: 420px;
+            padding: 25px;
             border-radius: 12px;
-            width: 400px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            border: 1px solid #4a5568;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            border: 1px solid #2d3646;
+            position: relative;
         }
 
-        h2 {
-            color: white;
-            margin-top: 0;
-            font-size: 1.2rem;
+        /* Título e Botão Fechar */
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 20px;
         }
 
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: #718096;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-btn:hover { color: #fff; }
+
         /* =========================================
-           ESTILOS DO COMPONENTE DE UPLOAD
+           SEÇÃO: CATÁLOGO RÁPIDO (Caixa Azul)
+           ========================================= */
+        .catalog-box {
+            background-color: #1a2744; /* Azul escuro fundo */
+            border: 1px solid #2b4c80;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .catalog-label {
+            color: #4299e1; /* Azul claro do texto */
+            font-size: 0.8rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .catalog-select {
+            width: 100%;
+            padding: 10px;
+            background-color: #2d3748;
+            border: 1px solid #4a5568;
+            border-radius: 6px;
+            color: white;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* =========================================
+           SEÇÃO: UPLOAD DE IMAGEM (A lógica principal)
            ========================================= */
         .upload-area {
             width: 100%;
-            height: 220px;
-            background-color: #4a5568; /* Fundo da área de upload */
-            border-radius: 8px;
-            position: relative; /* Importante para o posicionamento absoluto dos filhos */
-            overflow: hidden;   /* Garante que a imagem não saia da borda arredondada */
+            height: 200px;
+            background-color: #2d3340; /* Fundo cinza da área de upload */
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            border: 2px dashed #718096;
+            margin-bottom: 25px;
+            border: 2px dashed #4a5568; /* Borda tracejada inicial */
             transition: all 0.3s ease;
-            box-sizing: border-box;
         }
 
         .upload-area:hover {
-            border-color: #63b3ed; /* Azul claro ao passar o mouse */
-            background-color: #536175;
+            border-color: #63b3ed;
+            background-color: #323a4b;
         }
 
-        /* Quando tem imagem, a borda fica sólida */
+        /* Quando tem imagem */
         .upload-area.has-image {
             border-style: solid;
-            border-color: transparent;
+            border-color: transparent; /* Remove a borda visível */
         }
 
-        /* --- Placeholder (Texto e Ícone) --- */
+        /* Placeholder (Texto "Imagem da Capa") */
         .placeholder {
             text-align: center;
-            color: #cbd5e0;
+            color: #718096;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            pointer-events: none; /* O clique passa direto para a div pai */
+            pointer-events: none;
         }
 
-        .placeholder svg {
-            width: 48px;
-            height: 48px;
-            fill: #a0aec0;
-        }
+        .placeholder svg { width: 40px; height: 40px; fill: #718096; }
+        .placeholder span { font-weight: bold; font-size: 0.85rem; text-transform: uppercase;}
 
-        .placeholder span {
-            font-size: 0.9rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-        }
-
-        /* --- Imagem de Preview --- */
+        /* Imagem Preview */
         .img-preview {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Cobre toda a área sem distorcer */
+            object-fit: cover;
             position: absolute;
             top: 0;
             left: 0;
-            display: none; /* Oculta por padrão */
+            display: none;
         }
 
-        /* --- Camada de Ações (Overlay) --- */
+        /* Overlay com botões (Inicialmente invisível) */
         .actions-overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(26, 32, 44, 0.85); /* Fundo escuro semi-transparente */
+            background: rgba(20, 25, 35, 0.85); /* Fundo escuro transparente */
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            
-            /* Lógica de Visibilidade */
+            gap: 12px;
             opacity: 0;
-            pointer-events: none; /* Não clica quando invisível */
+            pointer-events: none;
             transition: opacity 0.3s ease;
         }
 
-        /* REGRA MÁGICA: Só mostra o overlay se tiver a classe .has-image E o mouse estiver em cima */
+        /* Lógica do Hover: Só mostra se tiver imagem E mouse em cima */
         .upload-area.has-image:hover .actions-overlay {
             opacity: 1;
             pointer-events: all;
         }
 
-        /* --- Botões --- */
-        .btn {
+        /* Botões do Overlay */
+        .btn-action {
             border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
+            padding: 8px 16px;
+            border-radius: 5px;
             cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            width: 130px;
             display: flex;
             align-items: center;
-            gap: 8px;
-            width: 140px;
             justify-content: center;
-            transition: transform 0.1s, background 0.2s;
+            gap: 8px;
+            transition: transform 0.1s, filter 0.2s;
         }
+        .btn-action:active { transform: scale(0.96); }
 
-        .btn:active {
-            transform: scale(0.98);
-        }
-
-        .btn-replace {
-            background-color: #3182ce; /* Azul */
-            color: white;
-        }
+        .btn-replace { background-color: #3182ce; color: white; }
         .btn-replace:hover { background-color: #2b6cb0; }
 
-        .btn-delete {
-            background-color: #e53e3e; /* Vermelho */
-            color: white;
-        }
+        .btn-delete { background-color: #e53e3e; color: white; }
         .btn-delete:hover { background-color: #c53030; }
+
+
+        /* =========================================
+           SEÇÃO: INPUTS DE TEXTO
+           ========================================= */
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            color: #a0aec0;
+            font-weight: 700;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .input-text {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #4a5568;
+            padding: 8px 0;
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+
+        .input-text:focus {
+            border-bottom-color: #63b3ed;
+        }
 
     </style>
 </head>
 <body>
 
-    <div class="modal-simulation">
-        <h2>Imagem da Capa</h2>
+    <div class="modal-container">
+        
+        <div class="modal-header">
+            <h2>Novo Programa</h2>
+            <button class="close-btn">&times;</button>
+        </div>
+
+        <div class="catalog-box">
+            <div class="catalog-label">
+                <span>⚡</span> Catálogo Rápido
+            </div>
+            <select class="catalog-select">
+                <option>-- Selecione para preencher --</option>
+                <option>Programa Manhã</option>
+                <option>Programa Tarde</option>
+            </select>
+        </div>
 
         <div class="upload-area" id="uploadArea">
-            
             <input type="file" id="fileInput" accept="image/*" hidden>
 
             <div class="placeholder" id="placeholder">
-                <svg viewBox="0 0 24 24">
-                    <path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/>
-                </svg>
-                <span>SELECIONAR IMAGEM</span>
+                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zm-5.04-6.71l-2.75 3.54-1.96-2.36L6.5 17h11l-3.54-4.71z"/></svg>
+                <span>IMAGEM DA CAPA</span>
             </div>
 
-            <img src="" alt="Preview" class="img-preview" id="imgPreview">
+            <img src="" alt="Capa" class="img-preview" id="imgPreview">
 
-            <div class="actions-overlay" id="actionsOverlay">
-                <button type="button" class="btn btn-replace" id="btnReplace">
-                    🔄 Substituir
-                </button>
-                <button type="button" class="btn btn-delete" id="btnDelete">
-                    🗑️ Excluir
-                </button>
+            <div class="actions-overlay">
+                <button type="button" class="btn-action btn-replace" id="btnReplace">🔄 Substituir</button>
+                <button type="button" class="btn-action btn-delete" id="btnDelete">🗑️ Excluir</button>
             </div>
-
         </div>
+
+        <div class="input-group">
+            <label>Nome do Programa</label>
+            <input type="text" class="input-text" placeholder="Digite o nome...">
+        </div>
+
+        <div class="input-group">
+            <label>Subtítulo / Edição</label>
+            <input type="text" class="input-text" placeholder="Digite o subtítulo...">
+        </div>
+
     </div>
 
     <script>
-        // Seleção dos Elementos
         const uploadArea = document.getElementById('uploadArea');
         const fileInput = document.getElementById('fileInput');
         const imgPreview = document.getElementById('imgPreview');
@@ -197,56 +287,44 @@
         const btnReplace = document.getElementById('btnReplace');
         const btnDelete = document.getElementById('btnDelete');
 
-        // 1. Clique na área principal (apenas se não tiver imagem ainda)
+        // 1. Clique principal (abre seleção se estiver vazio)
         uploadArea.addEventListener('click', () => {
             if (!uploadArea.classList.contains('has-image')) {
                 fileInput.click();
             }
         });
 
-        // 2. Quando o usuário seleciona um arquivo
-        fileInput.addEventListener('change', function(event) {
-            const file = event.target.files[0];
-
+        // 2. Quando o arquivo é selecionado
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
             if (file) {
                 const reader = new FileReader();
-
-                reader.onload = function(e) {
-                    // Atualiza o src da imagem
-                    imgPreview.src = e.target.result;
-                    imgPreview.style.display = 'block'; // Mostra a imagem
-                    
-                    // Esconde o placeholder
+                reader.onload = function(evt) {
+                    imgPreview.src = evt.target.result;
+                    imgPreview.style.display = 'block';
                     placeholder.style.display = 'none';
-
-                    // Adiciona estado de "com imagem" para ativar o hover CSS
-                    uploadArea.classList.add('has-image');
+                    uploadArea.classList.add('has-image'); // Ativa o hover dos botões
                 }
-
                 reader.readAsDataURL(file);
             }
         });
 
-        // 3. Botão Substituir
+        // 3. Botão Substituir (apenas reabre o input)
         btnReplace.addEventListener('click', (e) => {
-            e.stopPropagation(); // Impede que o clique suba para o container pai
-            fileInput.click();   // Reabre a janela de arquivos
+            e.stopPropagation(); // Evita conflitos
+            fileInput.click();
         });
 
-        // 4. Botão Excluir
+        // 4. Botão Excluir (Limpa tudo)
         btnDelete.addEventListener('click', (e) => {
-            e.stopPropagation(); // Impede conflitos
-            
-            // Reseta tudo
-            fileInput.value = '';             // Limpa o input
-            imgPreview.src = '';              // Limpa o src
-            imgPreview.style.display = 'none'; // Esconde a tag img
-            
-            placeholder.style.display = 'flex'; // Volta o texto inicial
-            
-            uploadArea.classList.remove('has-image'); // Remove o estado (desativa o hover do overlay)
+            e.stopPropagation(); // Evita conflitos
+            fileInput.value = '';
+            imgPreview.src = '';
+            imgPreview.style.display = 'none';
+            placeholder.style.display = 'flex';
+            uploadArea.classList.remove('has-image'); // Desativa o hover dos botões
         });
-
     </script>
+
 </body>
 </html>
