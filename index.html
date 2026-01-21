@@ -32,7 +32,7 @@
         .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); }
         .status-radio:checked + div { ring-2 ring-offset-2 ring-offset-white dark:ring-offset-gray-800; transform: scale(1.05); }
 
-        /* --- ESTILOS GERAIS DE UPLOAD --- */
+        /* --- ESTILOS PARA O UPLOAD COM HOVER (MODAL PRINCIPAL) --- */
         .actions-overlay {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(15, 23, 42, 0.85);
@@ -40,9 +40,13 @@
             opacity: 0; pointer-events: none; transition: opacity 0.3s ease; border-radius: 0.5rem;
             z-index: 10;
         }
-        .has-image:hover .actions-overlay { opacity: 1; pointer-events: all; }
-        .has-image { border-style: solid !important; border-color: transparent !important; }
+        #upload-area-pc.has-image:hover .actions-overlay { opacity: 1; pointer-events: all; }
+        #upload-area-pc.has-image { border-style: solid; border-color: transparent; }
 
+        /* --- ESTILOS PARA O UPLOAD NO ADMIN --- */
+        #admin-cat-area.has-image .admin-overlay { opacity: 0; transition: opacity 0.2s; }
+        #admin-cat-area.has-image:hover .admin-overlay { opacity: 1; pointer-events: all; background: rgba(0,0,0,0.7); }
+        
         .btn-action {
             border: none; padding: 6px 12px; border-radius: 6px; cursor: pointer;
             font-weight: 600; font-size: 0.75rem; width: 100px; display: flex; align-items: center; justify-content: center; gap: 6px;
@@ -308,17 +312,15 @@
                                         
                                         <input type="file" id="admin-cat-file" class="hidden" accept="image/*" onchange="window.previewCatalogo(this)">
                                         <input type="hidden" id="admin-cat-current-img">
-                                        <input type="hidden" id="admin-cat-id">
-                                        
-                                        <img id="admin-cat-img" class="absolute inset-0 w-full h-full object-cover hidden">
+                                        <input type="hidden" id="admin-cat-id"> <img id="admin-cat-img" class="absolute inset-0 w-full h-full object-cover hidden">
                                         
                                         <div id="admin-cat-placeholder" class="text-center pointer-events-none">
                                             <i class="fas fa-image text-gray-400"></i>
                                             <p class="text-[8px] text-gray-400 font-bold uppercase mt-1">Capa</p>
                                         </div>
 
-                                        <div class="actions-overlay">
-                                            <button type="button" class="btn-action btn-replace" onclick="event.stopPropagation(); document.getElementById('admin-cat-file').click()">🔄 TROCAR FOTO</button>
+                                        <div class="admin-overlay absolute inset-0 bg-black/80 flex flex-col items-center justify-center gap-1 opacity-0 pointer-events-none transition-opacity">
+                                            <button onclick="event.stopPropagation(); document.getElementById('admin-cat-file').click()" class="text-[8px] bg-blue-500 text-white px-2 py-1 rounded font-bold uppercase">Substituir</button>
                                         </div>
                                     </div>
 
@@ -444,9 +446,9 @@
         const dateInput = document.getElementById('data-selector');
         if(dateInput) { dateInput.value = dataSelecionada; dateInput.addEventListener('change', (e) => mudarData(e.target.value)); }
 
-        // --- LÓGICA DO CATÁLOGO RÁPIDO ---
+        // --- LÓGICA DO CATÁLOGO RÁPIDO (FIREBASE) ---
         
-        // 1. Carrega o catálogo (Com botão Editar e Excluir)
+        // 1. Carrega o catálogo (Com botão Editar)
         const carregarCatalogoAdmin = () => {
             onValue(refCatalogo, (snapshot) => {
                 const itens = snapshot.val();
@@ -457,9 +459,9 @@
                 if(itens) {
                     Object.keys(itens).forEach(key => {
                         const item = itens[key];
-                        // Tratamento para evitar erro com aspas no HTML
+                        // Usando escape para evitar erro com aspas no HTML
                         const tituloSafe = item.titulo.replace(/'/g, "\\'");
-                        const capaSafe = item.capa; 
+                        const capaSafe = item.capa; // Base64 geralmente é seguro, mas cuidado com tamanho
 
                         container.innerHTML += `
                         <div class="relative group bg-gray-50 dark:bg-dark-700 rounded-lg overflow-hidden border dark:border-gray-600">
@@ -480,7 +482,7 @@
             });
         };
 
-        // 2. Preview na área de Admin (Ao selecionar arquivo)
+        // 2. Preview na área de Admin (Com hover)
         window.previewCatalogo = (input) => {
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
@@ -488,27 +490,27 @@
                     document.getElementById('admin-cat-img').src = e.target.result;
                     document.getElementById('admin-cat-img').classList.remove('hidden');
                     document.getElementById('admin-cat-placeholder').classList.add('hidden');
-                    document.getElementById('admin-cat-area').classList.add('has-image'); // Ativa hover
-                    document.getElementById('admin-cat-current-img').value = e.target.result;
+                    document.getElementById('admin-cat-area').classList.add('has-image');
+                    document.getElementById('admin-cat-current-img').value = e.target.result; // Armazena a nova
                 };
                 reader.readAsDataURL(input.files[0]);
             }
         };
 
-        // 3. Preparar Edição (Clica no lápis)
+        // 3. Preparar Edição
         window.editarItemCatalogo = (key, titulo) => {
-            // Pega a imagem do input hidden do card
+            // Recupera a imagem do input hidden criado no card (para não passar string gigante na função)
             const imgData = document.getElementById(`cat-img-${key}`).value;
 
             document.getElementById('admin-cat-id').value = key;
             document.getElementById('admin-cat-nome').value = titulo;
             document.getElementById('admin-cat-current-img').value = imgData;
 
-            // Atualiza o Box de Preview
+            // Atualiza visual
             document.getElementById('admin-cat-img').src = imgData;
             document.getElementById('admin-cat-img').classList.remove('hidden');
             document.getElementById('admin-cat-placeholder').classList.add('hidden');
-            document.getElementById('admin-cat-area').classList.add('has-image'); // Ativa hover
+            document.getElementById('admin-cat-area').classList.add('has-image');
 
             // Muda botões
             document.getElementById('btn-save-cat').innerText = "ATUALIZAR";
@@ -525,9 +527,11 @@
             if(!imgAtual) return alert("Selecione uma imagem de capa.");
 
             if (id) {
+                // Atualizar
                 update(ref(db, `catalogo_rapido/${id}`), { titulo: nome, capa: imgAtual });
                 alert("Catálogo atualizado!");
             } else {
+                // Criar Novo
                 push(refCatalogo, { titulo: nome, capa: imgAtual });
                 alert("Programa adicionado!");
             }
@@ -736,4 +740,134 @@
         const deletar = () => { if(confirm('Tem certeza?')) { const id = document.getElementById('edit-id').value; const path = window.contextoGlobal === 'grade' ? `datas/${dataSelecionada}/programas/${id}` : `standby/${id}`; remove(ref(db, path)); logActivity('Excluiu', 'ID: ' + id); cancelar(); } };
         const mudarData = (novaData) => { dataSelecionada = novaData; document.getElementById('data-selector').value = dataSelecionada; carregarDadosData(dataSelecionada); carregarHistoricoPassagem(); };
 
-        const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem
+        const carregarHistoricoPassagem = () => { onValue(refDatas, (snapshot) => { const datas = snapshot.val(); const container = document.getElementById('lista-historico-passagem'); container.innerHTML = ''; if(!datas) return; const datasComRelatorio = Object.keys(datas).filter(key => datas[key].relatorio).sort((a,b) => b.localeCompare(a)); datasComRelatorio.forEach(data => { const dataFormatada = data.split('-').reverse().join('/'); const ativo = (data === dataSelecionada) ? "bg-orange-100 dark:bg-orange-900/30 border-orange-200 dark:border-orange-800 text-orange-700 dark:text-orange-300" : "bg-gray-50 dark:bg-dark-700 hover:bg-gray-100 dark:hover:bg-dark-600"; const qtd = datas[data].relatorio ? Object.keys(datas[data].relatorio).length : 0; container.innerHTML += `<div onclick="window.mudarData('${data}')" class="cursor-pointer p-3 rounded-xl border dark:border-gray-600 ${ativo} transition flex justify-between items-center group"><div><p class="font-bold text-xs">${dataFormatada}</p><p class="text-[10px] opacity-70 truncate w-32">${qtd} ocorrência(s)</p></div><i class="fas fa-chevron-right text-[10px] opacity-0 group-hover:opacity-100 transition"></i></div>`; }); }); }
+        
+        // --- FUNÇÃO ADMIN ---
+        const carregarAdminPanel = () => { 
+            if(localStorage.getItem('userRole') !== 'admin') return; 
+            carregarCatalogoAdmin();
+
+            onValue(refSolicitacoes, (snapshot) => { 
+                const s = snapshot.val(); 
+                const container = document.getElementById('lista-solicitacoes'); 
+                const notif = document.getElementById('notificacao-admin'); 
+                container.innerHTML = ''; 
+                if(s) { 
+                    notif.classList.remove('hidden'); 
+                    Object.keys(s).forEach(key => { 
+                        const item = s[key]; 
+                        const tipoLabel = item.tipo === 'reset' ? 'Redefinir Senha' : 'Novo Acesso'; 
+                        container.innerHTML += `<div class="bg-gray-50 dark:bg-dark-700 p-3 rounded-lg text-xs flex justify-between items-start gap-2"><div><p class="font-bold text-orange-500">${tipoLabel}</p><p class="font-bold">${item.nome}</p><p class="text-gray-400">${item.contato}</p><p class="mt-1 italic">"${item.obs}"</p></div><div class="flex flex-col gap-1"><button onclick="window.aprovarSolicitacao('${key}', '${item.nome}', '${item.contato}')" class="bg-green-100 text-green-600 hover:bg-green-200 p-1 px-2 rounded font-bold" title="Aprovar">Aprovar</button><button onclick="window.reprovarSolicitacao('${key}')" class="bg-red-100 text-red-600 hover:bg-red-200 p-1 px-2 rounded font-bold" title="Reprovar">Reprovar</button></div></div>`; 
+                    }); 
+                } else { notif.classList.add('hidden'); container.innerHTML = '<p class="text-xs text-gray-400 italic">Nenhuma solicitação pendente.</p>'; } 
+            }); 
+            
+            onValue(refUsers, (snapshot) => { 
+                const users = snapshot.val(); 
+                const tbody = document.getElementById('lista-usuarios'); 
+                tbody.innerHTML = ''; 
+                if(users) { 
+                    Object.keys(users).forEach(key => { 
+                        const u = users[key]; 
+                        const roleLabel = u.role === 'admin' ? '<span class="bg-red-100 text-red-600 px-2 py-0.5 rounded-full text-xs font-bold">Admin</span>' : '<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full text-xs font-bold">Usuário</span>'; 
+                        tbody.innerHTML += `
+                        <tr class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                            <td class="px-2 py-3 font-bold">${u.nome}</td><td class="px-2 py-3">${u.login}</td><td class="px-2 py-3">${roleLabel}</td>
+                            <td class="px-2 py-3 text-right flex justify-end gap-2">
+                                <button onclick="window.editarUsuario('${key}', '${u.nome}', '${u.login}', '${u.role}')" class="text-blue-500 hover:text-blue-600 p-1" title="Editar"><i class="fas fa-pencil-alt"></i></button>
+                                <button onclick="window.resetarSenhaUsuario('${key}', '${u.nome}')" class="text-yellow-500 hover:text-yellow-600 p-1" title="Resetar Senha"><i class="fas fa-key"></i></button>
+                                <button onclick="window.removerUsuario('${key}')" class="text-red-500 hover:text-red-600 p-1" title="Excluir"><i class="fas fa-trash"></i></button>
+                            </td>
+                        </tr>`; 
+                    }); 
+                } 
+            }); 
+            
+            onValue(refLogs, (snapshot) => { const logs = snapshot.val(); const container = document.getElementById('lista-logs'); container.innerHTML = ''; if(logs) { Object.values(logs).reverse().forEach(l => { container.innerHTML += `<div class="text-xs border-l-2 border-gray-300 pl-2 py-1"><p class="font-bold dark:text-gray-300">${l.acao} <span class="font-normal text-gray-400">- ${new Date(l.data).toLocaleTimeString()}</span></p><p class="text-gray-500">${l.usuario}: ${l.detalhe}</p></div>`; }); } }); 
+        }
+
+        // --- CRUD E GESTÃO GLOBAL ---
+        window.abrirCriacao = abrirCriacao; window.cancelar = cancelar; window.previewCapa = previewCapa; window.deletar = deletar; window.mudarData = mudarData; window.aprovarSolicitacao = (id, nome, contato) => { const senhaPadrao = "1234"; if(confirm(`Aprovar acesso para ${nome}?\nLogin: ${contato}\nSenha padrão: ${senhaPadrao}`)) { push(refUsers, { nome: nome, login: contato, senha: senhaPadrao, role: "user", forceReset: true }); remove(ref(db, `solicitacoes/${id}`)); logActivity('Aprovou Solicitação', nome); window.enviarEmailNotificacao(nome, contato, senhaPadrao); } }; window.reprovarSolicitacao = (id) => { if(confirm('Reprovar pedido?')) { remove(ref(db, `solicitacoes/${id}`)); logActivity('Reprovou Solicitação', 'ID: ' + id); } }; window.abrirSolicitacao = (tipo) => { document.getElementById('modal-solicitacao').classList.remove('hidden'); document.getElementById('tipo-solicitacao').value = tipo; document.getElementById('titulo-solicitacao').innerText = tipo === 'reset' ? 'Redefinir Senha' : 'Novo Usuário'; document.getElementById('form-solicitacao').reset(); }; window.fecharSolicitacao = () => document.getElementById('modal-solicitacao').classList.add('hidden'); 
+        
+        window.editarUsuario = (id, nome, login, role) => { document.getElementById('container-senha').classList.add('hidden'); document.getElementById('admin-user-id').value = id; document.getElementById('admin-nome').value = nome; document.getElementById('admin-login').value = login; document.getElementById('admin-role').value = role; }; 
+        window.limparFormAdmin = () => { document.getElementById('formUsuario').reset(); document.getElementById('admin-user-id').value = ""; document.getElementById('container-senha').classList.remove('hidden'); };
+        window.resetarSenhaUsuario = (id, nome) => { const senhaPadrao = "mudar123"; if(confirm(`Tem certeza que deseja resetar a senha de ${nome}?\n\nA nova senha será: ${senhaPadrao}\nO usuário será obrigado a trocá-la no próximo login.`)) { update(ref(db, `users/${id}`), { senha: senhaPadrao, forceReset: true }); logActivity('Resetar Senha', `Usuário: ${nome}`); alert('Senha resetada com sucesso!'); } };
+        window.removerUsuario = (id) => { if(confirm('Remover usuário?')) { remove(ref(db, `users/${id}`)); logActivity('Remover Usuário', id); } }; 
+        window.enviarNota = () => { const txt = document.getElementById('texto-passagem').value.trim(); const editingId = document.getElementById('note-id-editing').value; const currentUser = localStorage.getItem('userName'); if(!txt) return; if (editingId) { update(ref(db, `datas/${dataSelecionada}/relatorio/${editingId}`), { texto: txt, editadoEm: new Date().toISOString() }); alert("Nota atualizada!"); } else { push(ref(db, `datas/${dataSelecionada}/relatorio`), { texto: txt, autor: currentUser, timestamp: new Date().toISOString() }); } document.getElementById('texto-passagem').value = ''; window.cancelarEdicaoNota(); }; window.prepararEdicaoNota = (id, textoEncoded) => { document.getElementById('texto-passagem').value = decodeURIComponent(textoEncoded); document.getElementById('note-id-editing').value = id; document.getElementById('btn-cancel-note').classList.remove('hidden'); document.getElementById('texto-passagem').focus(); }; window.cancelarEdicaoNota = () => { document.getElementById('note-id-editing').value = ''; document.getElementById('texto-passagem').value = ''; document.getElementById('btn-cancel-note').classList.add('hidden'); }; window.excluirNota = (id) => { if(confirm("Excluir esta nota?")) remove(ref(db, `datas/${dataSelecionada}/relatorio/${id}`)); }; window.abrirModal = () => document.getElementById('modal-foto').classList.remove('hidden'); window.fecharModal = () => document.getElementById('modal-foto').classList.add('hidden'); window.uploadFotoPerfil = (input) => { if (input.files[0]) { const reader = new FileReader(); reader.onload = (e) => salvarFotoLocal(e.target.result); reader.readAsDataURL(input.files[0]); } };
+        window.removerLink = (id) => { if(confirm('Remover link?')) remove(ref(db, `links/${id}`)); };
+
+        const salvarFotoLocal = (url) => { localStorage.setItem('userAvatar', url); carregarFotoLocal(); window.fecharModal(); }
+        const carregarFotoLocal = () => { const url = localStorage.getItem('userAvatar'); if(url) { document.getElementById('profile-img').src = url; document.getElementById('profile-img-small').src = url; } }
+        
+        window.navegar = (tela) => {
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            document.getElementById('screen-grade').classList.add('hidden');
+            document.getElementById('screen-standby').classList.add('hidden');
+            document.getElementById('screen-passagem').classList.add('hidden');
+            document.getElementById('screen-admin').classList.add('hidden');
+            document.getElementById('screen-links').classList.add('hidden'); 
+            document.getElementById('layout-programacao').classList.add('hidden');
+            document.getElementById('date-picker-wrapper').classList.add('hidden');
+            window.cancelar(); 
+
+            if(tela === 'grade') {
+                document.getElementById('nav-grade').classList.add('active');
+                document.getElementById('layout-programacao').classList.remove('hidden');
+                document.getElementById('screen-grade').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = '<i class="fas fa-circle text-[8px] text-green-500 mr-2 animate-pulse"></i> Grade';
+                document.getElementById('date-picker-wrapper').classList.remove('hidden');
+                window.contextoGlobal = 'grade'; 
+            } else if (tela === 'standby') {
+                document.getElementById('nav-standby').classList.add('active');
+                document.getElementById('layout-programacao').classList.remove('hidden');
+                document.getElementById('screen-standby').classList.remove('hidden');
+                document.getElementById('header-title').innerHTML = 'Stand-By';
+                window.contextoGlobal = 'standby'; 
+            } else if (tela === 'passagem') { document.getElementById('nav-passagem').classList.add('active'); document.getElementById('screen-passagem').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Passagem de Serviço';
+            } else if (tela === 'admin') { document.getElementById('nav-admin').classList.add('active'); document.getElementById('screen-admin').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Administração';
+            } else if (tela === 'links') { document.getElementById('nav-links').classList.add('active'); document.getElementById('screen-links').classList.remove('hidden'); document.getElementById('header-title').innerHTML = 'Links Úteis'; }
+        }
+
+        window.toggleTheme = () => { document.documentElement.classList.toggle('dark'); localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light'); document.getElementById('theme-icon').className = document.documentElement.classList.contains('dark') ? 'fas fa-sun' : 'fas fa-moon'; }
+
+        const aplicarPermissoes = () => {
+            const role = localStorage.getItem('userRole'); const isAdmin = (role === 'admin'); const navAdmin = document.getElementById('nav-admin'); const badge = document.getElementById('badge-cargo');
+            if(isAdmin) { if(navAdmin) navAdmin.classList.remove('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-red-100 text-red-600"; badge.innerText = "Administrador"; } } 
+            else { if(navAdmin) navAdmin.classList.add('hidden'); if(badge) { badge.className = "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase mt-1 bg-blue-100 text-blue-600"; badge.innerText = "Usuário"; } }
+        }
+
+        const verificarSessao = () => { if (localStorage.getItem('theme') === 'dark') { document.documentElement.classList.add('dark'); document.getElementById('theme-icon').className = 'fas fa-sun'; } if (localStorage.getItem('session_active') === 'true') { document.getElementById('tela-login').classList.add('hidden'); document.getElementById('main-layout').classList.remove('hidden'); if(document.getElementById('display-nome')) { document.getElementById('display-nome').innerText = localStorage.getItem('userName'); } carregarFotoLocal(); aplicarPermissoes(); } }
+        window.logout = () => { localStorage.removeItem('session_active'); localStorage.removeItem('userRole'); localStorage.removeItem('userName'); location.reload(); }
+
+        // LISTENERS DE FORMULÁRIO
+        document.getElementById('form-login').addEventListener('submit', async (e) => { e.preventDefault(); const loginInput = document.getElementById('login-user').value; const senhaInput = document.getElementById('login-senha').value; const snapshotUsers = await get(refUsers); if (!snapshotUsers.exists() && loginInput === 'admin' && senhaInput === 'admin') { push(refUsers, { nome: "Administrador", login: "admin", senha: "admin", role: "admin", forceReset: false }); localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', 'Administrador'); localStorage.setItem('userRole', 'admin'); location.reload(); return; } let userFound = null; let userKey = null; if (snapshotUsers.exists()) { snapshotUsers.forEach((child) => { const u = child.val(); if (u.login === loginInput && u.senha === senhaInput) { userFound = u; userKey = child.key; } }); } if (userFound) { if(userFound.forceReset === true) { document.getElementById('modal-force-reset').classList.remove('hidden'); document.getElementById('reset-user-id').value = userKey; return; } localStorage.setItem('session_active', 'true'); localStorage.setItem('userName', userFound.nome); localStorage.setItem('userRole', userFound.role); location.reload(); } else { document.getElementById('login-erro').classList.remove('hidden'); } });
+        document.getElementById('form-force-reset').addEventListener('submit', async (e) => { e.preventDefault(); const id = document.getElementById('reset-user-id').value; const s1 = document.getElementById('nova-senha-1').value; const s2 = document.getElementById('nova-senha-2').value; if(s1 !== s2) { alert("Senhas não coincidem!"); return; } if(s1.length < 4) { alert("Senha curta!"); return; } await update(ref(db, `users/${id}`), { senha: s1, forceReset: false }); alert("Senha atualizada! Faça login."); location.reload(); });
+        
+        document.getElementById('formCadastro').addEventListener('submit', (e) => { 
+            e.preventDefault(); 
+            const id = document.getElementById('edit-id').value; 
+            const blocosChecked = Array.from(document.querySelectorAll('input[name="blocos"]:checked')).map(cb => cb.value).join(' '); 
+            const xdChecked = Array.from(document.querySelectorAll('input[name="xd"]:checked')).map(cb => cb.value).join(' '); 
+            const statusChecked = document.querySelector('input[name="status"]:checked').value; 
+            
+            const dados = { 
+                titulo: document.getElementById('in-titulo').value, 
+                subtitulo: document.getElementById('in-sub').value, 
+                versao: document.getElementById('in-versao').value, 
+                obs: document.getElementById('in-obs').value,
+                tags: blocosChecked, 
+                xd: xdChecked, 
+                status: statusChecked, 
+                capa: document.getElementById('in-cover-base64').value, 
+                autor: localStorage.getItem('userName') 
+            }; 
+            
+            let dbRef; 
+            if (window.contextoGlobal === 'grade') { dbRef = id ? ref(db, `datas/${dataSelecionada}/programas/${id}`) : ref(db, `datas/${dataSelecionada}/programas`); } else { dbRef = id ? ref(db, `standby/${id}`) : ref(db, `standby`); } 
+            
+            if (id) { update(dbRef, dados); logActivity('Editou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } else { dados.ordem = 999; push(dbRef, dados); logActivity('Criou', dados.titulo + (window.contextoGlobal === 'standby' ? ' (SB)' : '')); } 
+            cancelar(); 
+        });
+
+        document.getElementById('form-solicitacao').addEventListener('submit', (e) => { e.preventDefault(); const dados = { tipo: document.getElementById('tipo-solicitacao').value, nome: document.getElementById('solic-nome').value, contato: document.getElementById('solic-contato').value, obs: document.getElementById('solic-obs').value, data: new Date().toISOString() }; push(refSolicitacoes, dados); alert("Solicitação enviada!"); window.fecharSolicitacao(); });
+        document.getElementById('formUsuario').addEventListener('submit', (e) => { e.preventDefault(); const id = document.getElementById('admin-user-id').value; const nome = document.getElementById('admin-nome').value; const login = document.getElementById('admin-login').value; const role = document.getElementById('admin-role').value; const senhaInicial = document.getElementById('admin-senha').value; const
