@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Serviço Descontinuado</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0f172a; /* Fundo escuro moderno */
+            color: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            background: #1e293b;
+            padding: 40px 50px;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            max-width: 500px;
+            width: 90%;
+            border-top: 4px solid #3b82f6; /* Detalhe em azul no topo */
+        }
+
+        .icon-container {
+            font-size: 60px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+
+        h1 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 15px;
+            line-height: 1.3;
+        }
+
+        p {
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .btn {
+            display: inline-block;
+            background-color: #3b82f6;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+            width: 100%;
+        }
+
+        .btn:hover {
+            background-color: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .footer-text {
+            margin-top: 25px;
+            font-size: 13px;
+            color: #64748b;
+        }
+
+        .highlight {
+            color: #3b82f6;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="icon-container">🔌</div>
+        
+        <h1>Infelizmente fui descontinuado...</h1>
+        
+        <p>Mas não fique triste! O sistema evoluiu e agora estou operando em um novo servidor, muito mais rápido e moderno.</p>
+        
+        <a href="http://10.193.56.24:3000/login.html" class="btn">Acessar o Novo Site Agora</a>
+        
+        <div class="footer-text">
+            Redirecionamento automático em <span id="contador" class="highlight">30</span> segundos.
+        </div>
+    </div>
+
+    <script>
+        // Script para fazer o redirecionamento automático
+        let tempoRestante = 30;
+        const elementoContador = document.getElementById('contador');
+        const urlDestino = 'http://10.193.56.24:3000/login.html';
+
+        const intervalo = setInterval(() => {
+            tempoRestante--;
+            elementoContador.textContent = tempoRestante;
+
+            if (tempoRestante <= 0) {
+                clearInterval(intervalo);
+                window.location.href = urlDestino;
+            }
+        }, 1000);
+    </script>
+
+</body>
+</html>
